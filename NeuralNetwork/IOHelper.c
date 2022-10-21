@@ -66,22 +66,19 @@ void LoadData(NNParam *param) {
 	//char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
-	if (sscanf_s(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
+	if (sscanf(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
 		printf("Could not read amount of samples in filename; Exiting...\n");
 		exit(1);
 	}
-	if (sscanf_s(param->validationFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesValidate) != 1) {
+	if (sscanf(param->validationFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesValidate) != 1) {
 		printf("Could not read amount of samples in filename; Exiting...\n");
 		exit(1);
 	}
 
 	FILE *fptr1, *fptr2;
 
-	int err;
-	char errbuf[64];
-	if ((err = fopen_s(&fptr1, param->trainingFile, "rb")) != 0){
-		strerror_s(errbuf,sizeof(errbuf), err);
-		fprintf(stderr, "Cannot open file '%s': %s\n", param->trainingFile, errbuf);
+	if ((fptr1 = fopen(param->trainingFile, "rb")) == NULL){
+		fprintf(stderr, "Cannot open file '%s'\n", param->trainingFile);
 		exit(1);
 	}
 	param->toLoopTrain = min(SamplesTrain, param->toLoopTrain);
@@ -102,9 +99,8 @@ void LoadData(NNParam *param) {
 	}
 	fclose(fptr1);
 
-	if ((err = fopen_s(&fptr2, param->validationFile, "rb")) != 0){
-		strerror_s(errbuf,sizeof(errbuf), err);
-		fprintf(stderr, "Cannot open file '%s': %s\n", param->validationFile, errbuf);
+	if ((fptr2 = fopen(param->validationFile, "rb")) == NULL){
+		fprintf(stderr, "Cannot open file '%s'\n", param->validationFile);
 		exit(1);
 	}
 	param->toLoopValidate = min(SamplesValidate, param->toLoopValidate);
@@ -198,18 +194,15 @@ void OverfitLoad(NNParam *param)
 	//char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
-	if (sscanf_s(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
+	if (sscanf(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
 		printf("Could not read amount of samples in filename; Exiting...\n");
 		exit(1);
 	}
 
-	FILE *fptr1, *fptr2;
+	FILE *fptr1;
 
-	int err;
-	char errbuf[64];
-	if ((err = fopen_s(&fptr1, param->trainingFile, "rb")) != 0){
-		strerror_s(errbuf,sizeof(errbuf), err);
-		fprintf(stderr, "Cannot open file '%s': %s\n", param->trainingFile, errbuf);
+	if ((fptr1 = fopen(param->trainingFile, "rb")) == NULL){
+		fprintf(stderr, "Cannot open file '%s'\n", param->trainingFile);
 		exit(1);
 	}
 	param->toLoopTrain = min(SamplesTrain, param->toLoopTrain);

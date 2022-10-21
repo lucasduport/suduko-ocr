@@ -25,17 +25,14 @@ void Network_Wire(Network *net) {
 }
 
 void Network_Load(Network *net, char path[]) {
-	if (sscanf_s(path, "%*[^_]%*[_]%u", &net->nbLayers) != 1) {
+	if (sscanf(path, "%*[^_]%*[_]%u", &net->nbLayers) != 1) {
 		printf("Could not read amount of layer in filename; Exiting...\n");
 		exit(1);
 	}
 	Network_Init(net, net->nbLayers);
 	FILE *fptr;
-	int err;
-	char errbuf[64];
-	if ((err = fopen_s(&fptr, path, "rb")) != 0){
-		strerror_s(errbuf,sizeof(errbuf), err);
-		fprintf(stderr, "Cannot open file '%s': %s\n", path, errbuf);
+	if ((fptr = fopen(path, "rb")) == NULL){
+		fprintf(stderr, "Cannot open file '%s'\n", path);
 		exit(1);
 	}
 	Layer layer, *lSave = NULL;
@@ -77,14 +74,13 @@ void Network_Save(Network *net, char name[]) {
 
 	if (name == NULL) {
         printf("\nNeural Network Name : ");
-        scanf_s("%s", NNName, sizeof(NNName));
+        scanf("%s", NNName);
 	}
 	snprintf(filename, 64, "TrainedNetwork\\NeuralNetData_%ulayers_%s.dnn",
 			net->currentLayer, name == NULL ? NNName : name);
-	if ((err = fopen_s(&fptr, filename, "wb")) != 0){
-		strerror_s(errbuf,sizeof(errbuf), err);
-		fprintf(stderr, "Cannot open file '%s': %s\n", filename, errbuf);
-       exit(1);
+	if ((fptr = fopen(filename, "wb")) == NULL){
+		fprintf(stderr, "Cannot open file '%s'\n", filename);
+       		exit(1);
 	}
 
 	for(Layer *l=net->layers; l<net->layers+net->nbLayers; l++) {

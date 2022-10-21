@@ -8,7 +8,7 @@
 static void matchParams(NNParam *origin, char *line)
 {
     char field[30], value[30];
-    sscanf_s(line, "%s = %s", field, 30, value, 30);
+    sscanf(line, "%s = %s", field, value);
 
     if (!strcmp(field, "hiddenN"))
         origin->hiddenN = (ui)strtol(value, NULL, 10);
@@ -28,7 +28,7 @@ static void matchParams(NNParam *origin, char *line)
         origin->l2Norm = (ld)strtod(value, NULL);
     else if (!strcmp(field, "cost_func")) {
         origin->cost_func = (char*)malloc(sizeof(char)*(strlen(value)+1));
-        strcpy_s(origin->cost_func, strlen(value)+1, value);
+        strcpy(origin->cost_func, value);
     }
     else if (!strcmp(field, "optimizer")) {
         origin->optimizer = !strcmp(value, "true") ?
@@ -38,24 +38,25 @@ static void matchParams(NNParam *origin, char *line)
         origin->track = !strcmp(value, "true") ? true : false;
     else if (!strcmp(field, "StatsFile")) {
         origin->StatsFile = (char*)malloc(sizeof(char)*(strlen(value)+1));
-        strcpy_s(origin->StatsFile, strlen(value)+1, value);
+        strcpy(origin->StatsFile, value);
     }
     else if (!strcmp(field, "NNName")) {
         origin->NNName = (char*)malloc(sizeof(char)*(strlen(value)+1));
-        strcpy_s(origin->NNName, strlen(value)+1, value);
+        strcpy(origin->NNName, value);
     }
     else if (!strcmp(field, "toExceed"))
         origin->toExceed = (ld)strtod(value, NULL);
 }
 
-int main(/*int argc, char *argv[]*/)
+int main(int argc, char *argv[])
 {
 
+	/*
     int argc = 3;
     char *argv[3] = {"TrainXOR", "TrainedNetwork/NN.cfg", "1000"};
 
 
-    /*
+    
     int argc = 4;
     char *argv[4] = {"PredictXOR",
                      "TrainedNetwork/NeuralNetData_3layers_XOR_100.0.dnn",
@@ -63,7 +64,7 @@ int main(/*int argc, char *argv[]*/)
                      "0"};
     */
 
-    //argc--; argv++;
+    argc--; argv++;
     srand((ui)time(NULL));
 
     if (argc < 1) {
@@ -98,11 +99,8 @@ int main(/*int argc, char *argv[]*/)
         }
 
         FILE *configFile = NULL;
-        int err;
-        char errbuf[127];
-        if ((err = fopen_s(&configFile, argv[1], "rb")) != 0){
-            strerror_s(errbuf,sizeof(errbuf), err);
-            fprintf(stderr, "Cannot open file '%s': %s\n", argv[1], errbuf);
+        if ((configFile = fopen(argv[1], "rb")) == NULL) {
+            fprintf(stderr, "Cannot open file '%s'\n", argv[1]);
             exit(1);
         }
 

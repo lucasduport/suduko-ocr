@@ -6,11 +6,11 @@
 #include "Tools.h"
 
 void relu(ld *input, ld *output, cui Size) {
-	for(ld *o=output, *i=input; o<output+Size; o++, i++) *o = max(.0L, *i);
+	for(ld *o=output, *i=input; o<output+Size; o++, i++) *o = fmaxl(.0L, *i);
 }
 
 void leakyrelu(ld *input, ld *output, cui Size) {
-	for (ui i=0; i<Size; i++) output[i] = max(.01 * input[i], input[i]);
+	for (ui i=0; i<Size; i++) output[i] = fmaxl(.01 * input[i], input[i]);
 }
 
 void selu(ld *input, ld *output, cui Size) {
@@ -32,7 +32,7 @@ void sigmoid(ld *input, ld *output, cui Size) {
 
 void softmax(ld *input, ld *output, cui Size) {
     ld Max = input[0];
-    for(ld *i=input; i<input+Size; i++) Max = max((*i), Max);
+    for(ld *i=input; i<input+Size; i++) Max = fmaxl((*i), Max);
     for(ld *i=input; i<input+Size; i++) *i -= Max;
 
 	ld s = .0, expd[Size];

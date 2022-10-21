@@ -5,6 +5,7 @@
 #include <time.h>
 #include "Layer.h"
 #include "Cost.h"
+#include <stdlib.h>
 
 #define OPT_EPS 10E-8
 

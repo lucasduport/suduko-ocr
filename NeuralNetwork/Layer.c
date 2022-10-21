@@ -32,12 +32,14 @@ void Layer_Dispose(Layer *layer) {
 }
 
 void Layer_Activate(Layer *layer) {
+	Layer_Display(layer, 0,true);
 	for(ld *pI=layer->input, *pB=layer->bias;
         pI<layer->input+layer->Neurons; pI++, pB++) *pI=*pB;
 
     for(ld *lO=layer->pLayer->output, *lW=layer->weights;
         lO<layer->pLayer->output+layer->pLayer->Neurons; lO++) {
         for(ld *lI=layer->input; lI<layer->input+layer->Neurons; lI++, lW++)
+	
             *lI += (*lO) * (*lW);
     }
 	layer->activation(layer->input, layer->output, layer->Neurons);
