@@ -12,8 +12,6 @@ void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
 		layer->bias = (bias == NULL) ? fvec_alloc(neurons, true) : bias;
 		layer->input = fvec_alloc(neurons, false);
 		layer->output = fvec_alloc(neurons, false);
-		printf("\ninitialized weights :\n");
-		matr_display(layer->weights, layer->conns, 1);
 	}
 	layer->pLayer = pLayer;
 	layer->nLayer = nLayer;
@@ -34,7 +32,6 @@ void Layer_Dispose(Layer *layer) {
 }
 
 void Layer_Activate(Layer *layer) {
-	Layer_Display(layer, 0,true);
 	for(ld *pI=layer->input, *pB=layer->bias;
         pI<layer->input+layer->Neurons; pI++, pB++) *pI=*pB;
 

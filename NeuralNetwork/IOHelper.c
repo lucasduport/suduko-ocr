@@ -32,7 +32,7 @@ void LoadXOR(NNParam *param) {
 
     param->inputTrain = (ld**) malloc(sizeof(ld*) * param->toLoopTrain);
     param->outputTrain = (ld**) malloc(sizeof(ld*) * param->toLoopTrain);
-    for(int i=0; i<param->toLoopTrain; i++) {
+    for(ui i=0; i<param->toLoopTrain; i++) {
         param->inputTrain[i] = malloc(sizeof(ld) * param->iSize);
         param->outputTrain[i] = malloc(sizeof(ld) * param->oSize);
     }
@@ -85,15 +85,15 @@ void LoadData(NNParam *param) {
 	param->inputTrain = (ld**) malloc(sizeof(float*) * param->toLoopTrain);
 	param->outputTrain = (ld**) malloc(sizeof(float*) * param->toLoopTrain);
 	ld *tempIn, *tempOut;
-	float *temp;
+	ld *temp;
 	for(ui i=0; i<param->toLoopTrain; i++) {
 		tempIn = fvec_alloc(param->iSize, false);
 		tempOut = fvec_alloc(param->oSize, true);
 		temp = fvec_alloc(1, false);
-		fread(temp, sizeof(float), 1, fptr1);
+		fread(temp, sizeof(ld), 1, fptr1);
 		tempOut[(int)((ui)temp[0]-startI)] = 1.0L;
 		free(temp);
-		fread(tempIn, sizeof(float), param->iSize, fptr1);
+		fread(tempIn, sizeof(ld), param->iSize, fptr1);
 		param->inputTrain[i] = tempIn;
 		param->outputTrain[i] = tempOut;
 	}
@@ -191,9 +191,8 @@ void OverfitLoad(NNParam *param)
     param->oSize = 10;
 
     ui startI = 0;
-	//char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
 
-	ui SamplesTrain = 0, SamplesValidate = 0;
+	ui SamplesTrain = 0;
 	if (sscanf(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
 		printf("Could not read amount of samples in filename; Exiting...\n");
 		exit(1);
@@ -210,15 +209,15 @@ void OverfitLoad(NNParam *param)
 	param->inputTrain = (ld**) malloc(sizeof(float*) * param->toLoopTrain);
 	param->outputTrain = (ld**) malloc(sizeof(float*) * param->toLoopTrain);
 	ld *tempIn, *tempOut;
-	float *temp;
+	ld *temp;
 	for(ui i=0; i<param->toLoopTrain; i++) {
 		tempIn = fvec_alloc(param->iSize, false);
 		tempOut = fvec_alloc(param->oSize, true);
 		temp = fvec_alloc(1, false);
-		fread(temp, sizeof(float), 1, fptr1);
+		fread(temp, sizeof(ld), 1, fptr1);
 		tempOut[(int)((ui)temp[0]-startI)] = 1.0L;
 		free(temp);
-		fread(tempIn, sizeof(float), param->iSize, fptr1);
+		fread(tempIn, sizeof(ld), param->iSize, fptr1);
 		param->inputTrain[i] = tempIn;
 		param->outputTrain[i] = tempOut;
 	}
@@ -230,7 +229,7 @@ void OverfitLoad(NNParam *param)
 
 void PerfSearch(NNParam *origin, Network *net, int attempt) {
     float bperf = (float)origin->toExceed, curr_perf = .0f;
-    ui c = 0, eSize = floor(log10(abs(origin->epoch))) + 1;;
+    ui eSize = floor(log10(origin->epoch)) + 1;;
     printf("\nBeginning Neural Network training with following parameters :\n");
     NNParam_Display(origin);
     bool maxed = false;
@@ -239,20 +238,20 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
         if (net == NULL) net = CSave(origin->hiddenN);
         if (origin->track) fclose(fopen(origin->StatsFile, "w"));
         Optimizer_Init(net, origin->optimizer);
-        for(int e=0; e < origin->epoch && !maxed;) {
+        for(ui e=0; e < origin->epoch && !maxed;) {
             printf("[ Epoch %*u/%u ] Accuracy : ", eSize, e, origin->epoch);
             curr_perf = Validate(net, origin, bperf);
             if (curr_perf > bperf) {
                 bperf = curr_perf;
                 char *s = (char*) malloc(sizeof(char) * 12);
-                snprintf(s, 10, "%s_%.2LF", origin->NNName, bperf);
+                snprintf(s, 10, "%s_%.2f", origin->NNName, bperf);
                 Network_Save(net, s);
                 free(s);
             }
             if (curr_perf >= 100.0f) maxed = 1;
             else {
                 Network_Train(net, origin);
-                int ne = min((int)origin->epochInterval, (int)(origin->epoch-e));
+                ui ne = min((int)origin->epochInterval, (int)(origin->epoch-e));
                 origin->epochInterval = ne;
                 e += ne;
             }
@@ -264,7 +263,7 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
         if (curr_perf > bperf) {
             bperf = curr_perf;
             char *s = (char*) malloc(sizeof(char) * 12);
-            snprintf(s, 10, "%s_%.2LF", origin->NNName, bperf);
+            snprintf(s, 10, "%s_%.2f", origin->NNName, bperf);
             Network_Save(net, s);
             free(s);
         }

@@ -69,14 +69,13 @@ void Network_Load(Network *net, char path[]) {
 
 void Network_Save(Network *net, char name[]) {
 	FILE *fptr;
-	int err;
 	char filename[64], NNName[16];
 
 	if (name == NULL) {
         printf("\nNeural Network Name : ");
         scanf("%s", NNName);
 	}
-	snprintf(filename, 64, "TrainedNetwork\\NeuralNetData_%ulayers_%s.dnn",
+	snprintf(filename, 64, "TrainedNetwork/NeuralNetData_%ulayers_%s.dnn",
 			net->currentLayer, name == NULL ? NNName : name);
 	if ((fptr = fopen(filename, "wb")) == NULL){
 		fprintf(stderr, "Cannot open file '%s'\n", filename);
@@ -132,6 +131,7 @@ ui Network_Predict(Network *net, ld *input, cui Size) {
     ui i=0;
     for(; i<l->Neurons; i++)
         if (l->output[i] >= 1.0L) return i;
+    return i;
 }
 
 ld *Network_Validate(Network *net, ld *input, cui Size, bool os1) {

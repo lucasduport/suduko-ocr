@@ -11,9 +11,9 @@
 
 #define EPS 10E-10L
 
-typedef unsigned int ui;
+//typedef unsigned int ui;
 typedef const ui cui;
-typedef long double ld;
+//typedef long double ld;
 typedef const ld cld;
 
 inline ui max(ui a, ui b) {return a > b ? a : b;}
