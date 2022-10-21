@@ -70,7 +70,7 @@ void Network_Load(Network *net, char path[]) {
 void Network_Save(Network *net, char name[]) {
 	FILE *fptr;
 	int err;
-	char errbuf[64], filename[64], NNName[16];
+	char filename[64], NNName[16];
 
 	if (name == NULL) {
         printf("\nNeural Network Name : ");

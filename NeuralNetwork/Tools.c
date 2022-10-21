@@ -30,8 +30,10 @@ char *cvec_alloc(cui n) {
 }
 
 ld *fvec_rInit(cui n, cui conns, bool he_init) {
-    int seed = (int) time(NULL);
-	ld *tmp = r8vec_normal_ab_new(n, 0, he_init ? sqrtl(2.0L/conns) : 1, &seed);
+    	int seed = (int) time(NULL);
+
+	double *tmp = r8vec_normal_ab_new(n, 0.0, he_init ? sqrtl(2.0L/conns) : 1.0, &seed);
+	for(int i=0; i<n; i++) printf("i = %d : %f\n", i, tmp[i]);
 /*
 	ld Min = tmp[0], Max = tmp[0];
 	for(ld *t=tmp+1; t<tmp+n; t++) {
@@ -54,17 +56,6 @@ void arr_shuffle(ld *arr[], ld *paired_arr[], cui Size) {
         *pa = paired_arr[n];
         paired_arr[n] = temp_paired;
     }
-
-    /*
-	for(ui i=0; i<Size; i++) {
-		int n = (int)(rand() % Size);
-		ld *temp = arr[i], *temp_paired = paired_arr[i];
-		arr[i] = arr[n];
-		arr[n] = temp;
-		paired_arr[i] = paired_arr[n];
-		paired_arr[n] = temp_paired;
-	}
-	*/
 }
 
 
