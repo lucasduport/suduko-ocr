@@ -13,7 +13,7 @@ void Network_AddLayer(Network *net, Layer *layer) {
 		return;
 	}
 	net->layers[net->currentLayer] = *layer;
-	free(layer);
+	if(!layer->loaded) free(layer);
 	net->currentLayer++;
 }
 
@@ -52,8 +52,11 @@ void Network_Load(Network *net, char path[]) {
 						bias, true, name);
 		}
 		else {
+			char *act_name = (char*)malloc(sizeof(char)*5);
+			strcpy(act_name, "none");
 			Layer_Init(&layer, NULL, NULL, saved.Neurons, NULL,
-						NULL, false, "none");
+						NULL, true, act_name);
+			free(act_name);
 		}
 		Network_AddLayer(net, &layer);
 		lSave = &layer;
