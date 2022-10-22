@@ -13,6 +13,7 @@ void Network_AddLayer(Network *net, Layer *layer) {
 		return;
 	}
 	net->layers[net->currentLayer] = *layer;
+	free(layer);
 	net->currentLayer++;
 }
 
