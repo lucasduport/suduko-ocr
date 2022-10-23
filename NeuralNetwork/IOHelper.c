@@ -128,8 +128,8 @@ void LoadData(NNParam *param) {
 float Validate(Network *net, const NNParam *P, float bperf) {
 	ui score = 0, all = 0, pos = 0;
 	for (ui i = 0; i < P->toLoopValidate; i++) {
-		ld *out =
-			Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
+		ld *out
+			= Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
 		for (ui j = 0; j < P->oSize; j++) {
 			// printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
 			if (absl(out[j] - P->outputTest[i][j]) < LDBL_EPSILON) score++;
@@ -167,8 +167,8 @@ void ConfusionMatrix(Network *net, const NNParam *P) {
 		bufferExp = 0;
 		Acted = false;
 		Exped = false;
-		ld *out =
-			Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
+		ld *out
+			= Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
 		for (ui j = 0; j < P->oSize; j++) {
 			if (P->outputTest[i][j] >= 1.0L) Exped = true;
 			if (!Exped) bufferExp++;
@@ -256,8 +256,8 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
 			if (curr_perf >= 100.0f) maxed = 1;
 			else {
 				Network_Train(net, origin);
-				ui ne =
-					min((int)origin->epochInterval, (int)(origin->epoch - e));
+				ui ne
+					= min((int)origin->epochInterval, (int)(origin->epoch - e));
 				origin->epochInterval = ne;
 				e += ne;
 			}

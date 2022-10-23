@@ -126,8 +126,7 @@ ui Network_Predict(Network *net, ld *input, cui Size) {
 	if (l->Neurons == 1) {
 		step(l->output, l->output, l->Neurons);
 		return l->output[0] > 0 ? 1 : 0;
-	} else
-		argmax(l->output, l->output, l->Neurons);
+	} else argmax(l->output, l->output, l->Neurons);
 	ui i = 0;
 	for (; i < l->Neurons; i++)
 		if (l->output[i] >= 1.0L) return i;
@@ -240,8 +239,7 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 				*w -= params->l_rate * mwc / (sqrtl(vwc) + OPT_EPS);
 				mwt++;
 				vwt++;
-			} else
-				*w -= params->l_rate * ml * (*pO);
+			} else *w -= params->l_rate * ml * (*pO);
 			*w += params->l_rate * (pw >= .0L ? 1.0L : -1.0L) * params->l1Norm
 				  + params->l_rate * 2 * params->l2Norm * pw;
 			if (!bias_done) {
@@ -253,8 +251,7 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 					*b -= params->l_rate * mbc / (sqrtl(vbc) + OPT_EPS);
 					mbt++;
 					vbt++;
-				} else
-					*b -= params->l_rate * ml;
+				} else *b -= params->l_rate * ml;
 			}
 		}
 		bias_done = true;
@@ -299,11 +296,10 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 					*w -= params->l_rate * mwc / (sqrtl(vwc) + EPS);
 					mwt++;
 					vwt++;
-				} else
-					*w -= params->l_rate * ml * (*pO);
-				*w +=
-					params->l_rate * (pw >= .0L ? 1.0L : -1.0L) * params->l1Norm
-					+ params->l_rate * 2 * params->l2Norm * pw;
+				} else *w -= params->l_rate * ml * (*pO);
+				*w += params->l_rate * (pw >= .0L ? 1.0L : -1.0L)
+						  * params->l1Norm
+					  + params->l_rate * 2 * params->l2Norm * pw;
 				if (!bias_done) {
 					if (optz != NULL) {
 						*mbt = 0.9 * (*mbt) + (1 - 0.9L) * ml;
@@ -313,8 +309,7 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 						*b -= params->l_rate * mbc / (sqrtl(vbc));
 						mbt++;
 						vbt++;
-					} else
-						*b -= params->l_rate * ml;
+					} else *b -= params->l_rate * ml;
 				}
 			}
 			bias_done = true;

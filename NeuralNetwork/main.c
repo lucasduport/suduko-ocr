@@ -19,12 +19,9 @@ static void matchParams(NNParam *origin, char *line) {
 		origin->epoch = (ui)strtol(value, NULL, 10);
 	else if (!strcmp(field, "epochInterval"))
 		origin->epochInterval = (ui)strtol(value, NULL, 10);
-	else if (!strcmp(field, "l_rate"))
-		origin->l_rate = (ld)strtod(value, NULL);
-	else if (!strcmp(field, "l1Norm"))
-		origin->l1Norm = (ld)strtod(value, NULL);
-	else if (!strcmp(field, "l2Norm"))
-		origin->l2Norm = (ld)strtod(value, NULL);
+	else if (!strcmp(field, "l_rate")) origin->l_rate = (ld)strtod(value, NULL);
+	else if (!strcmp(field, "l1Norm")) origin->l1Norm = (ld)strtod(value, NULL);
+	else if (!strcmp(field, "l2Norm")) origin->l2Norm = (ld)strtod(value, NULL);
 	else if (!strcmp(field, "cost_func")) {
 		origin->cost_func = (char *)malloc(sizeof(char) * (strlen(value) + 1));
 		strcpy(origin->cost_func, value);

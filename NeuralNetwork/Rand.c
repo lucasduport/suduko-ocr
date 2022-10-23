@@ -37,8 +37,8 @@ ld *r8vec_normal_ab_new(ui n, ld b, ld c, int *seed) {
 		r = r8vec_uniform_01_new(2 * m, seed);
 		for (i = 0; i <= 2 * m - 2; i = i + 2) {
 			x[x_lo + i] = sqrt(-2.0 * log(r[i])) * sin(2.0 * r8_pi * r[i + 1]);
-			x[x_lo + i - 1] =
-				sqrt(-2.0 * log(r[i])) * cos(2.0 * r8_pi * r[i + 1]);
+			x[x_lo + i - 1]
+				= sqrt(-2.0 * log(r[i])) * cos(2.0 * r8_pi * r[i + 1]);
 		}
 		free(r);
 	} else {
@@ -47,8 +47,8 @@ ld *r8vec_normal_ab_new(ui n, ld b, ld c, int *seed) {
 		m = (x_hi - x_lo + 1) / 2 + 1;
 		r = r8vec_uniform_01_new(2 * m, seed);
 		for (i = 0; i <= 2 * m - 4; i = i + 2) {
-			x[x_lo + i - 1] =
-				sqrt(-2.0 * log(r[i])) * cos(2.0 * r8_pi * r[i + 1]);
+			x[x_lo + i - 1]
+				= sqrt(-2.0 * log(r[i])) * cos(2.0 * r8_pi * r[i + 1]);
 			x[x_lo + i] = sqrt(-2.0 * log(r[i])) * sin(2.0 * r8_pi * r[i + 1]);
 		}
 

@@ -18,8 +18,9 @@ void selu(ld *input, ld *output, cui Size) {
 	cld alpha = 1.6732632423543772848170429916717;
 	cld lambda = 1.0507009873554804934193349852946;
 	for (ui i = 0; i < Size; i++)
-		output[i] =
-			lambda * (input[i] > 0 ? input[i] : alpha * expl(input[i]) - alpha);
+		output[i]
+			= lambda
+			  * (input[i] > 0 ? input[i] : alpha * expl(input[i]) - alpha);
 }
 
 void none(ld *input, ld *output, cui Size) {
