@@ -27,8 +27,7 @@ static void matchParams(NNParam *origin, char *line) {
 		strcpy(origin->cost_func, value);
 	} else if (!strcmp(field, "optimizer")) {
 		origin->optimizer = !strcmp(value, "true")
-								? (Optimizer *)malloc(sizeof(Optimizer))
-								: NULL;
+			? (Optimizer *)malloc(sizeof(Optimizer)) : NULL;
 	} else if (!strcmp(field, "track"))
 		origin->track = !strcmp(value, "true") ? true : false;
 	else if (!strcmp(field, "StatsFile")) {

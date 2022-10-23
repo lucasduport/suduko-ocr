@@ -15,7 +15,6 @@ ld CrossEntropy(ld *predicted, ld *expected, cui Size) {
 
 ld RMSE(ld *predicted, ld *expected, cui Size) {
 	ld res = MSE(predicted, expected, Size);
-	if (res < 0) printf("RMSE encountered < 0");
 	return sqrtl(res + LDBL_EPSILON);
 }
 
@@ -69,21 +68,8 @@ ld softmax_(ld *arr, cui Size, cui ieme) {
 
 	ld sT = 0, tgt = expl(arr[ieme]);
 	for (ui i = 0; i < Size; i++) {
-		/*
-		if (isnan(expl(arr[i]))) {
-			printf("nan ,n1 : %LF", arr[i]);
-			exit(4);
-		}
-		*/
 		sT += expl(arr[i]);
 	}
-	/*
-		if (isnan(tgt*(sT-tgt)/(powl(sT, 2)+LDBL_EPSILON))) {
-			printf("\nNaN softmax_ : %LF, %LF, %LF, %LF, %LF\n",
-				   sT, tgt, tgt*(sT-tgt), powl(sT, 2), arr[ieme]);
-			exit(2);
-		}
-	*/
 	return tgt * (sT - tgt) / (powl(sT, 2) + EPS);
 }
 
@@ -102,8 +88,7 @@ ld step_(ld *arr, cui Size, cui ieme) {
 		return 0;
 	}
 	int seed = (int)time(NULL);
-	return (absl(arr[ieme] - .0L) < LDBL_EPSILON) ? (ld)(r8_normal_01(&seed))
-												  : .5L;
+	return (absl(arr[ieme] - .0L) < LDBL_EPSILON) ? (ld)(r8_normal_01(&seed)) : .5L;
 }
 
 ld relu_(ld *arr, cui Size, cui ieme) {

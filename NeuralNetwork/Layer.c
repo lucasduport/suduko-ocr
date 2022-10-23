@@ -6,11 +6,10 @@ void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
 	layer->bias = 0;
 	if (pLayer != NULL) {
 		layer->conns = pLayer->Neurons * neurons;
-		layer->weights = (weights == NULL)
-							 ? fvec_rInit(layer->conns, pLayer->Neurons,
-										  !strcmp(act_name, "relu")
-											  || !strcmp(act_name, "leakyrelu"))
-							 : weights;
+		layer->weights = (weights == NULL) ?
+				fvec_rInit(layer->conns, pLayer->Neurons,
+				!strcmp(act_name, "relu") || !strcmp(act_name, "leakyrelu"))
+			: weights;
 		layer->bias = (bias == NULL) ? fvec_alloc(neurons, true) : bias;
 		layer->input = fvec_alloc(neurons, false);
 		layer->output = fvec_alloc(neurons, false);
@@ -42,7 +41,6 @@ void Layer_Activate(Layer *layer) {
 		 lO < layer->pLayer->output + layer->pLayer->Neurons; lO++) {
 		for (ld *lI = layer->input; lI < layer->input + layer->Neurons;
 			 lI++, lW++)
-
 			*lI += (*lO) * (*lW);
 	}
 	layer->activation(layer->input, layer->output, layer->Neurons);
