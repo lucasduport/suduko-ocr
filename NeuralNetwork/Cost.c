@@ -45,7 +45,12 @@ ld MAE_(cld predicted, cld expected) {
 
 ld MSE_(cld predicted, cld expected) { return 2 * (predicted - expected); }
 
-ld none_(ld *arr, cui Size, cui ieme) { return 0; }
+ld none_(ld *arr, cui Size, cui ieme) {
+	UNUSED(arr);
+	UNUSED(Size);
+	UNUSED(ieme);
+	return 0;
+}
 
 ld sigmoid_(ld *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
@@ -74,6 +79,7 @@ ld softmax_(ld *arr, cui Size, cui ieme) {
 }
 
 ld argmax_(ld *arr, cui Size, cui ieme) {
+	UNUSED(arr);
 	if (ieme >= Size) {
 		printf("Warning: argmax derivative index out of bound.\n");
 		return 0;

@@ -2,3 +2,25 @@
 
 Projet OCR | S3 Epita
 
+
+Correct Indentation & Coding Style:
+> clang-format --style=file:.clang-format -i *.c
+
+- NeuralNetwork/
+> 'make' to build for release
+> 'make debug' to build for debug
+> 'make clean' to clean build files
+> 'make clear' to clean build files & executable
+> 'make runTrain' shortcut for Training demo; arg attempt=[int]
+> 'make runPredict' shortcut for Prediction demo; arg v1=[0|1] & v2=[0|1]
+> 
+	Training:
+	
+			./NeuralNetwork TrainXOR [Config file (*.cfg)] [Number of attempt]
+		ex: ./NeuralNetwork TrainXOR TrainedNetwork/NN.cfg 1000
+	
+	Prediction:
+	
+			./NeuralNetwork PredictXOR [NeuralNetwork data (*.dnn)] [0|1] [0|1]
+		ex: ./NeuralNetwork PredictXOR TrainedNetwork/NeuralNetData_3layers_XOR_100.0.dnn 1 0
+

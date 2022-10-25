@@ -1,6 +1,8 @@
 #ifndef COST_H
 #define COST_H
 
+#define UNUSED(x) (void)(x)
+
 #include <math.h>
 #include <float.h>
 #include "Tools.h"
