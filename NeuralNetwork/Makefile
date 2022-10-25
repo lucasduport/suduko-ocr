@@ -1,6 +1,5 @@
 .SILENT: all
 .SILENT: debug
-.SILENT: run
 .SILENT: clean
 .SILENT: clear
 
