@@ -41,8 +41,8 @@ void softmax(ld *input, ld *output, cui Size) {
 	for (ld *i = input, *e = expd; i < input + Size; i++, e++) {
 		/*
 		if (isnan(expl(input[i]))) {
-			printf("\nnan in softmax caused by exp(%LF)\n", input[i]);
-			exit(3);
+			printf("\nnan in softmax caused by exp(%LF)\n",
+		input[i]); exit(3);
 		}
 		*/
 		*e = expl(*i);

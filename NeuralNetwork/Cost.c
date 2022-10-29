@@ -54,7 +54,8 @@ ld none_(ld *arr, cui Size, cui ieme) {
 
 ld sigmoid_(ld *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
-		printf("Warning: sigmoid derivative index out of bound.\n");
+		printf("Warning: sigmoid derivative index out of "
+			   "bound.\n");
 		return 0;
 	}
 	cld sigm = 1 / (1 + expl(-arr[ieme]));
@@ -63,7 +64,8 @@ ld sigmoid_(ld *arr, cui Size, cui ieme) {
 
 ld softmax_(ld *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
-		printf("Warning: softmax derivative index out of bound.\n");
+		printf("Warning: softmax derivative index out of "
+			   "bound.\n");
 		return 0;
 	}
 	ld max = arr[ieme];
@@ -72,16 +74,15 @@ ld softmax_(ld *arr, cui Size, cui ieme) {
 	for (ui i = 0; i < Size; i++) arr[i] -= max;
 
 	ld sT = 0, tgt = expl(arr[ieme]);
-	for (ui i = 0; i < Size; i++) {
-		sT += expl(arr[i]);
-	}
+	for (ui i = 0; i < Size; i++) { sT += expl(arr[i]); }
 	return tgt * (sT - tgt) / (powl(sT, 2) + EPS);
 }
 
 ld argmax_(ld *arr, cui Size, cui ieme) {
 	UNUSED(arr);
 	if (ieme >= Size) {
-		printf("Warning: argmax derivative index out of bound.\n");
+		printf("Warning: argmax derivative index out of "
+			   "bound.\n");
 		return 0;
 	}
 	printf("WARNING: argmax derivative not implemented");
@@ -90,16 +91,19 @@ ld argmax_(ld *arr, cui Size, cui ieme) {
 
 ld step_(ld *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
-		printf("Warning: step derivative index out of bound.\n");
+		printf("Warning: step derivative index out of "
+			   "bound.\n");
 		return 0;
 	}
 	int seed = (int)time(NULL);
-	return (absl(arr[ieme] - .0L) < LDBL_EPSILON) ? (ld)(r8_normal_01(&seed)) : .5L;
+	return (absl(arr[ieme] - .0L) < LDBL_EPSILON) ? (ld)(r8_normal_01(&seed))
+												  : .5L;
 }
 
 ld relu_(ld *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
-		printf("Warning: relu derivative index out of bound.\n");
+		printf("Warning: relu derivative index out of "
+			   "bound.\n");
 		return 0;
 	}
 	return (arr[ieme] < 0) ? 0 : 1;
@@ -107,7 +111,8 @@ ld relu_(ld *arr, cui Size, cui ieme) {
 
 ld selu_(ld *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
-		printf("Warning: selu derivative index out of bound.\n");
+		printf("Warning: selu derivative index out of "
+			   "bound.\n");
 		return 0;
 	}
 	cld alpha = 1.6732632423543772848170429916717;
@@ -117,7 +122,8 @@ ld selu_(ld *arr, cui Size, cui ieme) {
 
 ld leakyrelu_(ld *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
-		printf("Warning: leakyrelu derivative index out of bound.\n");
+		printf("Warning: leakyrelu derivative index out of "
+			   "bound.\n");
 		return 0;
 	}
 	return (arr[ieme] <= 0) ? .01L : 1.0L;

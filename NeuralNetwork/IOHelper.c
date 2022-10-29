@@ -63,20 +63,22 @@ void LoadData(NNParam *param) {
 
 	ui startI = 0;
 	// char pathTrain[] =
-	// "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin"; char
-	// pathValidate[] =
+	// "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
+	// char pathValidate[] =
 	// "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain)
 		!= 1) {
-		printf("Could not read amount of samples in filename; Exiting...\n");
+		printf("Could not read amount of samples in "
+			   "filename; Exiting...\n");
 		exit(1);
 	}
 	if (sscanf(param->validationFile, "%*[^_]%*[_]%*[^_]%*[_]%u",
 			   &SamplesValidate)
 		!= 1) {
-		printf("Could not read amount of samples in filename; Exiting...\n");
+		printf("Could not read amount of samples in "
+			   "filename; Exiting...\n");
 		exit(1);
 	}
 
@@ -131,7 +133,8 @@ float Validate(Network *net, const NNParam *P, float bperf) {
 		ld *out
 			= Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
 		for (ui j = 0; j < P->oSize; j++) {
-			// printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
+			// printf("\n%u : %.0LF\t%.0LF", j, out[j],
+			// P->outputTest[i][j]);
 			if (absl(out[j] - P->outputTest[i][j]) < LDBL_EPSILON) score++;
 			if (P->outputTest[i][j] >= 1.0L && out[j] >= 1.0L) pos++;
 			all++;
@@ -146,8 +149,9 @@ float Validate(Network *net, const NNParam *P, float bperf) {
 		   (single ? AScore : VScore) > bperf ? "\033[0;32m" : "\033[0;31m",
 		   single ? AScore : min(AScore, VScore));
 	/*
-	printf("%.2f%% (%u/%u)\tScore : %s%.2f%%\033[0m\tValidated : %u/%u\n",
-		   AScore, score, all, VScore > bperf ? "\033[0;32m" : "\033[0;31m",
+	printf("%.2f%% (%u/%u)\tScore :
+	%s%.2f%%\033[0m\tValidated : %u/%u\n", AScore, score,
+	all, VScore > bperf ? "\033[0;32m" : "\033[0;31m",
 		   VScore, pos, P->toLoopValidate);
 	*/
 	return single ? AScore : min(AScore, VScore);
@@ -198,7 +202,8 @@ void OverfitLoad(NNParam *param) {
 	ui SamplesTrain = 0;
 	if (sscanf(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain)
 		!= 1) {
-		printf("Could not read amount of samples in filename; Exiting...\n");
+		printf("Could not read amount of samples in "
+			   "filename; Exiting...\n");
 		exit(1);
 	}
 
@@ -234,8 +239,8 @@ void OverfitLoad(NNParam *param) {
 void PerfSearch(NNParam *origin, Network *net, int attempt) {
 	float bperf = (float)origin->toExceed, curr_perf = .0f;
 	ui eSize = floor(log10(origin->epoch)) + 1;
-	;
-	printf("\nBeginning Neural Network training with following parameters :\n");
+	printf("\nBeginning Neural Network training with "
+		   "following parameters :\n");
 	NNParam_Display(origin);
 	bool maxed = false;
 	while (attempt > 0 && !maxed) {

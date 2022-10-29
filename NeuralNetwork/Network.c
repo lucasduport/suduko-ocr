@@ -8,7 +8,8 @@ void Network_Init(Network *net, cui nbLayers) {
 
 void Network_AddLayer(Network *net, Layer *layer) {
 	if (net->currentLayer >= net->nbLayers) {
-		printf("Attempting Layer overflow; Starting network purge...\n");
+		printf("Attempting Layer overflow; Starting "
+			   "network purge...\n");
 		Network_Purge(net);
 		return;
 	}
@@ -27,7 +28,8 @@ void Network_Wire(Network *net) {
 
 void Network_Load(Network *net, char path[]) {
 	if (sscanf(path, "%*[^_]%*[_]%u", &net->nbLayers) != 1) {
-		printf("Could not read amount of layer in filename; Exiting...\n");
+		printf("Could not read amount of layer in "
+			   "filename; Exiting...\n");
 		exit(1);
 	}
 	Network_Init(net, net->nbLayers);
@@ -62,7 +64,8 @@ void Network_Load(Network *net, char path[]) {
 	}
 	fclose(fptr);
 	if (net->currentLayer != net->nbLayers) {
-		printf("Corrupted amount of layer [%u/%u]; Starting purge...",
+		printf("Corrupted amount of layer [%u/%u]; "
+			   "Starting purge...",
 			   net->currentLayer + 1, net->nbLayers);
 		Network_Purge(net);
 		exit(1);
@@ -143,7 +146,8 @@ ld *Network_Validate(Network *net, ld *input, cui Size, bool os1) {
 
 void Network_Train(Network *net, NNParam *params) {
 	if (net->nbLayers < 2) {
-		printf("Attempting train on incomplete network; Starting purge...\n");
+		printf("Attempting train on incomplete network; "
+			   "Starting purge...\n");
 		Network_Purge(net);
 		exit(1);
 	}
@@ -180,7 +184,8 @@ void Network_Train(Network *net, NNParam *params) {
 
 static void Network_Forward(Network *net, ld *input, cui iSize) {
 	if (iSize != net->layers[0].Neurons) {
-		printf("Error: Input data size has different size than neurons");
+		printf("Error: Input data size has different size "
+			   "than neurons");
 		exit(2);
 	}
 	net->layers[0].output = input;
@@ -331,7 +336,8 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 static void IntegrityCheck(Network *net) {
 	for (ui i = 1; i < net->nbLayers; i++) {
 		for (ui j = 0; j < net->layers[i].conns; j++) {
-			// printf("\nw : %LF", net->layers[i].weights[j]);
+			// printf("\nw : %LF",
+			// net->layers[i].weights[j]);
 			if (isnan(net->layers[i].weights[j])
 				|| isinf(net->layers[i].weights[j])) {
 				printf("\nWeight Corruption : %LF\n",
