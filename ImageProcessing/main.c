@@ -29,15 +29,16 @@ char *cleanPath(char *filename, char *dest) {
 void printHelp(char *exeName) {
 	printf("Usage: %s <command> <filename> [options]\n", exeName);
 	printf("\t-h, --help\t\t\t"
-	"prints this help message\n");
+	"Prints this help message\n");
 	printf("\t-r, --rotate <image> <angle>\t"
-	"rotate the image <image> with the angle <angle>.\n");
+	"Rotate the image <image> with the angle <angle>.\n");
 	printf("\t-R, --rotateView <image>\t"
-	"rotate the image <image> with a preview (use arrow keys).\n");
+	"Rotate the image <image> with a preview (use arrow keys).\n");
 	printf("\t-d, --demo <image>\t\t"
-	"see full demo.\n");
+	"See full demo.\n");
 	printf("\t-t, --test <image> [options]\t"
-	"test the image <image> with the given options.\n");
+	"Test the image <image> with the given options.\n\t\t\t\t\t"
+	" Options can vary depending on the test.\n");
 }
 
 int missingArg(char *exeName, char *command) {
@@ -165,6 +166,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	IMG_Quit();
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	SDL_Quit();
 	return 0;
 }

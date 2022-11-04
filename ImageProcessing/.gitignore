@@ -17,5 +17,5 @@ COMMIT_MESSAGE
 # Images
 ./Images/*
 !./Images/images_[0-9]*.jpeg
-./board_*/*
+./board_*/
 ./saved_images/*
