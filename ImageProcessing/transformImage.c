@@ -4,36 +4,18 @@
 #include <math.h>
 #include <stdio.h>
 
-Image *copyImage(Image *image) {
-	Image *copy = malloc(sizeof(Image));
-	if (copy == NULL) errx(EXIT_FAILURE, "malloc failed");
-	copy->width = image->width;
-	copy->height = image->height;
-	copy->pixels = malloc(sizeof(st) * image->width * image->height);
-	if (copy->pixels == NULL) errx(EXIT_FAILURE, "malloc failed");
-	for (st i = 0; i < image->width * image->height; i++)
-		copy->pixels[i] = image->pixels[i];
-	return copy;
-}
-
 void invertImage(Image *image) {
 	uc *pixels = image->pixels;
 	st len = image->width * image->height;
 	for (size_t i = 0; i < len; i++) pixels[i] = 255 - pixels[i];
 }
 
-void cannyEdgeDetection(Image *image) {
-	// TODO: finish this function
-	// uses 5*5 gaussian kernel
-	// then uses cannys edge detection algorithm
-
-	// 1. gaussian blur
+void gaussianBlur(Image *image) {
 	int kernel[5][5] = {{2, 4, 5, 4, 2},
 						{4, 9, 12, 9, 4},
 						{5, 12, 15, 12, 5},
 						{4, 9, 12, 9, 4},
 						{2, 4, 5, 4, 2}};
-	int kernelSum = 159;
 	uc *pixels = image->pixels;
 	int w = image->width;
 	int h = image->height;
@@ -42,45 +24,101 @@ void cannyEdgeDetection(Image *image) {
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			int sum = 0;
+			int weight = 0;
 			for (int i = -2; i <= 2; i++) {
 				for (int j = -2; j <= 2; j++) {
 					int x2 = x + j;
 					int y2 = y + i;
 					if (x2 < 0 || x2 >= w || y2 < 0 || y2 >= h) continue;
 					sum += pixels[y2 * w + x2] * kernel[i + 2][j + 2];
+					weight += kernel[i + 2][j + 2];
 				}
 			}
-			newPixels[y * w + x] = sum / kernelSum;
+			newPixels[y * w + x] = sum / weight;
 		}
 	}
+	free(pixels);
+	image->pixels = newPixels;
 }
 
 void calibrateImage(Image *image, int radius) {
-	Image *copy = copyImage(image);
-	st w = image->width, h = image->height;
+	int w = image->width, h = image->height;
 	uc *pixels = image->pixels;
-	uc *copyPixels = copy->pixels;
-	// ranges stores the min and max of each column of the kernel
-	uc mins[w], maxs[w];
-	uc min, max;
-	// for each line of pixels
-	for (st y = 0; y < h; y++) {
-		// we initialize the ranges
-		for (st x = 0; x < w; x++) {
-			min = 255;
-			max = 0;
-			for (int i = -radius; i <= radius; i++) {
-				st y2 = y + i;
-				if (y2 < 0 || y2 >= h) continue;
-				uc pixel = copyPixels[y2 * w + x];
-				if (pixel < min) min = pixel;
+	uc *copy_pixels = copyPixels(pixels, w * h);
+	uc maxs[w];
+	uc mins[w];
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			uc max = 0;
+			uc min = 255;
+			for (int j = y - radius; j <= y + radius; j++) {
+				if (j < 0) {j = -1; continue;}
+				if (j >= h) break;
+				uc pixel = copy_pixels[j * w + x];
 				if (pixel > max) max = pixel;
+				if (pixel < min) min = pixel;
 			}
-			mins[x] = min;
 			maxs[x] = max;
+			mins[x] = min;
 		}
-		
+		for (int x = 0; x < w; x++) {
+			uc min = 255;
+			uc max = 0;
+			for (int i = x - radius; i <= x + radius; i++) {
+				if (i < 0) {i = -1; continue;}
+				if (i >= w) break;
+				uc pixel = maxs[i];
+				if (pixel > max) max = pixel;
+				pixel = mins[i];
+				if (pixel < min) min = pixel;
+			}
+			uc pixel = copy_pixels[y * w + x];
+			if (min == max) {
+				pixels[y * w + x] = 255;
+			} else {
+				pixels[y * w + x] = (pixel - min) * 255 / (max - min);
+			}
+		}
 	}
+	free(copy_pixels);
+}
+
+void sobelFilter(Image *image) {
+	int kernelX[3][3] = {{-1, 0, 1},
+						 {-2, 0, 2},
+						 {-1, 0, 1}};
+	int kernelY[3][3] = {{-1, -2, -1},
+						 {0, 0, 0},
+						 {1, 2, 1}};
+	uc *pixels = image->pixels;
+	int w = image->width;
+	int h = image->height;
+	int *gradients = malloc(sizeof(int) * w * h);
+	if (gradients == NULL) errx(EXIT_FAILURE, "malloc failed");
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			int sumX = 0;
+			int sumY = 0;
+			for (int i = -1; i <= 1; i++) {
+				for (int j = -1; j <= 1; j++) {
+					int x2 = x + j;
+					int y2 = y + i;
+					if (x2 < 0 || x2 >= w || y2 < 0 || y2 >= h) continue;
+					sumX += pixels[y2 * w + x2] * kernelX[i + 1][j + 1];
+					sumY += pixels[y2 * w + x2] * kernelY[i + 1][j + 1];
+				}
+			}
+			gradients[y * w + x] = sqrt(sumX * sumX + sumY * sumY);
+		}
+	}
+	int gradientMax = 0;
+	for (int i = 0; i < w * h; i++) {
+		if (gradients[i] > gradientMax) gradientMax = gradients[i];
+	}
+	for (int i = 0; i < w * h; i++) {
+		pixels[i] = gradients[i] * 255 / gradientMax;
+	}
+	free(gradients);
 }
 
 void saturateImage(Image *image) {
@@ -107,11 +145,10 @@ void saturateImage(Image *image) {
 	return;
 }
 
-Image *resizeImage(Image *image, st new_w, st new_h) {
+void resizeImage(Image *image, st new_w, st new_h) {
 	uc *pixels = image->pixels;
 	st w = image->width, h = image->height;
-	Image *new_image = newImage(new_w, new_h);
-	uc *new_pixels = new_image->pixels;
+	uc *new_pixels = malloc(sizeof(uc) * new_w * new_h);
 	float ratio_w = (float)w / new_w;
 	float ratio_h = (float)h / new_h;
 	for (st new_y = 0; new_y < new_h; new_y++) {
@@ -139,19 +176,22 @@ Image *resizeImage(Image *image, st new_w, st new_h) {
 			new_pixels[new_y * new_w + new_x] = (uc)(value + 0.5);
 		}
 	}
-	return new_image;
+	free(pixels);
+	image->pixels = new_pixels;
+	image->width = new_w;
+	image->height = new_h;
 }
 
-Image *autoResize(Image *image, st maw_w, st max_h) {
+void autoResize(Image *image, st maw_w, st max_h) {
 	if (image->width <= maw_w && image->height <= max_h)
-		return copyImage(image);
+		return;
 	// if ratio_w > ratio_h, then we resize by width
 	float ratio_w = (float)image->width / maw_w;
 	float ratio_h = (float)image->height / max_h;
 	if (ratio_w > ratio_h)
-		return resizeImage(image, maw_w, image->height / ratio_w);
+		resizeImage(image, maw_w, image->height / ratio_w);
 	else
-		return resizeImage(image, image->width / ratio_h, max_h);
+		resizeImage(image, image->width / ratio_h, max_h);
 }
 
 Image *extractGrid(Image *image, Quadri *quadri, st new_w, st new_h) {

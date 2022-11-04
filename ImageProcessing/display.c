@@ -51,7 +51,6 @@ void showLines(Image *background, Segment **segments, st nb_segments, int r,
 	SDL_DestroyWindow(window);
 	IMG_Quit();
 	SDL_Quit();
-	return;
 }
 
 void showQuadri(Image *background, Quadri *quadri, int r, int g, int b) {
