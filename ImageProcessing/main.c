@@ -1,6 +1,6 @@
 #include "display.h"
 #include "hough.h"
-#include "matrices.h"
+//#include "matrices.h"
 #include "openImage.h"
 #include "tools.h"
 #include "transformImage.h"
@@ -112,12 +112,19 @@ void exeTest(char *filename, int radius) {
 	freeImage(image);
 }
 
+void exeDebug(char *filename) {
+	Image *image = openImage(filename);
+	//displayImage(image, "Window name");
+	freeImage(image);
+}
+
 int main(int argc, char *argv[]) {
 	char *exeName = argv[0];
 	if (argc < 2) {
 		printHelp(exeName);
 		return 1;
 	}
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	for (int i = 1; i < argc; i++) {
 		char *command = argv[i];
 		if (!strcmp(command, "-h") || !strcmp(command, "--help")) {
@@ -146,11 +153,18 @@ int main(int argc, char *argv[]) {
 			int radius = atoi(argv[++i]);
 			exeTest(filename, radius);
 		}
+		else if (!strcmp(command, "-D") || !strcmp(command, "--debug")) {
+			if (i + 1 >= argc) return missingArg(exeName, command);
+			char *filename = argv[++i];
+			exeDebug(filename);
+		}
 		else {
 			printf("Unknown command %s.\n", command);
 			printHelp(exeName);
 			return 1;
 		}
 	}
+	IMG_Quit();
+	SDL_Quit();
 	return 0;
 }

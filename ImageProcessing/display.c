@@ -3,7 +3,6 @@
 
 void showLines(Image *background, Segment **segments, st nb_segments, int r,
 			   int g, int b, float thickness) {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Window *window;
 	window =
 		SDL_CreateWindow("Segments visualizer", 0, 0, 1, 1, SDL_WINDOW_SHOWN);
@@ -49,8 +48,6 @@ void showLines(Image *background, Segment **segments, st nb_segments, int r,
 	SDL_DestroyTexture(texture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
-	IMG_Quit();
-	SDL_Quit();
 }
 
 void showQuadri(Image *background, Quadri *quadri, int r, int g, int b) {
@@ -87,14 +84,13 @@ SDL_Surface *imageToSurface(Image *image) {
 }
 
 int displayImage(Image *image, char *windowName) {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Window *window;
 	window = SDL_CreateWindow(windowName, 0, 0, 1, 1,
 							  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
 	if (window == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Renderer *renderer =
-		SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+		SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	if (renderer == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Surface *surface = imageToSurface(image);
 	if (surface == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
@@ -116,14 +112,11 @@ int displayImage(Image *image, char *windowName) {
 		case SDL_QUIT: keepDisplay = 0; break;
 		}
 	}
-	/// KEEP DISPLAY RESULT
 
 	// DESTRUCTION
 	SDL_DestroyTexture(texture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
-	IMG_Quit();
-	SDL_Quit();
 
 	return EXIT_SUCCESS;
 }
@@ -185,7 +178,6 @@ void draw(SDL_Renderer *renderer, SDL_Texture *texture) {
 }
 
 int rotateWithView(Image *image) {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Window *window;
 	window = SDL_CreateWindow("Rotate preview", 0, 0, 1, 1,
 							  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
@@ -200,7 +192,5 @@ int rotateWithView(Image *image) {
 	// DESTRUCTION
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
-	IMG_Quit();
-	SDL_Quit();
 	return theta;
 }
