@@ -110,6 +110,10 @@ int displayImage(Image *image, char *windowName) {
 				draw(renderer, texture);
 			break;
 		case SDL_QUIT: keepDisplay = 0; break;
+		case SDL_KEYDOWN:
+			if (event.key.repeat != 0) break;
+			if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+				keepDisplay = 0;
 		}
 	}
 

@@ -15,7 +15,7 @@ verbose*
 COMMIT_MESSAGE
 
 # Images
-./Images/*
+Images/*
 !./Images/images_[0-9]*.jpeg
-./board_*/
-./saved_images/*
+board_*/
+saved_images/*

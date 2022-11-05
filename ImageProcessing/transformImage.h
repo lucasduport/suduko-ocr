@@ -4,8 +4,9 @@
 #include "tools.h"
 
 void invertImage(Image *image);
+void medianFilter(Image *image, int radius);
 void gaussianBlur(Image *image);
-void calibrateImage(Image *image, int radius);
+void calibrateImage(Image *image, int radius, uc default_value);
 void sobelFilter(Image *image);
 void saturateImage(Image *image);
 void resizeImage(Image *image, st new_w, st new_h);

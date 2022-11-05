@@ -73,16 +73,28 @@ void exeRotateView(char *filename) {
 }
 
 void exeDemo(char *filename) {
-	// open image
+	// open image and remove color
 	Image *image = openImage(filename);
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
-	// rotate image
+	// manual rotation
 	int theta = rotateWithView(image);
+	/*gaussianBlur(image);
+	displayImage(image, "Gaussian blur");*/
+	medianFilter(image, 1);
+	displayImage(image, "medianFilter");
+	calibrateImage(image, 200, 255);
+	displayImage(image, "Calibration");
 	Image *rotated = rotateImage(image, theta, 255);
 	freeImage(image);
-	// preprocess image
-	saturateImage(rotated);
-	// detect grid
+	Image *copy = copyImage(rotated);
+	// preprocess image, do not display result
+	sobelFilter(rotated);
+	displayImage(rotated, "Sobel Filter");
+	gaussianBlur(rotated);
+	displayImage(rotated, "Gaussian blur");
+	calibrateImage(rotated, 200, 0);
+	displayImage(rotated, "Calibration");
+	// grid detection
 	Quadri *quadri = detectGrid(rotated);
 	if (quadri == NULL) {
 		freeImage(rotated);
@@ -90,8 +102,10 @@ void exeDemo(char *filename) {
 	}
 	// display results
 	showQuadri(rotated, quadri, 0, 255, 0);
-	Image *extracted = extractGrid(rotated, quadri, 900, 900);
 	freeImage(rotated);
+	// grid extraction
+	Image *extracted = extractGrid(copy, quadri, 900, 900);
+	freeImage(copy);	
 	freeQuadri(quadri);
 	displayImage(extracted, "Extracted grid");
 	// save image
@@ -106,7 +120,7 @@ void exeTest(char *filename, int radius) {
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
 	displayImage(image, "Original image");
 	gaussianBlur(image);
-	calibrateImage(image, radius);
+	calibrateImage(image, radius, 255);
 	displayImage(image, "Saturated");
 	sobelFilter(image);
 	displayImage(image, "Sobel");
