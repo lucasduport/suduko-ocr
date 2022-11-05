@@ -121,7 +121,7 @@ void getHorizontalLine(Image *image, st r, st theta, uc *line) {
 	}
 }
 
-void smoothLine(uc *line, st threshold, st len, st *i_start, st *i_end) {
+void smoothLine(uc *line, st len, st *i_start, st *i_end) {
 	// Gets the best_value as the threshold
 	// for (st i = 0; i < len; i++) line[i] = line[i] >= threshold ? 1 : 0;
 	for (st i = 0; i < len; i++) line[i] = line[i] >= 64 ? 1 : 0;
@@ -193,7 +193,7 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image) {
 	else
 		getHorizontalLine(image, best_r, best_theta, line);
 	st i_start, i_end;
-	smoothLine(line, best_value, dim, &i_start, &i_end);
+	smoothLine(line, dim, &i_start, &i_end);
 	float _cos = cos(best_theta * PI / 180);
 	float _sin = sin(best_theta * PI / 180);
 	float x1, y1, x2, y2;

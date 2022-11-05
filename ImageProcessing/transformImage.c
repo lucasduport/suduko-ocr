@@ -303,16 +303,18 @@ Image *rotateImage(Image *image, int angleD, uc background_color) {
 					  - ((float)new_y - new_h / 2) * _sin + w / 2;
 			float y = ((float)new_x - new_w / 2) * _sin
 					  + ((float)new_y - new_h / 2) * _cos + h / 2;
-			if (x < 0) x = 0;
-			if (x >= w - 1) x = w - 2;
-			if (y < 0) y = 0;
-			if (y >= h - 1) y = h - 2;
-			/*
-			if (x < 0 || x >= w - 1 || y < 0 || y >= h - 1) {
-				new_pixels[new_y * new_w + new_x] = background_color;
-				continue;
+			if (background_color != 255) {
+				if (x < 0 || x >= w - 1 || y < 0 || y >= h - 1) {
+					new_pixels[new_y * new_w + new_x] = background_color;
+					continue;
+				}
 			}
-			*/
+			else {
+				if (x < 0) x = 0;
+				if (x >= w - 1) x = w - 2;
+				if (y < 0) y = 0;
+				if (y >= h - 1) y = h - 2;
+			}
 			st upper_y = (st)y;
 			st lower_y = upper_y + 1;
 			st left_x = (st)x;
