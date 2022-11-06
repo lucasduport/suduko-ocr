@@ -10,10 +10,10 @@
 #define RANGE_DEL_R		15
 #define RANGE_DEL_THETA 3
 
-#define NB_SEGMENTS	 30
-#define COORD_ERROR	 10.0 // percentage of the size of the image
+#define NB_SEGMENTS	 50
+#define COORD_ERROR	 3.0 // percentage of the size of the image
 #define ANGLE_ERROR	 15
-#define LENGTH_ERROR 1.2 // ratio of the length of the line
+#define LENGTH_ERROR 1.2
 
 int isVertical(st theta) {
 	return (0 <= theta && theta < 45) || (135 <= theta && theta < 225)
@@ -121,10 +121,9 @@ void getHorizontalLine(Image *image, st r, st theta, uc *line) {
 	}
 }
 
-void smoothLine(uc *line, st len, st *i_start, st *i_end) {
+void smoothLine(uc *line, st threshold, st len, st *i_start, st *i_end) {
 	// Gets the best_value as the threshold
-	// for (st i = 0; i < len; i++) line[i] = line[i] >= threshold ? 1 : 0;
-	for (st i = 0; i < len; i++) line[i] = line[i] >= 64 ? 1 : 0;
+	for (st i = 0; i < len; i++) line[i] = line[i] >= threshold ? 1 : 0;
 	// Fills the gaps smaller than min_gap
 	int change = 1;
 	st min_gap = SMOOTH_ERROR / 100.0 * len;
@@ -193,7 +192,7 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image) {
 	else
 		getHorizontalLine(image, best_r, best_theta, line);
 	st i_start, i_end;
-	smoothLine(line, dim, &i_start, &i_end);
+	smoothLine(line, best_value, dim, &i_start, &i_end);
 	float _cos = cos(best_theta * PI / 180);
 	float _sin = sin(best_theta * PI / 180);
 	float x1, y1, x2, y2;
@@ -303,6 +302,7 @@ Point *getBottomRight(Point *p1, Point *p2, Point *p3, Point *p4) {
 }
 
 Quadri *detectGrid(Image *image) {
+	invertImage(image);
 	st width = image->width, height = image->height;
 	st r_max = sqrt(width * width + height * height);
 	uc r_theta[r_max * 360];
@@ -319,7 +319,6 @@ Quadri *detectGrid(Image *image) {
 			// segment->theta); printf("Length: %zu\n\n", segment->length);
 		}
 	}
-	// 
 	showLines(image, segments, NB_SEGMENTS, 255, 0, 0, 1);
 	st min_dist = pow(COORD_ERROR / 100.0 * r_max, 2);
 	for (st i1 = 0; i1 < NB_SEGMENTS; i1++) {

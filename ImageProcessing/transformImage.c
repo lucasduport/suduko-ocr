@@ -10,47 +10,42 @@ void invertImage(Image *image) {
 	for (size_t i = 0; i < len; i++) pixels[i] = 255 - pixels[i];
 }
 
-uc median(uc *pixels, int size) {
-	for (int i = 0; i < size; i++) {
-		// checks if pixels[i] is the median
-		int nbLess = 0;
-		int nbMore = 0;
-		for (int j = 0; j < size; j++) {
-			if (pixels[i] < pixels[j]) nbLess++;
-			if (pixels[i] > pixels[j]) nbMore++;
-		}
-		int diff = abs(nbLess - nbMore);
-		if (diff <= 1) return pixels[i];
-	}
-	return pixels[0];
-}
-
-void medianFilter(Image *image, int radius) {
+void thresholdCells(Image *image) {
+	int grid_size = image->width;
+	int cell_size = grid_size / 9;
 	uc *pixels = image->pixels;
-	int w = image->width, h = image->height;
-	uc *pixels_copy = copyPixels(pixels, w * h);
-	for (int x = 0; x < w; x++) {
-		for (int y = 0; y < h; y++) {
-			// takes the median of the pixels in the square of radius radius
-			// centered on (x,y)
-			int min_x = x < radius ? 0 : x - radius;
-			int max_x = x + radius >= w ? w - 1 : x + radius;
-			int min_y = y < radius ? 0 : y - radius;
-			int max_y = y + radius >= h ? h - 1 : y + radius;
-			int len = (max_x - min_x + 1) * (max_y - min_y + 1);
-			uc *values = malloc(len * sizeof(uc));
-			int i = 0;
-			for (int x2 = min_x; x2 <= max_x; x2++) {
-				for (int y2 = min_y; y2 <= max_y; y2++) {
-					values[i] = pixels_copy[x2 + y2 * w];
-					i++;
+	uc *new_pixels = copyPixels(pixels, grid_size * grid_size);
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			int x1 = i * cell_size - 10;
+			int x2 = (i + 1) * cell_size + 10;
+			int y1 = j * cell_size - 10;
+			int y2 = (j + 1) * cell_size + 10;
+			if (x1 < 0) x1 = 0;
+			if (x2 > grid_size) x2 = grid_size;
+			if (y1 < 0) y1 = 0;
+			if (y2 > grid_size) y2 = grid_size;
+			int min = 255;
+			int max = 0;
+			for (int x = x1; x < x2; x++) {
+				for (int y = y1; y < y2; y++) {
+					int value = pixels[y * grid_size + x];
+					if (value < min) min = value;
+					if (value > max) max = value;
 				}
 			}
-			pixels[x + y * w] = median(values, len);
-			free(values);
+			int threshold = min * 0.7 + max * 0.3;
+			for (int x = i * cell_size; x < (i + 1) * cell_size; x++) {
+				for (int y = j * cell_size; y < (j + 1) * cell_size; y++) {
+					int value = pixels[y * grid_size + x];
+					if (value < threshold) new_pixels[y * grid_size + x] = 255;
+					else new_pixels[y * grid_size + x] = 0;
+				}
+			}
 		}
 	}
-	free(pixels_copy);
+	free(pixels);
+	image->pixels = new_pixels;
 }
 
 void gaussianBlur(Image *image) {
@@ -84,7 +79,7 @@ void gaussianBlur(Image *image) {
 	image->pixels = newPixels;
 }
 
-void calibrateImage(Image *image, int radius, uc default_value) {
+void calibrateImage(Image *image, int radius) {
 	int w = image->width, h = image->height;
 	uc *pixels = image->pixels;
 	uc *copy_pixels = copyPixels(pixels, w * h);
@@ -117,7 +112,7 @@ void calibrateImage(Image *image, int radius, uc default_value) {
 			}
 			uc pixel = copy_pixels[y * w + x];
 			if (min == max) {
-				pixels[y * w + x] = default_value;
+				pixels[y * w + x] = 255;
 			} else {
 				pixels[y * w + x] = (pixel - min) * 255 / (max - min);
 			}
@@ -140,10 +135,6 @@ void sobelFilter(Image *image) {
 	if (gradients == NULL) errx(EXIT_FAILURE, "malloc failed");
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			if (x == 0 || x == w - 1 || y == 0 || y == h - 1) {
-				gradients[y * w + x] = 0;
-				continue;
-			}
 			int sumX = 0;
 			int sumY = 0;
 			for (int i = -1; i <= 1; i++) {
@@ -169,7 +160,6 @@ void sobelFilter(Image *image) {
 }
 
 void saturateImage(Image *image) {
-	// Unused
 	uc *pixels = image->pixels;
 	st w = image->width, h = image->height;
 	st histo[256] = {0};
@@ -303,17 +293,9 @@ Image *rotateImage(Image *image, int angleD, uc background_color) {
 					  - ((float)new_y - new_h / 2) * _sin + w / 2;
 			float y = ((float)new_x - new_w / 2) * _sin
 					  + ((float)new_y - new_h / 2) * _cos + h / 2;
-			if (background_color != 255) {
-				if (x < 0 || x >= w - 1 || y < 0 || y >= h - 1) {
-					new_pixels[new_y * new_w + new_x] = background_color;
-					continue;
-				}
-			}
-			else {
-				if (x < 0) x = 0;
-				if (x >= w - 1) x = w - 2;
-				if (y < 0) y = 0;
-				if (y >= h - 1) y = h - 2;
+			if (x < 0 || x >= w - 1 || y < 0 || y >= h - 1) {
+				new_pixels[new_y * new_w + new_x] = background_color;
+				continue;
 			}
 			st upper_y = (st)y;
 			st lower_y = upper_y + 1;

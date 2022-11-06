@@ -1,6 +1,6 @@
 #include "display.h"
 #include "hough.h"
-//#include "matrices.h"
+#include "matrices.h"
 #include "openImage.h"
 #include "tools.h"
 #include "transformImage.h"
@@ -29,16 +29,15 @@ char *cleanPath(char *filename, char *dest) {
 void printHelp(char *exeName) {
 	printf("Usage: %s <command> <filename> [options]\n", exeName);
 	printf("\t-h, --help\t\t\t"
-	"Prints this help message\n");
+	"prints this help message\n");
 	printf("\t-r, --rotate <image> <angle>\t"
-	"Rotate the image <image> with the angle <angle>.\n");
+	"rotate the image <image> with the angle <angle>.\n");
 	printf("\t-R, --rotateView <image>\t"
-	"Rotate the image <image> with a preview (use arrow keys).\n");
+	"rotate the image <image> with a preview (use arrow keys).\n");
 	printf("\t-d, --demo <image>\t\t"
-	"See full demo.\n");
+	"see full demo.\n");
 	printf("\t-t, --test <image> [options]\t"
-	"Test the image <image> with the given options.\n\t\t\t\t\t"
-	" Options can vary depending on the test.\n");
+	"test the image <image> with the given options.\n");
 }
 
 int missingArg(char *exeName, char *command) {
@@ -73,28 +72,17 @@ void exeRotateView(char *filename) {
 }
 
 void exeDemo(char *filename) {
-	// open image and remove color
+	// open image
 	Image *image = openImage(filename);
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
-	// manual rotation
+	// rotate image
 	int theta = rotateWithView(image);
-	/*gaussianBlur(image);
-	displayImage(image, "Gaussian blur");*/
-	medianFilter(image, 1);
-	displayImage(image, "medianFilter");
-	calibrateImage(image, 200, 255);
-	displayImage(image, "Calibration");
 	Image *rotated = rotateImage(image, theta, 255);
-	freeImage(image);
 	Image *copy = copyImage(rotated);
-	// preprocess image, do not display result
-	sobelFilter(rotated);
-	displayImage(rotated, "Sobel Filter");
-	gaussianBlur(rotated);
-	displayImage(rotated, "Gaussian blur");
-	calibrateImage(rotated, 200, 0);
-	displayImage(rotated, "Calibration");
-	// grid detection
+	freeImage(image);
+	// preprocess image
+	saturateImage(rotated);
+	// detect grid
 	Quadri *quadri = detectGrid(rotated);
 	if (quadri == NULL) {
 		freeImage(rotated);
@@ -102,11 +90,11 @@ void exeDemo(char *filename) {
 	}
 	// display results
 	showQuadri(rotated, quadri, 0, 255, 0);
-	freeImage(rotated);
-	// grid extraction
 	Image *extracted = extractGrid(copy, quadri, 900, 900);
-	freeImage(copy);	
+	freeImage(copy);
+	freeImage(rotated);
 	freeQuadri(quadri);
+	thresholdCells(extracted);
 	displayImage(extracted, "Extracted grid");
 	// save image
 	char filenameStripped[30];
@@ -120,16 +108,10 @@ void exeTest(char *filename, int radius) {
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
 	displayImage(image, "Original image");
 	gaussianBlur(image);
-	calibrateImage(image, radius, 255);
+	calibrateImage(image, radius);
 	displayImage(image, "Saturated");
 	sobelFilter(image);
 	displayImage(image, "Sobel");
-	freeImage(image);
-}
-
-void exeDebug(char *filename) {
-	Image *image = openImage(filename);
-	//displayImage(image, "Window name");
 	freeImage(image);
 }
 
@@ -139,7 +121,6 @@ int main(int argc, char *argv[]) {
 		printHelp(exeName);
 		return 1;
 	}
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	for (int i = 1; i < argc; i++) {
 		char *command = argv[i];
 		if (!strcmp(command, "-h") || !strcmp(command, "--help")) {
@@ -168,19 +149,11 @@ int main(int argc, char *argv[]) {
 			int radius = atoi(argv[++i]);
 			exeTest(filename, radius);
 		}
-		else if (!strcmp(command, "-D") || !strcmp(command, "--debug")) {
-			if (i + 1 >= argc) return missingArg(exeName, command);
-			char *filename = argv[++i];
-			exeDebug(filename);
-		}
 		else {
 			printf("Unknown command %s.\n", command);
 			printHelp(exeName);
 			return 1;
 		}
 	}
-	IMG_Quit();
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
-	SDL_Quit();
 	return 0;
 }
