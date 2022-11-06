@@ -4,8 +4,8 @@ void invMat33(float mat[3][3], float res[3][3]) {
 	float a = mat[0][0], b = mat[0][1], c = mat[0][2];
 	float d = mat[1][0], e = mat[1][1], f = mat[1][2];
 	float g = mat[2][0], h = mat[2][1], i = mat[2][2];
-	float det =
-		a * e * i + b * f * g + c * d * h - c * e * g - b * d * i - a * f * h;
+	float det
+		= a * e * i + b * f * g + c * d * h - c * e * g - b * d * i - a * f * h;
 	res[0][0] = (e * i - f * h) / det, res[0][1] = (c * h - b * i) / det,
 	res[0][2] = (b * f - c * e) / det;
 	res[1][0] = (f * g - d * i) / det, res[1][1] = (a * i - c * g) / det,

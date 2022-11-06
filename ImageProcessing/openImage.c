@@ -10,8 +10,8 @@
 Image *openImage(const char *filename) {
 	SDL_Surface *surface_tmp = IMG_Load(filename);
 	if (surface_tmp == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
-	SDL_Surface *surface =
-		SDL_ConvertSurfaceFormat(surface_tmp, SDL_PIXELFORMAT_RGB888, 0);
+	SDL_Surface *surface
+		= SDL_ConvertSurfaceFormat(surface_tmp, SDL_PIXELFORMAT_RGB888, 0);
 	if (surface == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_FreeSurface(surface_tmp);
 	Uint32 *pxls = surface->pixels;
@@ -61,7 +61,8 @@ void saveBoard(Image *image, const char *filename) {
 	int effectiveSize = size * percentageOfCell;
 	int gap = (size - effectiveSize) / 2;
 	SDL_Surface *surface = imageToSurface(image);
-	SDL_Surface *cell = SDL_CreateRGBSurface(0, effectiveSize, effectiveSize, 32, 0, 0, 0, 0);
+	SDL_Surface *cell
+		= SDL_CreateRGBSurface(0, effectiveSize, effectiveSize, 32, 0, 0, 0, 0);
 
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {

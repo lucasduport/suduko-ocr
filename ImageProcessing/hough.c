@@ -102,8 +102,7 @@ void getVerticalLine(Image *image, st r, st theta, uc *line) {
 	for (st y = 0; y < height; y++) {
 		float x = (r - y * _sin) / _cos;
 		if (x < 0 || x >= width) line[y] = 0;
-		else
-			line[y] = pixels[y * width + (st)x];
+		else line[y] = pixels[y * width + (st)x];
 	}
 }
 
@@ -116,8 +115,7 @@ void getHorizontalLine(Image *image, st r, st theta, uc *line) {
 	for (st x = 0; x < width; x++) {
 		float y = (r - x * _cos) / _sin;
 		if (y < 0 || y >= height) line[x] = 0;
-		else
-			line[x] = pixels[(st)y * width + x];
+		else line[x] = pixels[(st)y * width + x];
 	}
 }
 
@@ -189,8 +187,7 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image) {
 	st dim = vertical ? height : width;
 	uc line[dim];
 	if (vertical) getVerticalLine(image, best_r, best_theta, line);
-	else
-		getHorizontalLine(image, best_r, best_theta, line);
+	else getHorizontalLine(image, best_r, best_theta, line);
 	st i_start, i_end;
 	smoothLine(line, best_value, dim, &i_start, &i_end);
 	float _cos = cos(best_theta * PI / 180);
@@ -339,8 +336,7 @@ Quadri *detectGrid(Image *image) {
 			st diff_coord2 = st_pow(segment1->x1, segment2->x2)
 							 + st_pow(segment1->y1, segment2->y2);
 			if (diff_coord2 <= min_dist) swapPoints(segment2);
-			else if (diff_coord1 > min_dist)
-				continue;
+			else if (diff_coord1 > min_dist) continue;
 			segments2[j] = i2;
 			j++;
 			// printf("cmp1-2 : (%zu, %zu) (%zu, %zu)\n", segment1->x1,
@@ -365,8 +361,7 @@ Quadri *detectGrid(Image *image) {
 			// printf("cmp1-3 : (%zu, %zu) (%zu, %zu)\n", segment1->x2,
 			// segment1->y2, segment3->x1, segment3->y1);
 			if (diff_coord2 <= min_dist) swapPoints(segment3);
-			else if (diff_coord1 > min_dist)
-				continue;
+			else if (diff_coord1 > min_dist) continue;
 			segments3[j] = i3;
 			j++;
 		}
@@ -391,8 +386,7 @@ Quadri *detectGrid(Image *image) {
 				st diff_coord2 = st_pow(segment2->x2, segment4->x2)
 								 + st_pow(segment2->y2, segment4->y2);
 				if (diff_coord2 <= min_dist) swapPoints(segment4);
-				else if (diff_coord1 > min_dist)
-					continue;
+				else if (diff_coord1 > min_dist) continue;
 				// printf("cmp2-4 : (%zu, %zu) (%zu, %zu)\n", segment2->x2,
 				// segment2->y2, segment4->x1, segment4->y1);
 				for (st i3 = 0; segments3[i3] != NB_SEGMENTS; i3++) {
@@ -407,12 +401,12 @@ Quadri *detectGrid(Image *image) {
 					// printSegment(segment3, 3);
 					// printSegment(segment4, 4);
 					Point *p1 = getIntersection(segment1, segment2); // top left
-					Point *p2 =
-						getIntersection(segment2, segment4); // top right
-					Point *p3 =
-						getIntersection(segment1, segment3); // bottom left
-					Point *p4 =
-						getIntersection(segment3, segment4); // bottom right
+					Point *p2
+						= getIntersection(segment2, segment4); // top right
+					Point *p3
+						= getIntersection(segment1, segment3); // bottom left
+					Point *p4
+						= getIntersection(segment3, segment4); // bottom right
 					Point *top_left = getTopLeft(p1, p2, p3, p4);
 					Point *top_right = getTopRight(p1, p2, p3, p4);
 					Point *bottom_left = getBottomLeft(p1, p2, p3, p4);

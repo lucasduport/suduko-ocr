@@ -4,11 +4,11 @@
 void showLines(Image *background, Segment **segments, st nb_segments, int r,
 			   int g, int b, float thickness) {
 	SDL_Window *window;
-	window =
-		SDL_CreateWindow("Segments visualizer", 0, 0, 1, 1, SDL_WINDOW_SHOWN);
+	window
+		= SDL_CreateWindow("Segments visualizer", 0, 0, 1, 1, SDL_WINDOW_SHOWN);
 	if (window == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
-	SDL_Renderer *renderer =
-		SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+	SDL_Renderer *renderer
+		= SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	if (renderer == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Surface *surface = imageToSurface(background);
 	if (surface == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
@@ -67,8 +67,8 @@ SDL_Surface *imageToSurface(Image *image) {
 	st w = image->width;
 	st h = image->height;
 	uc *pixels = image->pixels;
-	SDL_Surface *surface =
-		SDL_CreateRGBSurfaceWithFormat(0, w, h, 8, SDL_PIXELFORMAT_RGB888);
+	SDL_Surface *surface
+		= SDL_CreateRGBSurfaceWithFormat(0, w, h, 8, SDL_PIXELFORMAT_RGB888);
 	SDL_LockSurface(surface);
 	for (st y = 0; y < h; y++) {
 		for (st x = 0; x < w; x++) {
@@ -89,8 +89,8 @@ int displayImage(Image *image, char *windowName) {
 							  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
 	if (window == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
-	SDL_Renderer *renderer =
-		SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+	SDL_Renderer *renderer
+		= SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	if (renderer == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Surface *surface = imageToSurface(image);
 	if (surface == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
@@ -151,8 +151,7 @@ int event_loop(SDL_Renderer *renderer, Image *image) {
 				|| event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
 				if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
 					angle += step;
-				else
-					angle -= step;
+				else angle -= step;
 				angle %= 360;
 				freeImage(rotated);
 				rotated = rotateImage(image, angle, 0);
@@ -186,8 +185,8 @@ int rotateWithView(Image *image) {
 	window = SDL_CreateWindow("Rotate preview", 0, 0, 1, 1,
 							  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (window == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
-	SDL_Renderer *renderer =
-		SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+	SDL_Renderer *renderer
+		= SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	if (renderer == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
 
 	SDL_SetWindowSize(window, 1000, 1000);

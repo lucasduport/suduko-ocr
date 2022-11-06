@@ -1,6 +1,6 @@
 #include "tools.h"
-#include <stdio.h>
 #include <err.h>
+#include <stdio.h>
 
 uc *copyPixels(uc *pixels, st len) {
 	uc *newPixels = malloc(sizeof(uc) * len);

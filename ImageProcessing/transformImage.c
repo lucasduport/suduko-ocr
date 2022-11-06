@@ -90,7 +90,10 @@ void calibrateImage(Image *image, int radius) {
 			uc max = 0;
 			uc min = 255;
 			for (int j = y - radius; j <= y + radius; j++) {
-				if (j < 0) {j = -1; continue;}
+				if (j < 0) {
+					j = -1;
+					continue;
+				}
 				if (j >= h) break;
 				uc pixel = copy_pixels[j * w + x];
 				if (pixel > max) max = pixel;
@@ -103,7 +106,10 @@ void calibrateImage(Image *image, int radius) {
 			uc min = 255;
 			uc max = 0;
 			for (int i = x - radius; i <= x + radius; i++) {
-				if (i < 0) {i = -1; continue;}
+				if (i < 0) {
+					i = -1;
+					continue;
+				}
 				if (i >= w) break;
 				uc pixel = maxs[i];
 				if (pixel > max) max = pixel;
@@ -122,12 +128,8 @@ void calibrateImage(Image *image, int radius) {
 }
 
 void sobelFilter(Image *image) {
-	int kernelX[3][3] = {{-1, 0, 1},
-						 {-2, 0, 2},
-						 {-1, 0, 1}};
-	int kernelY[3][3] = {{-1, -2, -1},
-						 {0, 0, 0},
-						 {1, 2, 1}};
+	int kernelX[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+	int kernelY[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
 	uc *pixels = image->pixels;
 	int w = image->width;
 	int h = image->height;
@@ -209,8 +211,8 @@ void resizeImage(Image *image, st new_w, st new_h) {
 			value += pixels[upper_y * w + left_x] * weight_left * weight_top;
 			value += pixels[upper_y * w + right_x] * weight_right * weight_top;
 			value += pixels[lower_y * w + left_x] * weight_left * weight_bottom;
-			value +=
-				pixels[lower_y * w + right_x] * weight_right * weight_bottom;
+			value
+				+= pixels[lower_y * w + right_x] * weight_right * weight_bottom;
 			new_pixels[new_y * new_w + new_x] = (uc)(value + 0.5);
 		}
 	}
@@ -221,15 +223,12 @@ void resizeImage(Image *image, st new_w, st new_h) {
 }
 
 void autoResize(Image *image, st maw_w, st max_h) {
-	if (image->width <= maw_w && image->height <= max_h)
-		return;
+	if (image->width <= maw_w && image->height <= max_h) return;
 	// if ratio_w > ratio_h, then we resize by width
 	float ratio_w = (float)image->width / maw_w;
 	float ratio_h = (float)image->height / max_h;
-	if (ratio_w > ratio_h)
-		resizeImage(image, maw_w, image->height / ratio_w);
-	else
-		resizeImage(image, image->width / ratio_h, max_h);
+	if (ratio_w > ratio_h) resizeImage(image, maw_w, image->height / ratio_w);
+	else resizeImage(image, image->width / ratio_h, max_h);
 }
 
 Image *extractGrid(Image *image, Quadri *quadri, st new_w, st new_h) {
@@ -268,8 +267,8 @@ Image *extractGrid(Image *image, Quadri *quadri, st new_w, st new_h) {
 			value += pixels[upper_y * w + left_x] * weight_left * weight_top;
 			value += pixels[upper_y * w + right_x] * weight_right * weight_top;
 			value += pixels[lower_y * w + left_x] * weight_left * weight_bottom;
-			value +=
-				pixels[lower_y * w + right_x] * weight_right * weight_bottom;
+			value
+				+= pixels[lower_y * w + right_x] * weight_right * weight_bottom;
 			new_pixels[new_y * new_w + new_x] = (uc)(value + 0.5);
 		}
 	}
@@ -309,8 +308,8 @@ Image *rotateImage(Image *image, int angleD, uc background_color) {
 			value += pixels[upper_y * w + left_x] * weight_left * weight_top;
 			value += pixels[upper_y * w + right_x] * weight_right * weight_top;
 			value += pixels[lower_y * w + left_x] * weight_left * weight_bottom;
-			value +=
-				pixels[lower_y * w + right_x] * weight_right * weight_bottom;
+			value
+				+= pixels[lower_y * w + right_x] * weight_right * weight_bottom;
 			new_pixels[new_y * new_w + new_x] = (uc)(value + 0.5);
 		}
 	}

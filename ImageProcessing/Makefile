@@ -5,7 +5,8 @@
 .SILENT: format
 
 all:
-	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 -MMD *.c -c -g `pkg-config --cflags sdl2`
+	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
+-MMD *.c -c -g `pkg-config --cflags sdl2`
 	clang -fsanitize=address *.o -o main -lm -lSDL2 -lSDL2_image
 
 run:
@@ -31,5 +32,5 @@ save:
 	git status --porcelain >> COMMIT_MESSAGE
 	git commit -F COMMIT_MESSAGE
 	
-format: .clang-format
+format:
 	clang-format --style=file -i *.c

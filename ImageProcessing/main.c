@@ -6,9 +6,9 @@
 #include "transformImage.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <err.h>
 #include <stdio.h>
 #include <string.h>
-#include <err.h>
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
@@ -29,15 +29,15 @@ char *cleanPath(char *filename, char *dest) {
 void printHelp(char *exeName) {
 	printf("Usage: %s <command> <filename> [options]\n", exeName);
 	printf("\t-h, --help\t\t\t"
-	"prints this help message\n");
+		   "prints this help message\n");
 	printf("\t-r, --rotate <image> <angle>\t"
-	"rotate the image <image> with the angle <angle>.\n");
+		   "rotate the image <image> with the angle <angle>.\n");
 	printf("\t-R, --rotateView <image>\t"
-	"rotate the image <image> with a preview (use arrow keys).\n");
+		   "rotate the image <image> with a preview (use arrow keys).\n");
 	printf("\t-d, --demo <image>\t\t"
-	"see full demo.\n");
+		   "see full demo.\n");
 	printf("\t-t, --test <image> [options]\t"
-	"test the image <image> with the given options.\n");
+		   "test the image <image> with the given options.\n");
 }
 
 int missingArg(char *exeName, char *command) {
@@ -127,30 +127,25 @@ int main(int argc, char *argv[]) {
 		if (!strcmp(command, "-h") || !strcmp(command, "--help")) {
 			printHelp(exeName);
 			return 0;
-		}
-		else if (!strcmp(command, "-r") || !strcmp(command, "--rotate")) {
+		} else if (!strcmp(command, "-r") || !strcmp(command, "--rotate")) {
 			if (i + 2 >= argc) return missingArg(exeName, command);
 			char *filename = argv[++i];
 			int angle = atoi(argv[++i]);
 			exeRotate(filename, angle);
-		}
-		else if (!strcmp(command, "-R") || !strcmp(command, "--rotateView")) {
+		} else if (!strcmp(command, "-R") || !strcmp(command, "--rotateView")) {
 			if (i + 1 >= argc) return missingArg(exeName, command);
 			char *filename = argv[++i];
 			exeRotateView(filename);
-		}
-		else if (!strcmp(command, "-d") || !strcmp(command, "--demo")) {
+		} else if (!strcmp(command, "-d") || !strcmp(command, "--demo")) {
 			if (i + 1 >= argc) return missingArg(exeName, command);
 			char *filename = argv[++i];
 			exeDemo(filename);
-		}
-		else if (!strcmp(command, "-t") || !strcmp(command, "--test")) {
+		} else if (!strcmp(command, "-t") || !strcmp(command, "--test")) {
 			if (i + 2 >= argc) return missingArg(exeName, command);
 			char *filename = argv[++i];
 			int radius = atoi(argv[++i]);
 			exeTest(filename, radius);
-		}
-		else {
+		} else {
 			printf("Unknown command %s.\n", command);
 			printHelp(exeName);
 			return 1;
