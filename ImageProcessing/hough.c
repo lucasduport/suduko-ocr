@@ -11,7 +11,7 @@
 #define RANGE_DEL_THETA 3
 
 #define NB_SEGMENTS	 50
-#define COORD_ERROR	 3.0 // percentage of the size of the image
+#define COORD_ERROR	 5.0 // percentage of the size of the image
 #define ANGLE_ERROR	 15
 #define LENGTH_ERROR 1.2
 

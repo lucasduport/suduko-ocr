@@ -9,7 +9,7 @@ all:
 -MMD *.c -c -g `pkg-config --cflags sdl2`
 	clang *.o -o main -lm -lSDL2 -lSDL2_image
 	# clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
--MMD *.c -c -g `pkg-config --cflags sdl2`
+	#-MMD *.c -c -g `pkg-config --cflags sdl2`
 	# clang -fsanitize=address *.o -o main -lm -lSDL2 -lSDL2_image
 
 run:
