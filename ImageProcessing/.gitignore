@@ -1,0 +1,21 @@
+# Executables
+main
+
+# IDE files
+.vscode/
+
+# Format files
+.clang-format
+
+# Tests
+test*
+verbose*
+
+# Commit message
+COMMIT_MESSAGE
+
+# Images
+Images/*
+!./Images/images_[0-9]*.jpeg
+board_*/
+saved_images/*

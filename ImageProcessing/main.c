@@ -1,6 +1,6 @@
 #include "display.h"
 #include "hough.h"
-#include "matrices.h"
+//#include "matrices.h"
 #include "openImage.h"
 #include "tools.h"
 #include "transformImage.h"
@@ -8,6 +8,7 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <string.h>
+#include <err.h>
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
@@ -25,81 +26,161 @@ char *cleanPath(char *filename, char *dest) {
 	return dest;
 }
 
+void printHelp(char *exeName) {
+	printf("Usage: %s <command> <filename> [options]\n", exeName);
+	printf("\t-h, --help\t\t\t"
+	"Prints this help message\n");
+	printf("\t-r, --rotate <image> <angle>\t"
+	"Rotate the image <image> with the angle <angle>.\n");
+	printf("\t-R, --rotateView <image>\t"
+	"Rotate the image <image> with a preview (use arrow keys).\n");
+	printf("\t-d, --demo <image>\t\t"
+	"See full demo.\n");
+	printf("\t-t, --test <image> [options]\t"
+	"Test the image <image> with the given options.\n\t\t\t\t\t"
+	" Options can vary depending on the test.\n");
+}
+
+int missingArg(char *exeName, char *command) {
+	printf("Missing argument for %s.\n", command);
+	printHelp(exeName);
+	return 1;
+}
+
+void exeRotate(char *filename, int angle) {
+	Image *image = openImage(filename);
+	Image *rotated = rotateImage(image, angle, 0);
+	char filenameStripped[30];
+	cleanPath(filename, filenameStripped);
+	char destName[40];
+	sprintf(destName, "%s_r%i.png", filenameStripped, angle);
+	saveImage(rotated, destName);
+	freeImage(rotated);
+	freeImage(image);
+}
+
+void exeRotateView(char *filename) {
+	Image *image = openImage(filename);
+	int theta = rotateWithView(image);
+	Image *rotated = rotateImage(image, theta, 0);
+	freeImage(image);
+	char filenameStripped[30];
+	cleanPath(filename, filenameStripped);
+	char destName[40];
+	sprintf(destName, "%s_r%i.png", filenameStripped, theta);
+	saveImage(rotated, destName);
+	freeImage(rotated);
+}
+
+void exeDemo(char *filename) {
+	// open image and remove color
+	Image *image = openImage(filename);
+	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
+	// manual rotation
+	int theta = rotateWithView(image);
+	/*gaussianBlur(image);
+	displayImage(image, "Gaussian blur");*/
+	medianFilter(image, 1);
+	displayImage(image, "medianFilter");
+	calibrateImage(image, 200, 255);
+	displayImage(image, "Calibration");
+	Image *rotated = rotateImage(image, theta, 255);
+	freeImage(image);
+	Image *copy = copyImage(rotated);
+	// preprocess image, do not display result
+	sobelFilter(rotated);
+	displayImage(rotated, "Sobel Filter");
+	gaussianBlur(rotated);
+	displayImage(rotated, "Gaussian blur");
+	calibrateImage(rotated, 200, 0);
+	displayImage(rotated, "Calibration");
+	// grid detection
+	Quadri *quadri = detectGrid(rotated);
+	if (quadri == NULL) {
+		freeImage(rotated);
+		errx(1, "No grid detected.");
+	}
+	// display results
+	showQuadri(rotated, quadri, 0, 255, 0);
+	freeImage(rotated);
+	// grid extraction
+	Image *extracted = extractGrid(copy, quadri, 900, 900);
+	freeImage(copy);	
+	freeQuadri(quadri);
+	displayImage(extracted, "Extracted grid");
+	// save image
+	char filenameStripped[30];
+	cleanPath(filename, filenameStripped);
+	saveBoard(extracted, filenameStripped);
+	freeImage(extracted);
+}
+
+void exeTest(char *filename, int radius) {
+	Image *image = openImage(filename);
+	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
+	displayImage(image, "Original image");
+	gaussianBlur(image);
+	calibrateImage(image, radius, 255);
+	displayImage(image, "Saturated");
+	sobelFilter(image);
+	displayImage(image, "Sobel");
+	freeImage(image);
+}
+
+void exeDebug(char *filename) {
+	Image *image = openImage(filename);
+	//displayImage(image, "Window name");
+	freeImage(image);
+}
+
 int main(int argc, char *argv[]) {
-	if (argc == 2 && strcmp(argv[1], "--help") == 0) {
-		printf("--demo <image>: see full demo.\n");
-		printf("--rotateView <image>: rotate the image <image> with a preview "
-			   "(use arrow keys).\n");
-		printf("--rotate <angle> <image> : rotate the image <image> with "
-			   "<angle> angle.\n");
-		return 0;
+	char *exeName = argv[0];
+	if (argc < 2) {
+		printHelp(exeName);
+		return 1;
 	}
-	if (argc == 3) {
-		if (strcmp(argv[1], "--rotateView") == 0) {
-			if (strcmp(argv[2], "--help") == 0) {
-				printf("Usage: ./main --rotateView <image>\n");
-				return 0;
-			}
-			Image *image = openImage(argv[2]);
-			int theta = rotateWithView(image);
-			Image *rotated = rotateImage(image, theta, 0);
-			char filenameWE[30];
-			cleanPath(argv[2], filenameWE);
-			char destName[40];
-			sprintf(destName, "%s_r%i.png", filenameWE, theta);
-			saveImage(rotated, destName);
-			freeImage(rotated);
-			freeImage(image);
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
+	for (int i = 1; i < argc; i++) {
+		char *command = argv[i];
+		if (!strcmp(command, "-h") || !strcmp(command, "--help")) {
+			printHelp(exeName);
 			return 0;
 		}
-		if (strcmp(argv[1], "--demo") == 0) {
-			if (strcmp(argv[2], "--help") == 0) {
-				printf("Usage: ./main --demo <image>\n");
-				return 0;
-			}
-			Image *image = openImage(argv[2]);
-			Image *resized = autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
-			freeImage(image);
-			int theta = rotateWithView(resized);
-			Image *rotated = rotateImage(resized, theta, 255);
-			freeImage(resized);
-			saturateImage(rotated);
-			Quadri *quadri = detectGrid(rotated);
-			if (quadri == NULL) {
-				printf("No grid detected\n");
-				freeImage(rotated);
-				return 1;
-			}
-			showQuadri(rotated, quadri, 0, 255, 0);
-			Image *extracted = extractGrid(rotated, quadri, 900, 900);
-			displayImage(extracted, "Extracted grid");
-			char filenameWE[30];
-			cleanPath(argv[2], filenameWE);
-			saveBoard(extracted, filenameWE);
-			freeImage(extracted);
-			freeQuadri(quadri);
-			freeImage(rotated);
-			return 0;
+		else if (!strcmp(command, "-r") || !strcmp(command, "--rotate")) {
+			if (i + 2 >= argc) return missingArg(exeName, command);
+			char *filename = argv[++i];
+			int angle = atoi(argv[++i]);
+			exeRotate(filename, angle);
+		}
+		else if (!strcmp(command, "-R") || !strcmp(command, "--rotateView")) {
+			if (i + 1 >= argc) return missingArg(exeName, command);
+			char *filename = argv[++i];
+			exeRotateView(filename);
+		}
+		else if (!strcmp(command, "-d") || !strcmp(command, "--demo")) {
+			if (i + 1 >= argc) return missingArg(exeName, command);
+			char *filename = argv[++i];
+			exeDemo(filename);
+		}
+		else if (!strcmp(command, "-t") || !strcmp(command, "--test")) {
+			if (i + 2 >= argc) return missingArg(exeName, command);
+			char *filename = argv[++i];
+			int radius = atoi(argv[++i]);
+			exeTest(filename, radius);
+		}
+		else if (!strcmp(command, "-D") || !strcmp(command, "--debug")) {
+			if (i + 1 >= argc) return missingArg(exeName, command);
+			char *filename = argv[++i];
+			exeDebug(filename);
+		}
+		else {
+			printf("Unknown command %s.\n", command);
+			printHelp(exeName);
+			return 1;
 		}
 	}
-	if (argc == 4) {
-		if (strcmp(argv[1], "--rotate") == 0) {
-			if (strcmp(argv[2], "--help") == 0) {
-				printf("Usage: ./main --rotate <angle> <image>\n");
-				return 0;
-			}
-			Image *image = openImage(argv[3]);
-			Image *rotated = rotateImage(image, atoi(argv[2]), 0);
-			char filenameWE[30];
-			cleanPath(argv[3], filenameWE);
-			char destName[40];
-			sprintf(destName, "%s_r%i.png", filenameWE, atoi(argv[2]));
-			saveImage(rotated, destName);
-			freeImage(rotated);
-			freeImage(image);
-			return 0;
-		}
-	}
-	printf("Try: ./main --help\n");
+	IMG_Quit();
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	SDL_Quit();
 	return 0;
 }

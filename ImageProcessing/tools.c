@@ -1,5 +1,13 @@
 #include "tools.h"
 #include <stdio.h>
+#include <err.h>
+
+uc *copyPixels(uc *pixels, st len) {
+	uc *newPixels = malloc(sizeof(uc) * len);
+	if (newPixels == NULL) errx(EXIT_FAILURE, "malloc failed");
+	for (st i = 0; i < len; i++) newPixels[i] = pixels[i];
+	return newPixels;
+}
 
 Image *newImage(st width, st height) {
 	Image *image = (Image *)malloc(sizeof(Image));
@@ -7,6 +15,15 @@ Image *newImage(st width, st height) {
 	image->width = width;
 	image->height = height;
 	return image;
+}
+
+Image *copyImage(Image *image) {
+	Image *copy = malloc(sizeof(Image));
+	if (copy == NULL) errx(EXIT_FAILURE, "malloc failed");
+	copy->width = image->width;
+	copy->height = image->height;
+	copy->pixels = copyPixels(image->pixels, image->width * image->height);
+	return copy;
 }
 
 void freeImage(Image *image) {

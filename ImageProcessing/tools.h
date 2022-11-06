@@ -30,11 +30,16 @@ typedef struct
     Point *p1, *p2, *p3, *p4;
 } Quadri;
 
+uc *copyPixels(uc *pixels, st len);
 Image *newImage(st width, st height);
+Image *copyImage(Image *image);
 void freeImage(Image *image);
+
 Point *newPoint(st x, st y);
 Segment *newSegment(st x1, st y1, st x2, st y2, st theta, st r, st length);
 void freeSegments(Segment **segments, int nb_segments);
+
 Quadri *newQuadri(Point *p1, Point *p2, Point *p3, Point *p4);
 void freeQuadri(Quadri *quadri);
+
 void printImage(Image *image);
