@@ -63,8 +63,8 @@ void saveBoard(Image *image, const char *filename) {
 	SDL_Surface *surface = imageToSurface(image);
 	SDL_Surface *cell = SDL_CreateRGBSurface(0, effectiveSize, effectiveSize, 32, 0, 0, 0, 0);
 
-	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 8; j++) {
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
 			SDL_Rect rect = {j * size + gap, i * size + gap, effectiveSize,
 							 effectiveSize};
 			SDL_BlitSurface(surface, &rect, cell, NULL);

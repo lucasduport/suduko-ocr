@@ -121,6 +121,7 @@ int main(int argc, char *argv[]) {
 		printHelp(exeName);
 		return 1;
 	}
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	for (int i = 1; i < argc; i++) {
 		char *command = argv[i];
 		if (!strcmp(command, "-h") || !strcmp(command, "--help")) {
@@ -155,5 +156,7 @@ int main(int argc, char *argv[]) {
 			return 1;
 		}
 	}
+	IMG_Quit();
+	SDL_Quit();
 	return 0;
 }
