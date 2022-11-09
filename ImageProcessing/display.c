@@ -1,5 +1,8 @@
+#include "openImage.h"
 #include "display.h"
+#include "transformImage.h"
 #include <stdio.h>
+#include <err.h>
 
 void showLines(Image *background, Segment **segments, st nb_segments, int r,
 			   int g, int b, float thickness) {

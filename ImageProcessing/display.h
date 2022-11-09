@@ -2,9 +2,8 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <err.h>
-#include "openImage.h"
 #include "tools.h"
+#include "image.h"
 
 void showLines(Image *background, Segment **segments, st nb_segments,
 int r, int g, int b, float thickness);

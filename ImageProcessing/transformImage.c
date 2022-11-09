@@ -1,8 +1,4 @@
 #include "transformImage.h"
-#include "matrices.h"
-#include "tools.h"
-#include <math.h>
-#include <stdio.h>
 
 void invertImage(Image *image) {
 	uc *pixels = image->pixels;

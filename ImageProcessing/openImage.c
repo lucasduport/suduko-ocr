@@ -1,4 +1,5 @@
 #include "openImage.h"
+#include "display.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <err.h>
@@ -6,24 +7,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-Image *openImage(const char *filename) {
-	SDL_Surface *surface_tmp = IMG_Load(filename);
-	if (surface_tmp == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
-	SDL_Surface *surface
-		= SDL_ConvertSurfaceFormat(surface_tmp, SDL_PIXELFORMAT_RGB888, 0);
-	if (surface == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
-	SDL_FreeSurface(surface_tmp);
-	Uint32 *pxls = surface->pixels;
-	Image *image = newImage(surface->w, surface->h);
-	uc *pixels = image->pixels;
-	st len = image->width * image->height;
-	if (SDL_LockSurface(surface) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
-	for (st i = 0; i < len; i++) { pixels[i] = pxls[i]; }
-	SDL_UnlockSurface(surface);
-	SDL_FreeSurface(surface);
-	return image;
-}
 
 void saveImage(Image *image, const char *filename) {
 	SDL_Surface *surface = imageToSurface(image);

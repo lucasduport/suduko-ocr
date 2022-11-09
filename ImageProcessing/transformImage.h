@@ -1,7 +1,11 @@
 #pragma once
 
-#include <err.h>
 #include "tools.h"
+#include "image.h"
+#include "matrices.h"
+#include <math.h>
+#include <stdio.h>
+#include <err.h>
 
 void invertImage(Image *image);
 void thresholdCells(Image *image);

@@ -1,9 +1,7 @@
 #include "hough.h"
 #include "smoothLine.h"
-#include "display.h"
-#include "openImage.h"
-#include "tools.h"
 #include "transformImage.h"
+#include "display.h"
 #include <math.h>
 #include <stdio.h>
 

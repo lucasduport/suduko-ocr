@@ -27,35 +27,6 @@ void initTrig() {
 	SIN[270] = COS[180] = -1;
 }
 
-uc *copyPixels(uc *pixels, st len) {
-	uc *newPixels = malloc(sizeof(uc) * len);
-	if (newPixels == NULL) errx(EXIT_FAILURE, "malloc failed");
-	for (st i = 0; i < len; i++) newPixels[i] = pixels[i];
-	return newPixels;
-}
-
-Image *newImage(st width, st height) {
-	Image *image = (Image *)malloc(sizeof(Image));
-	image->pixels = (uc *)malloc(width * height * sizeof(uc));
-	image->width = width;
-	image->height = height;
-	return image;
-}
-
-Image *copyImage(Image *image) {
-	Image *copy = malloc(sizeof(Image));
-	if (copy == NULL) errx(EXIT_FAILURE, "malloc failed");
-	copy->width = image->width;
-	copy->height = image->height;
-	copy->pixels = copyPixels(image->pixels, image->width * image->height);
-	return copy;
-}
-
-void freeImage(Image *image) {
-	free(image->pixels);
-	free(image);
-}
-
 Point *newPoint(st x, st y) {
 	Point *point = (Point *)malloc(sizeof(Point));
 	point->x = x;
@@ -94,13 +65,4 @@ void freeQuadri(Quadri *quadri) {
 	free(quadri->p3);
 	free(quadri->p4);
 	free(quadri);
-}
-
-void printImage(Image *image) {
-	uc *pixels = image->pixels;
-	st w = image->width, h = image->height;
-	for (size_t y = 0; y < h; y++) {
-		for (size_t x = 0; x < w; x++) printf("%02x ", pixels[y * w + x]);
-		printf("\n");
-	}
 }
