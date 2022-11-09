@@ -1,6 +1,5 @@
 #include "display.h"
 #include "hough.h"
-#include "matrices.h"
 #include "openImage.h"
 #include "tools.h"
 #include "transformImage.h"
@@ -24,6 +23,11 @@ char *cleanPath(char *filename, char *dest) {
 	if (!dot || dot == dest) return dest;
 	*dot = '\0';
 	return dest;
+}
+
+void init() {
+	initTrig();
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
 }
 
 void printHelp(char *exeName) {
@@ -82,6 +86,7 @@ void exeDemo(char *filename) {
 	freeImage(image);
 	// preprocess image
 	saturateImage(rotated);
+	displayImage(rotated, "Saturated");
 	// detect grid
 	Quadri *quadri = detectGrid(rotated);
 	if (quadri == NULL) {
@@ -121,7 +126,7 @@ int main(int argc, char *argv[]) {
 		printHelp(exeName);
 		return 1;
 	}
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
+	init();
 	for (int i = 1; i < argc; i++) {
 		char *command = argv[i];
 		if (!strcmp(command, "-h") || !strcmp(command, "--help")) {

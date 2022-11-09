@@ -1,3 +1,5 @@
+#include "hough.h"
+#include "smoothLine.h"
 #include "display.h"
 #include "openImage.h"
 #include "tools.h"
@@ -5,23 +7,21 @@
 #include <math.h>
 #include <stdio.h>
 
-#define SMOOTH_ERROR 1.5
-
 #define RANGE_DEL_R		15
-#define RANGE_DEL_THETA 3
+#define RANGE_DEL_THETA	3
 
-#define NB_SEGMENTS	 50
-#define COORD_ERROR	 5.0 // percentage of the size of the image
-#define ANGLE_ERROR	 15
-#define LENGTH_ERROR 1.2
+#define NB_SEGMENTS		50
+#define COORD_ERROR		5.0 // percentage of the size of the image
+#define ANGLE_ERROR		15 // in degrees
+#define LENGTH_ERROR	1.2 // max ratio of length
 
 int isVertical(st theta) {
 	return (0 <= theta && theta < 45) || (135 <= theta && theta < 225)
 		   || (315 <= theta && theta < 360);
 }
 
-void fillR_thetaVertical(Image *image, uc *r_theta, st r_max, st theta,
-						 float _cos, float _sin) {
+void fillR_thetaVertical(Image *image, uc *r_theta, st r_max, st theta) {
+	float _cos = COS[theta], _sin = SIN[theta];
 	st w = image->width, h = image->height;
 	uc *pixels = image->pixels;
 	int value;
@@ -40,8 +40,8 @@ void fillR_thetaVertical(Image *image, uc *r_theta, st r_max, st theta,
 	}
 }
 
-void fillR_thetaHorizontal(Image *image, uc *r_theta, st r_max, st theta,
-						   float _cos, float _sin) {
+void fillR_thetaHorizontal(Image *image, uc *r_theta, st r_max, st theta) {
+	float _cos = COS[theta], _sin = SIN[theta];
 	st w = image->width, h = image->height;
 	uc *pixels = image->pixels;
 	int value;
@@ -73,7 +73,7 @@ void fillR_theta(Image *image, uc *r_theta, st r_max) {
 		if (theta == 45 || theta == 135 || theta == 315) vertical = !vertical;
 		_cos = cos(theta * PI / 180), _sin = sin(theta * PI / 180);
 		(vertical ? fillR_thetaVertical : fillR_thetaHorizontal)(
-			image, r_theta, r_max, theta, _cos, _sin);
+			image, r_theta, r_max, theta);
 	}
 	for (st r = 0; r < r_max; r++)
 		for (st theta = 180; theta <= 270; theta++)
@@ -119,7 +119,8 @@ void getHorizontalLine(Image *image, st r, st theta, uc *line) {
 	}
 }
 
-void smoothLine(uc *line, st threshold, st len, st *i_start, st *i_end) {
+/*
+void moothLine(uc *line, st threshold, st len, st *i_start, st *i_end) {
 	// Gets the best_value as the threshold
 	for (st i = 0; i < len; i++) line[i] = line[i] >= threshold ? 1 : 0;
 	// Fills the gaps smaller than min_gap
@@ -158,6 +159,7 @@ void smoothLine(uc *line, st threshold, st len, st *i_start, st *i_end) {
 	*i_start = max_start;
 	*i_end = max_start + max_len;
 }
+*/
 
 void deleteBest(uc *r_theta, st r_max, st best_r, st best_theta) {
 	st r_min = best_r - RANGE_DEL_R > best_r ? 0 : best_r - RANGE_DEL_R;
@@ -315,6 +317,7 @@ Quadri *detectGrid(Image *image) {
 			// segment->y1, segment->x2, segment->y2); printf("Theta: %zu\n",
 			// segment->theta); printf("Length: %zu\n\n", segment->length);
 		}
+		// printf("Got segment: %p\n", segment);
 	}
 	showLines(image, segments, NB_SEGMENTS, 255, 0, 0, 1);
 	st min_dist = pow(COORD_ERROR / 100.0 * r_max, 2);

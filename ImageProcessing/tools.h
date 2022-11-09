@@ -2,8 +2,10 @@
 
 #include <stdlib.h>
 
-#define FILENAME "Images/image_06.jpeg"
 #define PI 3.141592654
+
+extern float COS[360];
+extern float SIN[360];
 
 typedef unsigned char uc;
 typedef size_t st;
@@ -29,6 +31,8 @@ typedef struct
 {
     Point *p1, *p2, *p3, *p4;
 } Quadri;
+
+void initTrig();
 
 uc *copyPixels(uc *pixels, st len);
 Image *newImage(st width, st height);
