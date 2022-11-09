@@ -24,6 +24,7 @@ clean:
 	rm -rf *.[do] main *.out
 	rm -rf saved_images/
 	rm -rf board_*/
+	rm -rf COMMIT_MESSAGE
 	clear
 
 save:
