@@ -29,6 +29,7 @@ void initTrig() {
 
 Point *newPoint(st x, st y) {
 	Point *point = (Point *)malloc(sizeof(Point));
+	if (point == NULL) errx(EXIT_FAILURE, "malloc failed");
 	point->x = x;
 	point->y = y;
 	return point;
@@ -36,6 +37,7 @@ Point *newPoint(st x, st y) {
 
 Segment *newSegment(st x1, st y1, st x2, st y2, st theta, st r, st length) {
 	Segment *segment = (Segment *)malloc(sizeof(Segment));
+	if (segment == NULL) errx(EXIT_FAILURE, "malloc failed");
 	segment->x1 = x1;
 	segment->y1 = y1;
 	segment->x2 = x2;
@@ -52,6 +54,7 @@ void freeSegments(Segment **segments, int nb_segments) {
 
 Quadri *newQuadri(Point *p1, Point *p2, Point *p3, Point *p4) {
 	Quadri *quadri = (Quadri *)malloc(sizeof(Quadri));
+	if (quadri == NULL) errx(EXIT_FAILURE, "malloc failed");
 	quadri->p1 = p1;
 	quadri->p2 = p2;
 	quadri->p3 = p3;

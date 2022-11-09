@@ -1,4 +1,6 @@
 #include "imageRGBA.h"
+#include "tools.h"
+#include "iamge.h"
 #include <err.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -55,4 +57,34 @@ ImageRGBA *openImageRGBA(const char *filename) {
 	SDL_UnlockSurface(surface);
 	SDL_FreeSurface(surface);
 	return image;
+}
+
+// not sure about using it
+Image *removeAlpha(ImageRGBA *image_rgba, uc threshold) {
+	// replace high alpha by white
+	st width = image_rgba->width, height = image_rgba->height;
+	Pixel *pixels_rgba = image_rgba->pixels;
+	Image *image = newImage(width, height);
+	uc *pixels = image->pixels;
+	st len = width * height;
+	Pixel pixel;
+	int val;
+	for (st i = 0; i < len; i++) {
+		pixel = pixels_rgba[i];
+		if (pixel.a > threshold)
+			val = 0;
+		else {
+			val = 255 - (pixel.r + pixel.g + pixel.b) / 3;
+			val = val * pixel.a / 255;
+		}
+		pixels[i] = 255 - val;
+	}
+	return image;
+}
+
+void placeDigit(Image *image, ImageRGBA *digit, int x, int y, uc threshold) {
+	int width = image->width, height = image->height;
+	uc *pixels = image->pixels;
+	Pixel *d_pixels = digit->pixels;
+	// TODO: continune this
 }
