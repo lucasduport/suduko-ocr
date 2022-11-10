@@ -10,8 +10,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#define WINDOW_WIDTH  800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH	800
+#define WINDOW_HEIGHT	600
+#define CELLSIZE		100
 
 char *cleanPath(char *filename, char *dest) {
 	char *slash = strrchr(filename, '/');
@@ -96,7 +97,7 @@ void exeDemo(char *filename) {
 	}
 	// display results
 	showQuadri(rotated, quadri, 0, 255, 0);
-	Image *extracted = extractGrid(copy, quadri, 900, 900);
+	Image *extracted = extractGrid(copy, quadri, 9 * CELLSIZE, 9 * CELLSIZE);
 	freeImage(copy);
 	freeImage(rotated);
 	freeQuadri(quadri);
@@ -121,12 +122,69 @@ void exeTest(char *filename, int radius) {
 	freeImage(image);
 }
 
-void exeDigit(char *filename, char *digit_filename, int x, int y) {
-	Image *bg = openImage(filename);
+void exeDigit(char *filename, char *digit_filename) {
+	Image *image = openImage(filename);
+	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
+	// rotate image
+	int theta = rotateWithView(image);
+	Image *rotated = rotateImage(image, theta, 255);
+	Image *copy = copyImage(rotated);
+	freeImage(image);
+	// preprocess image
+	saturateImage(rotated);
+	displayImage(rotated, "Saturated");
+	// detect grid
+	Quadri *quadri = detectGrid(rotated);
+	if (quadri == NULL) {
+		freeImage(rotated);
+		errx(1, "No grid detected.");
+	}
+	// display results
+	showQuadri(rotated, quadri, 0, 255, 0);
+	Image *extracted = extractGrid(copy, quadri, 9 * CELLSIZE, 9 * CELLSIZE);
+	freeImage(copy);
+	thresholdCells(extracted);
+	displayImage(extracted, "Extracted grid");
+	// save image
+	char filenameStripped[30];
+	cleanPath(filename, filenameStripped);
+	saveBoard(extracted, filenameStripped);
+	freeImage(extracted);
+
+	// puts back numbers in rotated
+	float mat[3][3];
+	getTransformMatrix(quadri, 9 * 384, 9 * 384, mat);
+	float input[3];
+	input[2] = 1;
+	float res[3];
 	ImageRGBA *digit = openImageRGBA(digit_filename);
-	displayImage(bg, "Before");
-	placeDigit(bg, digit, x, y);
-	displayImage(bg, "After");
+	int w = rotated->width, h = rotated->height;
+	uc *pxls = rotated->pixels;
+	Pixel *d_pxls = digit->pixels;
+	Pixel pxl;
+	int val;
+	// placeDigit(bg, digit, x, y);
+	int x, y;
+	for (int i = 0, j = 0; j < 9; i++, j += i / 9, i %= 9) {
+		for (int d_y = 0; d_y < 256; d_y++) {
+			for (int d_x = 0; d_x < 256; d_x++) {
+				input[0] = d_x + 384 * i + 64;
+				input[1] = d_y + 384 * j + 64;
+				matMul33_31(mat, input, res);
+				x = res[0] / res[2];
+				y = res[1] / res[2];
+				if (x < 0 || x >= w || y < 0 || y >= h) continue;
+				pxl = d_pxls[d_y * 256 + d_x];
+				val = (pxl.r + pxl.g + pxl.b) * pxl.a / 3 / 255;
+				pxls[y * w + x] = val;
+				// pxls[y * w + x] = 255;
+			}
+		}
+	}
+	displayImage(rotated, "With 1 placed");
+	freeQuadri(quadri);
+	freeImage(rotated);
+	freeImageRGBA(digit);
 }
 
 int main(int argc, char *argv[]) {
@@ -155,12 +213,10 @@ int main(int argc, char *argv[]) {
 			char *filename = argv[++i];
 			exeDemo(filename);
 		} else if (!strcmp(command, "-t") || !strcmp(command, "--test")) {
-			if (i + 4 >= argc) return missingArg(exeName, command);
+			if (i + 2 >= argc) return missingArg(exeName, command);
 			char *filename = argv[++i];
 			char *digit_filename = argv[++i];
-			int x = atoi(argv[++i]);
-			int y = atoi(argv[++i]);
-			exeDigit(filename, digit_filename, x, y);
+			exeDigit(filename, digit_filename);
 		} else {
 			printf("Unknown command %s.\n", command);
 			printHelp(exeName);
