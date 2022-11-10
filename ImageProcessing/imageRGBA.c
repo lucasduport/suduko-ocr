@@ -1,6 +1,6 @@
 #include "imageRGBA.h"
 #include "tools.h"
-#include "iamge.h"
+#include "image.h"
 #include <err.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -82,9 +82,26 @@ Image *removeAlpha(ImageRGBA *image_rgba, uc threshold) {
 	return image;
 }
 
-void placeDigit(Image *image, ImageRGBA *digit, int x, int y, uc threshold) {
-	int width = image->width, height = image->height;
+void placeDigit(Image *image, ImageRGBA *digit, int x, int y) {
+	int i_w = image->width, i_h = image->height;
 	uc *pixels = image->pixels;
+	int d_w = digit->width, d_h = digit->height;
 	Pixel *d_pixels = digit->pixels;
-	// TODO: continune this
+	Pixel pxl;
+	int i_x, i_y;
+	int val;
+	uc r, g, b, a;
+	for (int d_y = 0; d_y < d_h; d_y++) {
+		i_y = y + d_y;
+		if (i_y < 0 || i_y >= i_h) continue;
+		for (int d_x = 0; d_x < d_w; d_x++) {
+			i_x = x + d_x;
+			if (i_x < 0 || i_x >= i_w) continue;
+			pxl = d_pixels[d_y * d_w + d_x];
+			r = pxl.r, g = pxl.g, b = pxl.b, a = pxl.a;
+			val = (r + g + b) / 3;
+			val = val * a + pixels[i_y * i_w + i_x] * (255 - a);
+			pixels[i_y * i_w + i_x] = val / 255;
+		}
+	}
 }

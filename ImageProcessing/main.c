@@ -1,6 +1,7 @@
 #include "display.h"
 #include "hough.h"
 #include "openImage.h"
+#include "imageRGBA.h"
 #include "tools.h"
 #include "transformImage.h"
 #include <SDL2/SDL.h>
@@ -120,6 +121,14 @@ void exeTest(char *filename, int radius) {
 	freeImage(image);
 }
 
+void exeDigit(char *filename, char *digit_filename, int x, int y) {
+	Image *bg = openImage(filename);
+	ImageRGBA *digit = openImageRGBA(digit_filename);
+	displayImage(bg, "Before");
+	placeDigit(bg, digit, x, y);
+	displayImage(bg, "After");
+}
+
 int main(int argc, char *argv[]) {
 	char *exeName = argv[0];
 	if (argc < 2) {
@@ -146,10 +155,12 @@ int main(int argc, char *argv[]) {
 			char *filename = argv[++i];
 			exeDemo(filename);
 		} else if (!strcmp(command, "-t") || !strcmp(command, "--test")) {
-			if (i + 2 >= argc) return missingArg(exeName, command);
+			if (i + 4 >= argc) return missingArg(exeName, command);
 			char *filename = argv[++i];
-			int radius = atoi(argv[++i]);
-			exeTest(filename, radius);
+			char *digit_filename = argv[++i];
+			int x = atoi(argv[++i]);
+			int y = atoi(argv[++i]);
+			exeDigit(filename, digit_filename, x, y);
 		} else {
 			printf("Unknown command %s.\n", command);
 			printHelp(exeName);

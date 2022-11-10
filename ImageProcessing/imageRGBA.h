@@ -1,4 +1,5 @@
 #include "tools.h"
+#include "image.h"
 
 typedef struct
 {
@@ -17,3 +18,4 @@ ImageRGBA *newImageRGBA(st width, st height);
 ImageRGBA *copyImageRGBA(ImageRGBA *image);
 void freeImageRGBA(ImageRGBA *image);
 ImageRGBA *openImageRGBA(const char *filename);
+void placeDigit(Image *image, ImageRGBA *digit, int x, int y);
