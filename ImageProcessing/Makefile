@@ -9,11 +9,15 @@ all:
 	-MMD *.c -c -g `pkg-config --cflags sdl2`
 	clang -fsanitize=address *.o -o main -lm -lSDL2 -lSDL2_image
 
+nosan:
+	clang -Wall -Wextra -std=c99 -O3 -MMD *.c -c -g `pkg-config --cflags sdl2`
+	clang *.o -o main -lm -lSDL2 -lSDL2_image
+
 run:
 	make
 	clear
 	echo "========== Running main =========="
-	./main Images/image_06.jpeg
+	./main -t Images/image_06.jpeg Numbers/_1.png
 	echo "========== End of output =========="
 	rm main *.d
 

@@ -1,6 +1,7 @@
 #include "imageRGBA.h"
 #include "tools.h"
 #include "image.h"
+#include "matrices.h"
 #include <err.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -82,26 +83,30 @@ Image *removeAlpha(ImageRGBA *image_rgba, uc threshold) {
 	return image;
 }
 
-void placeDigit(Image *image, ImageRGBA *digit, int x, int y) {
-	int i_w = image->width, i_h = image->height;
-	uc *pixels = image->pixels;
-	int d_w = digit->width, d_h = digit->height;
-	Pixel *d_pixels = digit->pixels;
+void placeDigit(Image *bg, ImageRGBA *digit, Quadri *grid, int i, int j) {
+	float mat[3][3];
+	getTransformMatrix(grid, 9 * 384, 9 * 384, mat);
+	float input[3];
+	input[2] = 1;
+	float res[3];
+	int w = bg->width, h = bg->height;
+	uc *pxls = bg->pixels;
+	Pixel *d_pxls = digit->pixels;
 	Pixel pxl;
-	int i_x, i_y;
 	int val;
-	uc r, g, b, a;
-	for (int d_y = 0; d_y < d_h; d_y++) {
-		i_y = y + d_y;
-		if (i_y < 0 || i_y >= i_h) continue;
-		for (int d_x = 0; d_x < d_w; d_x++) {
-			i_x = x + d_x;
-			if (i_x < 0 || i_x >= i_w) continue;
-			pxl = d_pixels[d_y * d_w + d_x];
-			r = pxl.r, g = pxl.g, b = pxl.b, a = pxl.a;
-			val = (r + g + b) / 3;
-			val = val * a + pixels[i_y * i_w + i_x] * (255 - a);
-			pixels[i_y * i_w + i_x] = val / 255;
+	int x, y;
+	for (int d_y = 0; d_y < 256; d_y++) {
+		for (int d_x = 0; d_x < 256; d_x++) {
+			input[0] = d_x + 384 * i + 64;
+			input[1] = d_y + 384 * j + 64;
+			matMul33_31(mat, input, res);
+			x = res[0] / res[2];
+			y = res[1] / res[2];
+			if (x < 0 || x >= w || y < 0 || y >= h) continue;
+			pxl = d_pxls[d_y * 256 + d_x];
+			val = (pxl.r + pxl.g + pxl.b) * pxl.a / 3;
+			val += (255 - pxl.a) * pxls[y * w + x];
+			pxls[y * w + x] = val / 255;
 		}
 	}
 }

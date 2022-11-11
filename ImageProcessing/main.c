@@ -14,6 +14,39 @@
 #define WINDOW_HEIGHT	600
 #define CELLSIZE		100
 
+// function directly copied from ../Solver/main.c
+// cannot import it beacause of the presence of a main function
+int **readSudoku(const char *filename) {
+	int **array = malloc(9 * sizeof(int *));
+	for (int i = 0; i < 9; i++) array[i] = (int *)malloc(9 * sizeof(int));
+	if (!array) return NULL;
+	FILE *file = fopen(filename, "r");
+	if (!file)
+		errx(1, "Couldn't open file \"%s\"", filename);
+	size_t count;
+	char buffer = '0';
+	int value;
+	size_t i = 0;
+	size_t j = 0;
+
+	do {
+		count = fread(&buffer, 1, 1, file);
+		if (buffer == '.') value = 0;
+		else if (buffer >= '0' && buffer <= '9') value = buffer - '0';
+		else {
+			if (buffer == '\n' && j) {
+				i++;
+				j = 0;
+			}
+			continue;
+		}
+		array[i][j] = value;
+		j++;
+	} while (count != 0);
+	fclose(file);
+	return array;
+}
+
 char *cleanPath(char *filename, char *dest) {
 	char *slash = strrchr(filename, '/');
 	if (slash == NULL) {
@@ -122,7 +155,7 @@ void exeTest(char *filename, int radius) {
 	freeImage(image);
 }
 
-void exeDigit(char *filename, char *digit_filename) {
+void exeDigit(char *filename) {
 	Image *image = openImage(filename);
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
 	// rotate image
@@ -132,7 +165,7 @@ void exeDigit(char *filename, char *digit_filename) {
 	freeImage(image);
 	// preprocess image
 	saturateImage(rotated);
-	displayImage(rotated, "Saturated");
+	// displayImage(rotated, "Saturated");
 	// detect grid
 	Quadri *quadri = detectGrid(rotated);
 	if (quadri == NULL) {
@@ -144,7 +177,7 @@ void exeDigit(char *filename, char *digit_filename) {
 	Image *extracted = extractGrid(copy, quadri, 9 * CELLSIZE, 9 * CELLSIZE);
 	freeImage(copy);
 	thresholdCells(extracted);
-	displayImage(extracted, "Extracted grid");
+	// displayImage(extracted, "Extracted grid");
 	// save image
 	char filenameStripped[30];
 	cleanPath(filename, filenameStripped);
@@ -152,39 +185,32 @@ void exeDigit(char *filename, char *digit_filename) {
 	freeImage(extracted);
 
 	// puts back numbers in rotated
-	float mat[3][3];
-	getTransformMatrix(quadri, 9 * 384, 9 * 384, mat);
-	float input[3];
-	input[2] = 1;
-	float res[3];
-	ImageRGBA *digit = openImageRGBA(digit_filename);
-	int w = rotated->width, h = rotated->height;
-	uc *pxls = rotated->pixels;
-	Pixel *d_pxls = digit->pixels;
-	Pixel pxl;
-	int val;
-	// placeDigit(bg, digit, x, y);
-	int x, y;
-	for (int i = 0, j = 0; j < 9; i++, j += i / 9, i %= 9) {
-		for (int d_y = 0; d_y < 256; d_y++) {
-			for (int d_x = 0; d_x < 256; d_x++) {
-				input[0] = d_x + 384 * i + 64;
-				input[1] = d_y + 384 * j + 64;
-				matMul33_31(mat, input, res);
-				x = res[0] / res[2];
-				y = res[1] / res[2];
-				if (x < 0 || x >= w || y < 0 || y >= h) continue;
-				pxl = d_pxls[d_y * 256 + d_x];
-				val = (pxl.r + pxl.g + pxl.b) * pxl.a / 3 / 255;
-				pxls[y * w + x] = val;
-				// pxls[y * w + x] = 255;
-			}
-		}
-	}
-	displayImage(rotated, "With 1 placed");
+	int **sudoku = readSudoku("../Solver/grid_00");
+	int **solved = readSudoku("../Solver/grid_00.result");
+	ImageRGBA *_1 = openImageRGBA("Numbers/1.png");
+	ImageRGBA *_2 = openImageRGBA("Numbers/2.png");
+	ImageRGBA *_3 = openImageRGBA("Numbers/3.png");
+	ImageRGBA *_4 = openImageRGBA("Numbers/4.png");
+	ImageRGBA *_5 = openImageRGBA("Numbers/5.png");
+	ImageRGBA *_6 = openImageRGBA("Numbers/6.png");
+	ImageRGBA *_7 = openImageRGBA("Numbers/7.png");
+	ImageRGBA *_8 = openImageRGBA("Numbers/8.png");
+	ImageRGBA *_9 = openImageRGBA("Numbers/9.png");
+	ImageRGBA *digits[9] = {_1, _2, _3, _4, _5, _6, _7, _8, _9};
+	for (int j = 0; j < 9; j++)
+		for (int i = 0; i < 9; i++)
+			if (!sudoku[j][i])
+				placeDigit(rotated, digits[solved[j][i] - 1], quadri, i, j);
+	displayImage(rotated, "With numbers placed");
 	freeQuadri(quadri);
 	freeImage(rotated);
-	freeImageRGBA(digit);
+	for (st i = 0; i < 9; i++) {
+		free(sudoku[i]);
+		free(solved[i]);
+		freeImageRGBA(digits[i]);
+	}
+	free(sudoku);
+	free(solved);
 }
 
 int main(int argc, char *argv[]) {
@@ -213,12 +239,11 @@ int main(int argc, char *argv[]) {
 			char *filename = argv[++i];
 			exeDemo(filename);
 		} else if (!strcmp(command, "-t") || !strcmp(command, "--test")) {
-			if (i + 2 >= argc) return missingArg(exeName, command);
+			if (i + 1 >= argc) return missingArg(exeName, command);
 			char *filename = argv[++i];
-			char *digit_filename = argv[++i];
-			exeDigit(filename, digit_filename);
+			exeDigit(filename);
 		} else {
-			printf("Unknown command %s.\n", command);
+			printf("Unknown command %s\n", command);
 			printHelp(exeName);
 			return 1;
 		}
