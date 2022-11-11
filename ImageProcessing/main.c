@@ -177,7 +177,7 @@ void exeDigit(char *filename) {
 	Image *extracted = extractGrid(copy, quadri, 9 * CELLSIZE, 9 * CELLSIZE);
 	freeImage(copy);
 	thresholdCells(extracted);
-	// displayImage(extracted, "Extracted grid");
+	displayImage(extracted, "Extracted grid");
 	// save image
 	char filenameStripped[30];
 	cleanPath(filename, filenameStripped);
@@ -187,20 +187,21 @@ void exeDigit(char *filename) {
 	// puts back numbers in rotated
 	int **sudoku = readSudoku("../Solver/grid_00");
 	int **solved = readSudoku("../Solver/grid_00.result");
-	ImageRGBA *_1 = openImageRGBA("Numbers/1.png");
-	ImageRGBA *_2 = openImageRGBA("Numbers/2.png");
-	ImageRGBA *_3 = openImageRGBA("Numbers/3.png");
-	ImageRGBA *_4 = openImageRGBA("Numbers/4.png");
-	ImageRGBA *_5 = openImageRGBA("Numbers/5.png");
-	ImageRGBA *_6 = openImageRGBA("Numbers/6.png");
-	ImageRGBA *_7 = openImageRGBA("Numbers/7.png");
-	ImageRGBA *_8 = openImageRGBA("Numbers/8.png");
-	ImageRGBA *_9 = openImageRGBA("Numbers/9.png");
-	ImageRGBA *digits[9] = {_1, _2, _3, _4, _5, _6, _7, _8, _9};
+	ImageRGBA *digits[9];
+	char path[20];
+	for (int i = 1; i <= 9; i++) {
+		sprintf(path, "Numbers/_%d.png", i);
+		digits[i - 1] = openImageRGBA(path);
+	}
 	for (int j = 0; j < 9; j++)
 		for (int i = 0; i < 9; i++)
-			if (!sudoku[j][i])
-				placeDigit(rotated, digits[solved[j][i] - 1], quadri, i, j);
+			if (!sudoku[j][i]) {
+				int n = solved[j][i];
+				if (!digits[n - 1]) {
+
+				}
+				placeDigit(rotated, digits[n - 1], quadri, i, j);
+			}
 	displayImage(rotated, "With numbers placed");
 	freeQuadri(quadri);
 	freeImage(rotated);

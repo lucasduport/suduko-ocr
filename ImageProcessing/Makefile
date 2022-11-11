@@ -17,7 +17,7 @@ run:
 	make
 	clear
 	echo "========== Running main =========="
-	./main -t Images/image_06.jpeg Numbers/_1.png
+	./main -t Images/image_03.jpeg
 	echo "========== End of output =========="
 	rm main *.d
 

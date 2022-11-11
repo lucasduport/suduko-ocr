@@ -137,6 +137,7 @@ int event_loop(SDL_Renderer *renderer, Image *image) {
 	int angle = 0;
 	int step = 5;
 	Image *rotated = rotateImage(image, 0, 0);
+	draw(renderer, texture);
 	int running = 1;
 	while (running) {
 		SDL_WaitEvent(&event);
@@ -155,7 +156,8 @@ int event_loop(SDL_Renderer *renderer, Image *image) {
 				if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
 					angle += step;
 				else angle -= step;
-				angle %= 360;
+				if (angle >= 360) angle -= 360;
+				else if (angle < 0) angle += 360;
 				freeImage(rotated);
 				rotated = rotateImage(image, angle, 0);
 				SDL_DestroyTexture(texture);
