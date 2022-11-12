@@ -1,6 +1,5 @@
 #pragma once
 
-#include "tools.h"
 #include "quad.h"
 
 void invMat33(float mat[3][3], float res[3][3]);

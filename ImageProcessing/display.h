@@ -1,6 +1,5 @@
 #pragma once
 
-#include "tools.h"
 #include "image.h"
 #include "segment.h"
 #include "quad.h"

@@ -1,8 +1,5 @@
 #pragma once
 
-#include "tools.h"
-#include "point.h"
-#include "quad.h"
 #include "image.h"
 #include "matrices.h"
 #include <math.h>

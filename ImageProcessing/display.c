@@ -1,5 +1,5 @@
-#include "openImage.h"
 #include "display.h"
+#include "openImage.h"
 #include "transformImage.h"
 #include <stdio.h>
 #include <err.h>
@@ -119,8 +119,6 @@ int displayImage(Image *image, char *windowName) {
 			break;
 		}
 	}
-	/// KEEP DISPLAY RESULT
-
 	// DESTRUCTION
 	SDL_DestroyTexture(texture);
 	SDL_DestroyRenderer(renderer);

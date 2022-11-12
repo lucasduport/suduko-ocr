@@ -1,5 +1,4 @@
 #include "smoothLine.h"
-#include "tools.h"
 
 #define SMOOTH_ERROR	1.5
 

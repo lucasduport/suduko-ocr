@@ -1,6 +1,5 @@
 #pragma once
 
-#include "tools.h"
 #include "image.h"
 
 void invertImage(Image *image);

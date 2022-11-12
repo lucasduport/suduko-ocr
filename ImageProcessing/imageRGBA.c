@@ -1,6 +1,4 @@
 #include "imageRGBA.h"
-#include "tools.h"
-#include "image.h"
 #include "matrices.h"
 #include <err.h>
 #include <SDL2/SDL.h>
