@@ -59,27 +59,17 @@ ImageRGBA *openImageRGBA(const char *filename) {
 	return image;
 }
 
-// not sure about using it
-Image *removeAlpha(ImageRGBA *image_rgba, uc threshold) {
-	// replace high alpha by white
-	st width = image_rgba->width, height = image_rgba->height;
-	Pixel *pixels_rgba = image_rgba->pixels;
-	Image *image = newImage(width, height);
-	uc *pixels = image->pixels;
-	st len = width * height;
-	Pixel pixel;
+void createAlpha(ImageRGBA *image, int min, int max) {
+	Pixel *pxls = image->pixels;
+	st len = image->width * image->height;
+	Pixel pxl;
 	int val;
 	for (st i = 0; i < len; i++) {
-		pixel = pixels_rgba[i];
-		if (pixel.a > threshold)
-			val = 0;
-		else {
-			val = 255 - (pixel.r + pixel.g + pixel.b) / 3;
-			val = val * pixel.a / 255;
-		}
-		pixels[i] = 255 - val;
+		pxl = pxls[i];
+		val = (pxl.r + pxl.g + pxl.b) / 3;
+		if (val < min || val > max)
+			pxls[i].a = 0;
 	}
-	return image;
 }
 
 void placeDigit(Image *bg, ImageRGBA *digit, Quad *grid, int i, int j) {

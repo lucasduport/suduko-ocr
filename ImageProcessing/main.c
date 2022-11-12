@@ -156,6 +156,20 @@ void exeTest(char *filename, int radius) {
 	freeImage(image);
 }
 
+void searchDigit(int **sudoku, int n, int *i, int *j) {
+	for (int y = 0; y < 9; y++) {
+		for (int x = 0; x < 9; x++) {
+			if (sudoku[y][x] == n) {
+				*i = x;
+				*j = y;
+				return;
+			}
+		}
+	}
+	*i = -1;
+	*j = -1;
+}
+
 void exeDigit(char *filename) {
 	Image *image = openImage(filename);
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -188,17 +202,30 @@ void exeDigit(char *filename) {
 	int **sudoku = readSudoku("../Solver/grid_00");
 	int **solved = readSudoku("../Solver/grid_00.result");
 	ImageRGBA *digits[9];
-	char path[20];
+	char path[30];
+	for (int i = 0; i < 9; i++)
+		digits[i] = NULL;
+	/*
 	for (int i = 1; i <= 9; i++) {
 		sprintf(path, "Numbers/_%d.png", i);
 		digits[i - 1] = openImageRGBA(path);
 	}
+	*/
 	for (int j = 0; j < 9; j++)
 		for (int i = 0; i < 9; i++)
 			if (!sudoku[j][i]) {
 				int n = solved[j][i];
 				if (!digits[n - 1]) {
 					// loads from cells
+					int i, j;
+					searchDigit(sudoku, n, &i, &j);
+					if (i < 0 || j < 0)
+						sprintf(path, "Numbers/_%d.png", n);
+					else
+						sprintf(path, "board_image_03/%d_%d.png", j + 1, i + 1);
+					digits[n - 1] = openImageRGBA(path);
+					if (digits[n - 1]->height != 256)
+						resizeImageRGBA(digits[n-1], 256, 256);
 				}
 				placeDigit(rotated, digits[n - 1], quad, i, j);
 			}
