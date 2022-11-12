@@ -4,6 +4,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+// Contains basics functions for manipulating the Image struct
+
 uc *copyPixels(uc *pixels, st len) {
 	uc *newPixels = malloc(sizeof(uc) * len);
 	if (newPixels == NULL) errx(EXIT_FAILURE, "malloc failed");

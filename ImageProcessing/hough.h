@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tools.h"
+#include "quad.h"
 #include "image.h"
 
-Quadri *detectGrid(Image *image);
+Quad *detectGrid(Image *image);

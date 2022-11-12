@@ -16,9 +16,9 @@ nosan:
 run:
 	make
 	clear
-	echo "========== Running main =========="
+	echo "==================== Running main ====================="
 	./main -t Images/image_03.jpeg
-	echo "========== End of output =========="
+	echo "==================== End of output ===================="
 	rm main *.d
 
 clean:

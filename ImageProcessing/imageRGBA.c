@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+// Contains basics functions for manipulating the ImageRGBA struct
 Pixel *copyPixelsRGBA(Pixel *pixels, st len) {
 	Pixel *newPixels = malloc(sizeof(Pixel) * len);
 	if (newPixels == NULL) errx(EXIT_FAILURE, "malloc failed");
@@ -83,7 +84,7 @@ Image *removeAlpha(ImageRGBA *image_rgba, uc threshold) {
 	return image;
 }
 
-void placeDigit(Image *bg, ImageRGBA *digit, Quadri *grid, int i, int j) {
+void placeDigit(Image *bg, ImageRGBA *digit, Quad *grid, int i, int j) {
 	float mat[3][3];
 	getTransformMatrix(grid, 9 * 384, 9 * 384, mat);
 	float input[3];

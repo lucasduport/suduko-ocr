@@ -1,5 +1,6 @@
 #pragma once
 #include "tools.h"
+#include "point.h"
 #include "image.h"
 
 void saveSquare(Image *image, const char *filename, Point *point, int size);

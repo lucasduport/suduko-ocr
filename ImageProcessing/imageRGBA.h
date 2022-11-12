@@ -1,4 +1,7 @@
+#pragma once
+
 #include "tools.h"
+#include "quad.h"
 #include "image.h"
 
 typedef struct
@@ -18,4 +21,4 @@ ImageRGBA *newImageRGBA(st width, st height);
 ImageRGBA *copyImageRGBA(ImageRGBA *image);
 void freeImageRGBA(ImageRGBA *image);
 ImageRGBA *openImageRGBA(const char *filename);
-void placeDigit(Image *bg, ImageRGBA *digit, Quadri *grid, int i, int j);
+void placeDigit(Image *bg, ImageRGBA *digit, Quad *grid, int i, int j);

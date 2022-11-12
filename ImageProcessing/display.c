@@ -53,11 +53,11 @@ void showLines(Image *background, Segment **segments, st nb_segments, int r,
 	SDL_DestroyWindow(window);
 }
 
-void showQuadri(Image *background, Quadri *quadri, int r, int g, int b) {
-	Point *p1 = quadri->p1;
-	Point *p2 = quadri->p2;
-	Point *p3 = quadri->p3;
-	Point *p4 = quadri->p4;
+void showQuad(Image *background, Quad *quad, int r, int g, int b) {
+	Point *p1 = quad->p1;
+	Point *p2 = quad->p2;
+	Point *p3 = quad->p3;
+	Point *p4 = quad->p4;
 	Segment s1 = {p1->x, p1->y, p3->x, p3->y, 0, 0, 0};
 	Segment s2 = {p1->x, p1->y, p2->x, p2->y, 0, 0, 0};
 	Segment s3 = {p3->x, p3->y, p4->x, p4->y, 0, 0, 0};

@@ -4,6 +4,7 @@
 #include "imageRGBA.h"
 #include "tools.h"
 #include "transformImage.h"
+#include "filters.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <err.h>
@@ -123,17 +124,17 @@ void exeDemo(char *filename) {
 	saturateImage(rotated);
 	displayImage(rotated, "Saturated");
 	// detect grid
-	Quadri *quadri = detectGrid(rotated);
-	if (quadri == NULL) {
+	Quad *quad = detectGrid(rotated);
+	if (quad == NULL) {
 		freeImage(rotated);
 		errx(1, "No grid detected.");
 	}
 	// display results
-	showQuadri(rotated, quadri, 0, 255, 0);
-	Image *extracted = extractGrid(copy, quadri, 9 * CELLSIZE, 9 * CELLSIZE);
+	showQuad(rotated, quad, 0, 255, 0);
+	Image *extracted = extractGrid(copy, quad, 9 * CELLSIZE, 9 * CELLSIZE);
 	freeImage(copy);
 	freeImage(rotated);
-	freeQuadri(quadri);
+	freeQuad(quad);
 	thresholdCells(extracted);
 	displayImage(extracted, "Extracted grid");
 	// save image
@@ -162,19 +163,18 @@ void exeDigit(char *filename) {
 	int theta = rotateWithView(image);
 	Image *rotated = rotateImage(image, theta, 255);
 	Image *copy = copyImage(rotated);
-	freeImage(image);
 	// preprocess image
 	saturateImage(rotated);
 	// displayImage(rotated, "Saturated");
 	// detect grid
-	Quadri *quadri = detectGrid(rotated);
-	if (quadri == NULL) {
+	Quad *quad = detectGrid(rotated);
+	if (quad == NULL) {
 		freeImage(rotated);
 		errx(1, "No grid detected.");
 	}
 	// display results
-	showQuadri(rotated, quadri, 0, 255, 0);
-	Image *extracted = extractGrid(copy, quadri, 9 * CELLSIZE, 9 * CELLSIZE);
+	showQuad(rotated, quad, 0, 255, 0);
+	Image *extracted = extractGrid(copy, quad, 9 * CELLSIZE, 9 * CELLSIZE);
 	freeImage(copy);
 	thresholdCells(extracted);
 	displayImage(extracted, "Extracted grid");
@@ -198,12 +198,28 @@ void exeDigit(char *filename) {
 			if (!sudoku[j][i]) {
 				int n = solved[j][i];
 				if (!digits[n - 1]) {
-
+					// loads from cells
 				}
-				placeDigit(rotated, digits[n - 1], quadri, i, j);
+				placeDigit(rotated, digits[n - 1], quad, i, j);
 			}
 	displayImage(rotated, "With numbers placed");
-	freeQuadri(quadri);
+
+	// puts numbers back in resized image
+	Quad *grid = rotateQuad(quad, theta, image, rotated);
+	for (int j = 0; j < 9; j++)
+		for (int i = 0; i < 9; i++)
+			if (!sudoku[j][i]) {
+				int n = solved[j][i];
+				if (!digits[n - 1]) {
+					// loads from cells
+				}
+				placeDigit(image, digits[n - 1], grid, i, j);
+			}
+	displayImage(image, "With numbers placed");
+
+	freeQuad(quad);
+	freeQuad(grid);
+	freeImage(image);
 	freeImage(rotated);
 	for (st i = 0; i < 9; i++) {
 		free(sudoku[i]);

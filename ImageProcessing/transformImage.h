@@ -1,20 +1,17 @@
 #pragma once
 
 #include "tools.h"
+#include "point.h"
+#include "quad.h"
 #include "image.h"
 #include "matrices.h"
 #include <math.h>
 #include <stdio.h>
 #include <err.h>
 
-void invertImage(Image *image);
-void thresholdCells(Image *image);
-void gaussianBlur(Image *image);
-void calibrateImage(Image *image, int radius);
-void sobelFilter(Image *image);
-void saturateImage(Image *image);
 void resizeImage(Image *image, st new_w, st new_h);
 void autoResize(Image *image, st maw_w, st max_h);
 Image* rotateImage(Image * image, int angle, uc background_color);
 void integrateNumber(Image *image, Image *number, Point *origin);
-Image *extractGrid(Image *image, Quadri *quadri, st new_w, st new_h);
+Image *extractGrid(Image *image, Quad *quad, st new_w, st new_h);
+Quad *rotateQuad(Quad *quad, int theta, Image *image, Image *rotated);

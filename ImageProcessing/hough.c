@@ -1,6 +1,7 @@
 #include "hough.h"
 #include "smoothLine.h"
 #include "transformImage.h"
+#include "filters.h"
 #include "display.h"
 #include <math.h>
 #include <stdio.h>
@@ -298,7 +299,7 @@ Point *getBottomRight(Point *p1, Point *p2, Point *p3, Point *p4) {
 	return NULL;
 }
 
-Quadri *detectGrid(Image *image) {
+Quad *detectGrid(Image *image) {
 	invertImage(image);
 	st width = image->width, height = image->height;
 	st r_max = sqrt(width * width + height * height);
@@ -412,10 +413,10 @@ Quadri *detectGrid(Image *image) {
 					Point *top_right = getTopRight(p1, p2, p3, p4);
 					Point *bottom_left = getBottomLeft(p1, p2, p3, p4);
 					Point *bottom_right = getBottomRight(p1, p2, p3, p4);
-					Quadri *quadri = newQuadri(top_left, top_right, bottom_left,
+					Quad *quad = newQuad(top_left, top_right, bottom_left,
 											   bottom_right);
 					freeSegments(segments, NB_SEGMENTS);
-					return quadri;
+					return quad;
 				}
 			}
 		}
