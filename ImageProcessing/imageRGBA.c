@@ -5,13 +5,16 @@
 #include <SDL2/SDL_image.h>
 
 // Contains basics functions for manipulating the ImageRGBA struct
+
+/*
 Pixel *copyPixelsRGBA(Pixel *pixels, st len) {
 	Pixel *newPixels = malloc(sizeof(Pixel) * len);
 	if (newPixels == NULL) errx(EXIT_FAILURE, "malloc failed");
 	for (st i = 0; i < len; i++) newPixels[i] = pixels[i];
 	return newPixels;
 }
-
+*/
+#if 0
 ImageRGBA *newImageRGBA(st width, st height) {
 	ImageRGBA *image = (ImageRGBA *)malloc(sizeof(ImageRGBA));
 	if (image == NULL) errx(EXIT_FAILURE, "malloc failed");
@@ -99,3 +102,4 @@ void placeDigit(Image *bg, ImageRGBA *digit, Quad *grid, int i, int j) {
 		}
 	}
 }
+#endif // 0

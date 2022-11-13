@@ -19,6 +19,7 @@ uc lerp(uc *pxls, float x, float y, st w) {
 	return (uc)(val + 0.5);
 }
 
+/*
 Pixel lerpPixel(Pixel *pxls, float x, float y, st w) {
 	// x1 <= x <= x2
 	// y1 <= y <= y2
@@ -53,31 +54,36 @@ Pixel lerpPixel(Pixel *pxls, float x, float y, st w) {
 	a += p22.a * w_x2 * w_y2;
 	return (Pixel){r + 0.5, g + 0.5, b + 0.5, a + 0.5};
 }
+*/
 
 void resizeImage(Image *image, st new_w, st new_h) {
-	uc *pixels = image->pixels;
 	st w = image->width, h = image->height;
-	uc *new_pixels = (uc *)malloc(sizeof(uc) * new_w * new_h);
 	float ratio_w = (float)w / new_w;
 	float ratio_h = (float)h / new_h;
 	float x, y;
-	for (st new_y = 0; new_y < new_h; new_y++) {
-		y = new_y * ratio_h;
-		for (st new_x = 0; new_x < new_w; new_x++) {
-			x = new_x * ratio_w;
-			if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h) {
-				new_pixels[new_y * new_w + new_x] = 0;
-				continue;
+	for (uc i = 0; i < image->nb_channels; i++) {
+		uc *channel = image->channels[i];
+		uc *new_channel = (uc *)malloc(new_w * new_h * sizeof(uc));
+		if (channel == NULL) errx(EXIT_FAILURE, "malloc failed");
+		for (st new_y = 0; new_y < new_h; new_y++) {
+			y = new_y * ratio_h;
+			for (st new_x = 0; new_x < new_w; new_x++) {
+				x = new_x * ratio_w;
+				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h) {
+					new_channel[new_y * new_w + new_x] = 0;
+					continue;
+				}
+				new_channel[new_y * new_w + new_x] = lerp(channel, x, y, w);
 			}
-			new_pixels[new_y * new_w + new_x] = lerp(pixels, x, y, w);
 		}
+		free(channel);
+		image->channels[i] = new_channel;
 	}
-	free(pixels);
-	image->pixels = new_pixels;
 	image->width = new_w;
 	image->height = new_h;
 }
 
+/*
 void resizeImageRGBA(ImageRGBA *image, st new_w, st new_h) {
 	Pixel *pixels = image->pixels;
 	st w = image->width, h = image->height;
@@ -101,6 +107,7 @@ void resizeImageRGBA(ImageRGBA *image, st new_w, st new_h) {
 	image->width = new_w;
 	image->height = new_h;
 }
+*/
 
 void autoResize(Image *image, st max_w, st max_h) {
 	if (image->width <= max_w && image->height <= max_h) return;
@@ -114,54 +121,60 @@ void autoResize(Image *image, st max_w, st max_h) {
 Image *extractGrid(Image *image, Quad *quad, st new_w, st new_h) {
 	// p1 : ul, p2 : ur,
 	// p3 : dl, p4 : dr
-	uc *pixels = image->pixels;
+	uc nb_channels = image->nb_channels;
 	st w = image->width, h = image->height;
-	Image *new_image = newImage(new_w, new_h);
-	uc *new_pixels = new_image->pixels;
+	Image *new_image = newImage(nb_channels, new_w, new_h);
 	float input[3] = {0, 0, 1};
 	float mat[3][3];
 	getTransformMatrix(quad, new_w, new_h, mat);
 	float res[3];
-	float x, y;
-	for (st new_y = 0; new_y < new_h; new_y++) {
-		input[1] = new_y;
-		for (st new_x = 0; new_x < new_w; new_x++) {
-			input[0] = new_x;
-			matMul33_31(mat, input, res);
-			x = res[0] / res[2];
-			y = res[1] / res[2];
-			if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h) {
-				new_pixels[new_y * new_w + new_x] = 0;
-				continue;
+	for (uc i = 0; i < nb_channels; i++) {
+		uc *channel = image->channels[i];
+		uc *new_channel = new_image->channels[i];
+		float x, y;
+		for (st new_y = 0; new_y < new_h; new_y++) {
+			input[1] = new_y;
+			for (st new_x = 0; new_x < new_w; new_x++) {
+				input[0] = new_x;
+				matMul33_31(mat, input, res);
+				x = res[0] / res[2];
+				y = res[1] / res[2];
+				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h) {
+					new_channel[new_y * new_w + new_x] = 0;
+					continue;
+				}
+				new_channel[new_y * new_w + new_x] = lerp(channel, x, y, w);
 			}
-			new_pixels[new_y * new_w + new_x] = lerp(pixels, x, y, w);
 		}
 	}
 	return new_image;
 }
 
 Image *rotateImage(Image *image, int angle, uc background_color) {
-	uc *pixels = image->pixels;
+	uc nb_channels = image->nb_channels;
 	int w = image->width, h = image->height;
 	// all corners ((0, 0), (w, 0), (0, h), (w, h)) must be in the new image
 	float _cos = COS[angle];
 	float _sin = SIN[angle];
 	int new_w = fabs(w * _cos) + fabs(h * _sin);
 	int new_h = fabs(w * _sin) + fabs(h * _cos);
-	Image *new_image = newImage(new_w, new_h);
-	uc *new_pixels = new_image->pixels;
-	float new_x0, new_y0;
-	for (int new_y = 0; new_y < new_h; new_y++) {
-		new_y0 = new_y - new_h / 2.;
-		for (int new_x = 0; new_x < new_w; new_x++) {
-			new_x0 = new_x - new_w / 2.;
-			float x = (new_x0) * _cos - (new_y0) * _sin + w / 2;
-			float y = (new_x0) * _sin + (new_y0) * _cos + h / 2;
-			if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h) {
-				new_pixels[new_y * new_w + new_x] = background_color;
-				continue;
+	Image *new_image = newImage(nb_channels, new_w, new_h);
+	for (uc i = 0; i < nb_channels; i++) {
+		uc *channel = image->channels[i];
+		uc *new_channel = new_image->channels[i];
+		float new_x0, new_y0;
+		for (int new_y = 0; new_y < new_h; new_y++) {
+			new_y0 = new_y - new_h / 2.;
+			for (int new_x = 0; new_x < new_w; new_x++) {
+				new_x0 = new_x - new_w / 2.;
+				float x = (new_x0) * _cos - (new_y0) * _sin + w / 2;
+				float y = (new_x0) * _sin + (new_y0) * _cos + h / 2;
+				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h) {
+					new_channel[new_y * new_w + new_x] = background_color;
+					continue;
+				}
+				new_channel[new_y * new_w + new_x] = lerp(channel, x, y, w);
 			}
-			new_pixels[new_y * new_w + new_x] = lerp(pixels, x, y, w);
 		}
 	}
 	return new_image;
@@ -188,6 +201,7 @@ Quad *rotateQuad(Quad *quad, int theta, Image *image, Image *rotated) {
 // it integrate the number in the image with the origin : origin.
 // only if the pixel of number is less than 10
 // use placeDigit() instead (adapted from this one)
+/*
 void integrateNumber(Image *image, Image *number, Point *origin) {
 	uc *pixels = image->pixels;
 	st w = image->width, h = image->height;
@@ -204,3 +218,4 @@ void integrateNumber(Image *image, Image *number, Point *origin) {
 		}
 	}
 }
+*/

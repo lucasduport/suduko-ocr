@@ -22,7 +22,7 @@ int isVertical(st theta) {
 void fillR_thetaVertical(Image *image, uc *r_theta, st r_max, st theta) {
 	float _cos = COS[theta], _sin = SIN[theta];
 	st w = image->width, h = image->height;
-	uc *pixels = image->pixels;
+	uc *pixels = image->channels[0];
 	int value;
 	int nb;
 	for (st r = 0; r < r_max; r++) {
@@ -42,7 +42,7 @@ void fillR_thetaVertical(Image *image, uc *r_theta, st r_max, st theta) {
 void fillR_thetaHorizontal(Image *image, uc *r_theta, st r_max, st theta) {
 	float _cos = COS[theta], _sin = SIN[theta];
 	st w = image->width, h = image->height;
-	uc *pixels = image->pixels;
+	uc *pixels = image->channels[0];
 	int value;
 	int nb;
 	for (st r = 0; r < r_max; r++) {
@@ -93,7 +93,7 @@ void printR_theta(uc *r_theta, st r_max) {
 }
 
 void getVerticalLine(Image *image, st r, st theta, uc *line) {
-	uc *pixels = image->pixels;
+	uc *pixels = image->channels[0];
 	st width = image->width;
 	st height = image->height;
 	float _cos = cos(theta * PI / 180);
@@ -106,7 +106,7 @@ void getVerticalLine(Image *image, st r, st theta, uc *line) {
 }
 
 void getHorizontalLine(Image *image, st r, st theta, uc *line) {
-	uc *pixels = image->pixels;
+	uc *pixels = image->channels[0];
 	st width = image->width;
 	st height = image->height;
 	float _cos = cos(theta * PI / 180);

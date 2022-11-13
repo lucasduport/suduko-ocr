@@ -17,6 +17,7 @@
 
 // function directly copied from ../Solver/main.c
 // cannot import it beacause of the presence of a main function
+// also renamed because SDL2 doesn't like "read" as a function
 int **readSudoku(const char *filename) {
 	int **array = malloc(9 * sizeof(int *));
 	for (int i = 0; i < 9; i++) array[i] = (int *)malloc(9 * sizeof(int));
@@ -87,7 +88,7 @@ int missingArg(char *exeName, char *command) {
 }
 
 void exeRotate(char *filename, int angle) {
-	Image *image = openImage(filename);
+	Image *image = openImage(filename, 1);
 	Image *rotated = rotateImage(image, angle, 0);
 	char filenameStripped[30];
 	cleanPath(filename, filenameStripped);
@@ -99,7 +100,7 @@ void exeRotate(char *filename, int angle) {
 }
 
 void exeRotateView(char *filename) {
-	Image *image = openImage(filename);
+	Image *image = openImage(filename, 1);
 	int theta = rotateWithView(image);
 	Image *rotated = rotateImage(image, theta, 0);
 	freeImage(image);
@@ -113,7 +114,7 @@ void exeRotateView(char *filename) {
 
 void exeDemo(char *filename) {
 	// open image
-	Image *image = openImage(filename);
+	Image *image = openImage(filename, 1);
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
 	// rotate image
 	int theta = rotateWithView(image);
@@ -145,7 +146,7 @@ void exeDemo(char *filename) {
 }
 
 void exeTest(char *filename, int radius) {
-	Image *image = openImage(filename);
+	Image *image = openImage(filename, 1);
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
 	displayImage(image, "Original image");
 	gaussianBlur(image);
@@ -171,7 +172,7 @@ void searchDigit(int **sudoku, int n, int *i, int *j) {
 }
 
 void exeDigit(char *filename) {
-	Image *image = openImage(filename);
+	Image *image = openImage(filename, 1);
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
 	// rotate image
 	int theta = rotateWithView(image);
@@ -201,7 +202,7 @@ void exeDigit(char *filename) {
 	// puts back numbers in rotated
 	int **sudoku = readSudoku("../Solver/grid_00");
 	int **solved = readSudoku("../Solver/grid_00.result");
-	ImageRGBA *digits[9];
+	Image *digits[9];
 	char path[30];
 	for (int i = 0; i < 9; i++)
 		digits[i] = NULL;
@@ -223,9 +224,9 @@ void exeDigit(char *filename) {
 						sprintf(path, "Numbers/_%d.png", n);
 					else
 						sprintf(path, "board_image_03/%d_%d.png", j + 1, i + 1);
-					digits[n - 1] = openImageRGBA(path);
+					digits[n - 1] = openImage(path, 4);
 					if (digits[n - 1]->height != 256)
-						resizeImageRGBA(digits[n-1], 256, 256);
+						resizeImage(digits[n-1], 256, 256);
 				}
 				placeDigit(rotated, digits[n - 1], quad, i, j);
 			}
@@ -251,7 +252,7 @@ void exeDigit(char *filename) {
 	for (st i = 0; i < 9; i++) {
 		free(sudoku[i]);
 		free(solved[i]);
-		freeImageRGBA(digits[i]);
+		freeImage(digits[i]);
 	}
 	free(sudoku);
 	free(solved);

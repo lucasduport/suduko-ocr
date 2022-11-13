@@ -66,20 +66,52 @@ void showQuad(Image *background, Quad *quad, int r, int g, int b) {
 	showLines(background, segments, 4, r, g, b, 4);
 }
 
+void greyToSurface(SDL_Surface *surface, Image *image) {
+	st len = image->width * image->height;
+	SDL_PixelFormat *format = surface->format;
+	Uint32 *pixels = surface->pixels;
+	uc *grey_channel = image->channels[0];
+	uc g;
+	for (st i = 0; i < len; i++) {
+		g = grey_channel[i];
+		pixels[i] = SDL_MapRGBA(format, g, g, g, 255);
+	}
+}
+
+void RGBAToSurface(SDL_Surface *surface, Image *image) {
+	st len = image->width * image->height;
+	SDL_PixelFormat *format = surface->format;
+	Uint32 *pixels = surface->pixels;
+	uc *r_channel = image->channels[0];
+	uc *g_channel = image->channels[1];
+	uc *b_channel = image->channels[2];
+	uc *a_channel = image->channels[3];
+	uc r, g, b, a;
+	for (st i = 0; i < len; i++) {
+		r = r_channel[i];
+		g = g_channel[i];
+		b = b_channel[i];
+		a = a_channel[i];
+		pixels[i] = SDL_MapRGBA(format, r, g, b, a);
+	}
+}
+
 SDL_Surface *imageToSurface(Image *image) {
 	st w = image->width;
 	st h = image->height;
-	uc *pixels = image->pixels;
+	uc nb_channels = image->nb_channels;
 	SDL_Surface *surface
-		= SDL_CreateRGBSurfaceWithFormat(0, w, h, 8, SDL_PIXELFORMAT_RGB888);
-	SDL_LockSurface(surface);
-	for (st y = 0; y < h; y++) {
-		for (st x = 0; x < w; x++) {
-			unsigned int value = pixels[y * w + x];
-			unsigned int *pixel = surface->pixels + y * surface->pitch
-								  + x * surface->format->BytesPerPixel;
-			*pixel = (value << 16) | (value << 8) | value;
-		}
+		= SDL_CreateRGBSurfaceWithFormat(0, w, h, 8, SDL_PIXELFORMAT_RGBA8888);
+	if (SDL_LockSurface(surface) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
+	switch (nb_channels) {
+		case 1:
+			greyToSurface(surface, image);
+			break;
+		case 4:
+			RGBAToSurface(surface, image);
+			break;
+		default:
+			errx(EXIT_FAILURE, "an Image should have 1 or 4 channels");
 	}
 	SDL_UnlockSurface(surface);
 	if (surface == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());

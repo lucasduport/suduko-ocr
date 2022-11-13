@@ -15,10 +15,10 @@ typedef struct
 	st height;
 } ImageRGBA;
 
-Pixel *copyPixelsRGBA(Pixel *pixels, st len);
+// Pixel *copyPixelsRGBA(Pixel *pixels, st len);
 ImageRGBA *newImageRGBA(st width, st height);
 ImageRGBA *copyImageRGBA(ImageRGBA *image);
 void freeImageRGBA(ImageRGBA *image);
 ImageRGBA *openImageRGBA(const char *filename);
 void createAlpha(ImageRGBA *image, int min, int max);
-void placeDigit(Image *bg, ImageRGBA *digit, Quad *grid, int i, int j);
+// void placeDigit(Image *bg, ImageRGBA *digit, Quad *grid, int i, int j);
