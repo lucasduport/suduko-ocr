@@ -8,7 +8,7 @@ void invertImage(Image *image) {
 	for (uc n = 0; n < nb_channels; n++) {
 		if (n == 3) continue; // alpha channel
 		uc *channel = image->channels[n];
-:x
+		for (st i = 0; i < len; i++)
 			channel[i] = 255 - channel[i];
 	}
 }

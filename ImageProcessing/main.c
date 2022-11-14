@@ -1,7 +1,6 @@
 #include "display.h"
 #include "hough.h"
 #include "openImage.h"
-#include "imageRGBA.h"
 #include "tools.h"
 #include "transformImage.h"
 #include "filters.h"
@@ -13,7 +12,7 @@
 
 #define WINDOW_WIDTH	800
 #define WINDOW_HEIGHT	600
-#define CELLSIZE		100
+#define CELLSIZE		38
 
 // function directly copied from ../Solver/main.c
 // cannot import it beacause of the presence of a main function
@@ -212,29 +211,8 @@ void exeDigit(char *filename) {
 		digits[i - 1] = openImageRGBA(path);
 	}
 	*/
-	/*
-	for (int j = 0; j < 9; j++)
-		for (int i = 0; i < 9; i++)
-			if (!sudoku[j][i]) {
-				int n = solved[j][i];
-				if (!digits[n - 1]) {
-					// loads from cells
-					int i, j;
-					searchDigit(sudoku, n, &i, &j);
-					if (i < 0 || j < 0)
-						sprintf(path, "Numbers/_%d.png", n);
-					else
-						sprintf(path, "board_image_03/%d_%d.png", j + 1, i + 1);
-					digits[n - 1] = openImage(path, 4);
-					if (digits[n - 1]->height != 256)
-						resizeImage(digits[n-1], 256, 256);
-				}
-				placeDigit(rotated, digits[n - 1], quad, i, j);
-			}
-	displayImage(rotated, "With numbers placed");
-	*/
 
-	// puts numbers back in resized image
+	// puts numbers back in original image
 	Image *final = openImage(filename, 4);
 	autoResize(final, WINDOW_WIDTH, WINDOW_HEIGHT);
 	Quad *grid = rotateQuad(quad, theta, image, rotated);
@@ -254,6 +232,8 @@ void exeDigit(char *filename) {
 					if (digits[n - 1]->height != 256)
 						resizeImage(digits[n-1], 256, 256);
 					invertImage(digits[n - 1]);
+					createAlpha(digits[n - 1], 0, 127);
+					toColor(digits[n -1], 0, 255, 0);
 				}
 				placeDigit(final, digits[n - 1], grid, i, j);
 			}

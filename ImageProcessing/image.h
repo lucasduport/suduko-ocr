@@ -5,10 +5,10 @@
 
 typedef struct
 {
-	uc nb_channels; // 1: G, (3: RGB,) 4: RGBA
+	uc nb_channels; // 1: Grey, (3: RGB,) 4: RGBA
 	st width;
 	st height;
-	uc **channels; // uc channels[nb_channels][width*hright]
+	uc **channels; // uc channels[nb_channels][width*height]
 } Image;
 
 uc *copyChannel(uc *pixels, st len);

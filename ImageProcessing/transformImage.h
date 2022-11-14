@@ -1,12 +1,13 @@
 #pragma once
 
 #include "image.h"
-#include "imageRGBA.h" // new
 #include "matrices.h"
 #include <math.h>
 #include <stdio.h>
 #include <err.h>
 
+void createAlpha(Image *image, int min, int max);
+void toColor(Image *image, uc r, uc g, uc b);
 void resizeImage(Image *image, st new_w, st new_h);
 // void resizeImageRGBA(ImageRGBA *image, st new_w, st new_h);
 void autoResize(Image *image, st maw_w, st max_h);

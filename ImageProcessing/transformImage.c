@@ -1,5 +1,68 @@
 #include "transformImage.h"
 
+void toGrey(Image *image) {
+	uc nb_channels = image->nb_channels;
+	if (nb_channels == 1) errx(EXIT_FAILURE, "image already in grey");
+	st width = image->width, height = image->height;
+	Image *new_image = newImage(1, width, height);
+	st len = width * height;
+	uc *new_channel = new_image->channels[0];
+	uc *r_p = image->channels[0];
+	uc *g_p = image->channels[1];
+	uc *b_p = image->channels[2];
+	uc *a_p = image->channels[3];
+	uc *end = new_channel + len;
+	for (uc *p = new_channel; p < end; p++, r_p++, g_p++, b_p++, a_p++) {
+		if (*a_p)
+			*p = (*r_p + *g_p + *b_p) / 3;
+		else
+			*p = 255;
+	}
+	freeImage(image);
+	*image = *new_image;
+}
+
+void toRGBA(Image *image) {
+	if (image->nb_channels == 4) errx(EXIT_FAILURE, "image already in RGBA");
+	st width = image->width, height = image->height;
+	Image *new_image = newImage(4, width, height);
+	st len = width * height;
+	for (uc n = 0; n < 3; n++)
+		for (st i = 0; i < len; i++)
+			new_image->channels[n][i] = image->channels[0][i];
+	for (st i = 0; i < len; i++)
+		new_image->channels[4][i] = 255;
+	freeImage(image);
+	*image = *new_image;
+}
+
+void toColor(Image *image, uc r, uc g, uc b) {
+	if (image->nb_channels == 1) errx(EXIT_FAILURE, "image should be in RGBA");
+	st len = image->width * image->height;
+	uc color[3] = {r, g, b};
+	for (uc n = 0; n < 3; n++) {
+		uc *channel = image->channels[n];
+		uc val = color[n];
+		for (st i = 0; i < len; i++)
+			channel[i] = val;
+	}
+}
+
+void createAlpha(Image *image, int min, int max) {
+	uc nb_channels = image->nb_channels;
+	if (nb_channels == 1) errx(EXIT_FAILURE, "image should be in RGBA");
+	st len = image->width * image->height;
+	uc *r_channel = image->channels[0];
+	uc *g_channel = image->channels[1];
+	uc *b_channel = image->channels[2];
+	uc *a_channel = image->channels[3];
+	for (st i = 0; i < len; i++) {
+		int val = (r_channel[i] + g_channel[i] + b_channel[i]) / 3;
+		if (val < min || val > max)
+			a_channel[i] = 0;
+	}
+}
+
 uc lerp(uc *pxls, float x, float y, st w) {
 	// x1 <= x <= x2
 	// y1 <= y <= y2
@@ -160,25 +223,3 @@ Quad *rotateQuad(Quad *quad, int theta, Image *image, Image *rotated) {
 	}
 	return newQuad(n_ps[0], n_ps[1], n_ps[2], n_ps[3]);
 }
-
-// it integrate the number in the image with the origin : origin.
-// only if the pixel of number is less than 10
-// use placeDigit() instead (adapted from this one)
-/*
-void integrateNumber(Image *image, Image *number, Point *origin) {
-	uc *pixels = image->pixels;
-	st w = image->width, h = image->height;
-	uc *integrated_pixels = number->pixels;
-	st integrated_w = number->width, integrated_h = number->height;
-	for (st y = 0; y < integrated_h; y++) {
-		for (st x = 0; x < integrated_w; x++) {
-			st new_x = x + origin->x;
-			st new_y = y + origin->y;
-			if (new_x < 0 || new_x >= w || new_y < 0 || new_y >= h
-				|| integrated_pixels[y * integrated_w + x] > 20)
-				continue;
-			pixels[new_y * w + new_x] = integrated_pixels[y * integrated_w + x];
-		}
-	}
-}
-*/
