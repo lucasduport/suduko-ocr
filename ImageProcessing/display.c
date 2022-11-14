@@ -45,6 +45,10 @@ void showLines(Image *background, Segment **segments, st nb_segments, int r,
 		SDL_WaitEvent(&event);
 		switch (event.type) {
 		case SDL_QUIT: keepDisplay = 0; break;
+		case SDL_KEYUP:
+			if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+				keepDisplay = 0;
+			break;
 		}
 	}
 	/// DESTRUCTION
