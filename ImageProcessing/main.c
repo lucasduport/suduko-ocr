@@ -175,9 +175,21 @@ void exeTest(char *filename)
 	calibrateImage(image, 200, 255);
 	displayImage(image, "Saturated");
 	sobelFilter(image);
+	uc *channel = image->channels[0];
+	st w = image->width, h = image->height;
+	for (st x = 0; x < w; x++)
+	{
+		channel[0 * w + x] = 0;
+		channel[(h - 1) * w + x] = 0;
+	}
+	for (st y = 0; y < h; y++)
+	{
+		channel[y * w + 0] = 0;
+		channel[y * w + (w - 1)] = 0;
+	}
 	displayImage(image, "Sobel");
 	gaussianBlur(image);
-	calibrateImage(image, 10, 0);
+	thresholdToUpper(image, 32);
 	displayImage(image, "Calibrate");
 
 	// detect
@@ -191,6 +203,7 @@ void exeTest(char *filename)
 
 	freeImage(image);
 	freeQuad(quad);
+	freeImage(extracted);
 }
 
 void searchDigit(int **sudoku, int n, int *i, int *j)
@@ -215,6 +228,30 @@ void exeDigit(char *filename)
 {
 	Image *image = openImage(filename, 1);
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
+	displayImage(image, "Original image");
+	gaussianBlur(image);
+	calibrateImage(image, 200, 255);
+	displayImage(image, "Saturated");
+	sobelFilter(image);
+	uc *channel = image->channels[0];
+	st w = image->width, h = image->height;
+	for (st x = 0; x < w; x++)
+	{
+		channel[0 * w + x] = 0;
+		channel[(h - 1) * w + x] = 0;
+	}
+	for (st y = 0; y < h; y++)
+	{
+		channel[y * w + 0] = 0;
+		channel[y * w + (w - 1)] = 0;
+	}
+	displayImage(image, "Sobel");
+	gaussianBlur(image);
+	thresholdToUpper(image, 32);
+	displayImage(image, "Calibrate");
+	/*
+	Image *image = openImage(filename, 1);
+	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
 	// rotate image
 	int theta = rotateWithView(image);
 	Image *rotated = rotateImage(image, theta, 255);
@@ -222,18 +259,15 @@ void exeDigit(char *filename)
 	// preprocess image
 	saturateImage(rotated);
 	// displayImage(rotated, "Saturated");
+	// */
 
 	// detect grid
-	Quad *quad = detectGrid(rotated);
+	Quad *quad = detectGrid(image);
 	if (quad == NULL)
-	{
-		freeImage(rotated);
 		errx(1, "No grid detected.");
-	}
 	// display results
-	showQuad(rotated, quad, 0, 255, 0);
-	Image *extracted = extractGrid(copy, quad, 9 * CELLSIZE, 9 * CELLSIZE);
-	freeImage(copy);
+	showQuad(image, quad, 0, 255, 0);
+	Image *extracted = extractGrid(image, quad, 9 * CELLSIZE, 9 * CELLSIZE);
 	thresholdCells(extracted);
 	displayImage(extracted, "Extracted grid");
 	// save image
@@ -258,7 +292,7 @@ void exeDigit(char *filename)
 	// puts numbers back in original image
 	Image *final = openImage(filename, 4);
 	autoResize(final, WINDOW_WIDTH, WINDOW_HEIGHT);
-	Quad *grid = rotateQuad(quad, theta, image, rotated);
+	// Quad *grid = rotateQuad(quad, theta, image, rotated);
 	for (int j = 0; j < 9; j++)
 		for (int i = 0; i < 9; i++)
 			if (!sudoku[j][i])
@@ -274,6 +308,7 @@ void exeDigit(char *filename)
 					else
 						sprintf(
 							path, "board_image_03/%d_%d.png", j + 1, i + 1);
+					// TODO: open the correct dir
 					digits[n - 1] = openImage(path, 4);
 					if (digits[n - 1]->height != 256)
 						resizeImage(digits[n - 1], 256, 256);
@@ -281,15 +316,13 @@ void exeDigit(char *filename)
 					createAlpha(digits[n - 1], 0, 127);
 					toColor(digits[n - 1], 0, 255, 0);
 				}
-				placeDigit(final, digits[n - 1], grid, i, j);
+				placeDigit(final, digits[n - 1], quad, i, j);
 			}
 	displayImage(final, "With numbers placed");
 
 	freeQuad(quad);
-	freeQuad(grid);
 	freeImage(image);
 	freeImage(final);
-	freeImage(rotated);
 	for (st i = 0; i < 9; i++)
 	{
 		free(sudoku[i]);
@@ -344,7 +377,7 @@ int main(int argc, char *argv[])
 			if (i + 1 >= argc)
 				return missingArg(exeName, command);
 			char *filename = argv[++i];
-			exeTest(filename);
+			exeDigit(filename);
 		}
 		else
 		{

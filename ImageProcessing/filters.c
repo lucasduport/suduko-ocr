@@ -62,10 +62,10 @@ void thresholdCells(Image *image)
 					for (int y = j * cell_size; y < (j + 1) * cell_size; y++)
 					{
 						int value = channel[y * grid_size + x];
-						if (value < threshold)
-							new_channel[y * grid_size + x] = 255;
-						else
+						if (value <= threshold)
 							new_channel[y * grid_size + x] = 0;
+						else
+							new_channel[y * grid_size + x] = 255;
 					}
 				}
 			}

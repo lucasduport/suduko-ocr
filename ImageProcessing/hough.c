@@ -9,8 +9,8 @@
 #define RANGE_DEL_R 15
 #define RANGE_DEL_THETA 3
 
-#define NB_SEGMENTS 50
-#define COORD_ERROR 5.0	 // percentage of the size of the image
+#define NB_SEGMENTS 100
+#define COORD_ERROR 3.0	 // percentage of the size of the image
 #define ANGLE_ERROR 15	 // in degrees
 #define LENGTH_ERROR 1.2 // max ratio of length
 
@@ -156,7 +156,7 @@ st st_pow(st a, st b)
 	return a > b ? pow(a - b, 2) : pow(b - a, 2);
 }
 
-Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
+Segment *getBestSegment(uc *r_theta, st r_max, Image *image, int *left)
 {
 	st best_value = 0;
 	st best_r = 0;
@@ -176,7 +176,11 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 		}
 	}
 	if (best_value == 0)
+	{
+		*left = 0;
 		return NULL;
+	}
+	*left = 1;
 	int vertical = isVertical(best_theta);
 	st height = image->height, width = image->width;
 	st dim = vertical ? height : width;
@@ -329,28 +333,31 @@ Quad *detectGrid(Image *image)
 	uc r_theta[r_max * 360];
 	fillR_theta(image, r_theta, r_max);
 	Segment *segments[NB_SEGMENTS];
-	st i = 0;
-	while (i < NB_SEGMENTS)
+	st nb_segments = 0;
+	int left;
+	while (nb_segments < NB_SEGMENTS)
 	{
-		Segment *segment = getBestSegment(r_theta, r_max, image);
+		Segment *segment = getBestSegment(r_theta, r_max, image, &left);
 		if (segment != NULL)
 		{
-			segments[i] = segment;
-			i++;
+			segments[nb_segments] = segment;
+			nb_segments++;
 			// printf("Segment: (%zu, %zu), (%zu, %zu)\n", segment->x1,
 			// segment->y1, segment->x2, segment->y2); printf("Theta: %zu\n",
 			// segment->theta); printf("Length: %zu\n\n", segment->length);
 		}
 		// printf("Got segment: %p\n", segment);
+		if (!left)
+			break;
 	}
-	showLines(image, segments, NB_SEGMENTS, 255, 0, 0, 1);
+	showLines(image, segments, nb_segments, 255, 0, 0, 1);
 	st min_dist = pow(COORD_ERROR / 100.0 * r_max, 2);
-	for (st i1 = 0; i1 < NB_SEGMENTS; i1++)
+	for (st i1 = 0; i1 < nb_segments; i1++)
 	{
 		Segment *segment1 = segments[i1];
-		st segments2[NB_SEGMENTS];
+		st segments2[nb_segments];
 		st j = 0;
-		for (st i2 = 0; i2 < NB_SEGMENTS; i2++)
+		for (st i2 = 0; i2 < nb_segments; i2++)
 		{
 			if (i2 == i1)
 				continue;
@@ -374,10 +381,10 @@ Quad *detectGrid(Image *image)
 			// printf("cmp1-2 : (%zu, %zu) (%zu, %zu)\n", segment1->x1,
 			// segment1->y1, segment2->x1, segment2->y1);
 		}
-		segments2[j] = NB_SEGMENTS;
+		segments2[j] = nb_segments;
 		j = 0;
-		st segments3[NB_SEGMENTS];
-		for (st i3 = 0; i3 < NB_SEGMENTS; i3++)
+		st segments3[nb_segments];
+		for (st i3 = 0; i3 < nb_segments; i3++)
 		{
 			if (i3 == i1)
 				continue;
@@ -401,29 +408,29 @@ Quad *detectGrid(Image *image)
 			segments3[j] = i3;
 			j++;
 		}
-		segments3[j] = NB_SEGMENTS;
+		segments3[j] = nb_segments;
 
-		for (st i4 = 0; i4 < NB_SEGMENTS; i4++)
+		for (st i4 = 0; i4 < nb_segments; i4++)
 		{
 			if (i4 == i1)
 				continue;
 			st k;
-			for (k = 0; segments2[k] != NB_SEGMENTS; k++)
+			for (k = 0; segments2[k] != nb_segments; k++)
 			{
 				if (i4 == segments2[k])
 					break;
 			}
-			if (segments2[k] != NB_SEGMENTS)
+			if (segments2[k] != nb_segments)
 				continue;
-			for (k = 0; segments3[k] != NB_SEGMENTS; k++)
+			for (k = 0; segments3[k] != nb_segments; k++)
 			{
 				if (i4 == segments3[k])
 					break;
 			}
-			if (segments3[k] != NB_SEGMENTS)
+			if (segments3[k] != nb_segments)
 				continue;
 			Segment *segment4 = segments[i4];
-			for (st i2 = 0; segments2[i2] != NB_SEGMENTS; i2++)
+			for (st i2 = 0; segments2[i2] != nb_segments; i2++)
 			{
 				Segment *segment2 = segments[segments2[i2]];
 				st diff_coord1 = st_pow(segment2->x2, segment4->x1)
@@ -436,7 +443,7 @@ Quad *detectGrid(Image *image)
 					continue;
 				// printf("cmp2-4 : (%zu, %zu) (%zu, %zu)\n", segment2->x2,
 				// segment2->y2, segment4->x1, segment4->y1);
-				for (st i3 = 0; segments3[i3] != NB_SEGMENTS; i3++)
+				for (st i3 = 0; segments3[i3] != nb_segments; i3++)
 				{
 					Segment *segment3 = segments[segments3[i3]];
 					st diff_coord3 = st_pow(segment3->x2, segment4->x2)
@@ -463,12 +470,12 @@ Quad *detectGrid(Image *image)
 					Point *bottom_right = getBottomRight(p1, p2, p3, p4);
 					Quad *quad = newQuad(
 						top_left, top_right, bottom_left, bottom_right);
-					freeSegments(segments, NB_SEGMENTS);
+					freeSegments(segments, nb_segments);
 					return quad;
 				}
 			}
 		}
 	}
-	freeSegments(segments, NB_SEGMENTS);
+	freeSegments(segments, nb_segments);
 	return NULL;
 }

@@ -60,11 +60,11 @@ void showLines(Image *background, Segment **segments, st nb_segments, int r,
 					keepDisplay = 0;
 				break;
 		}
-		/// DESTRUCTION
-		SDL_DestroyTexture(texture);
-		SDL_DestroyRenderer(renderer);
-		SDL_DestroyWindow(window);
 	}
+	/// DESTRUCTION
+	SDL_DestroyTexture(texture);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
 }
 
 void showQuad(Image *background, Quad *quad, int r, int g, int b)
