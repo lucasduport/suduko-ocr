@@ -1,15 +1,18 @@
-#include "tools.h"
 #include <math.h>
+#include "tools.h"
 
 float COS[360];
 float SIN[360];
 
-void initTrig() {
+void initTrig()
+{
 	static int trig_init = 0;
-	if (trig_init) return;
+	if (trig_init)
+		return;
 	trig_init = 1;
 	float c;
-	for (int theta = 1; theta < 90; theta++) {
+	for (int theta = 1; theta < 90; theta++)
+	{
 		c = cos(theta * PI / 180);
 		COS[theta] = c;
 		COS[360 - theta] = c;

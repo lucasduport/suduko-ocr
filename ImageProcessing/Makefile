@@ -38,4 +38,4 @@ save:
 	git commit -F COMMIT_MESSAGE
 	
 format:
-	clang-format --style=file -i *.c
+	clang-format --style=file -i *.[ch]

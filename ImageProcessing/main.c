@@ -1,26 +1,29 @@
-#include "display.h"
-#include "hough.h"
-#include "openImage.h"
-#include "tools.h"
-#include "transformImage.h"
-#include "filters.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <err.h>
 #include <stdio.h>
 #include <string.h>
+#include "display.h"
+#include "filters.h"
+#include "hough.h"
+#include "openImage.h"
+#include "tools.h"
+#include "transformImage.h"
 
-#define WINDOW_WIDTH	800
-#define WINDOW_HEIGHT	600
-#define CELLSIZE		38
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
+#define CELLSIZE 38
 
 // function directly copied from ../Solver/main.c
 // cannot import it beacause of the presence of a main function
 // also renamed because SDL2 doesn't like "read" as a function
-int **readSudoku(const char *filename) {
+int **readSudoku(const char *filename)
+{
 	int **array = malloc(9 * sizeof(int *));
-	for (int i = 0; i < 9; i++) array[i] = (int *)malloc(9 * sizeof(int));
-	if (!array) return NULL;
+	for (int i = 0; i < 9; i++)
+		array[i] = (int *)malloc(9 * sizeof(int));
+	if (!array)
+		return NULL;
 	FILE *file = fopen(filename, "r");
 	if (!file)
 		errx(1, "Couldn't open file \"%s\"", filename);
@@ -30,12 +33,17 @@ int **readSudoku(const char *filename) {
 	size_t i = 0;
 	size_t j = 0;
 
-	do {
+	do
+	{
 		count = fread(&buffer, 1, 1, file);
-		if (buffer == '.') value = 0;
-		else if (buffer >= '0' && buffer <= '9') value = buffer - '0';
-		else {
-			if (buffer == '\n' && j) {
+		if (buffer == '.')
+			value = 0;
+		else if (buffer >= '0' && buffer <= '9')
+			value = buffer - '0';
+		else
+		{
+			if (buffer == '\n' && j)
+			{
 				i++;
 				j = 0;
 			}
@@ -48,25 +56,33 @@ int **readSudoku(const char *filename) {
 	return array;
 }
 
-char *cleanPath(char *filename, char *dest) {
+char *cleanPath(char *filename, char *dest)
+{
 	char *slash = strrchr(filename, '/');
-	if (slash == NULL) {
+	if (slash == NULL)
+	{
 		strcpy(dest, filename);
-	} else {
+	}
+	else
+	{
 		strcpy(dest, slash + 1);
 	}
 	char *dot = strrchr(dest, '.');
-	if (!dot || dot == dest) return dest;
+	if (!dot || dot == dest)
+		return dest;
 	*dot = '\0';
 	return dest;
 }
 
-void init() {
+void init()
+{
 	initTrig();
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+		errx(EXIT_FAILURE, "%s", SDL_GetError());
 }
 
-void printHelp(char *exeName) {
+void printHelp(char *exeName)
+{
 	printf("Usage: %s <command> <filename> [options]\n", exeName);
 	printf("\t-h, --help\t\t\t"
 		   "prints this help message\n");
@@ -80,13 +96,15 @@ void printHelp(char *exeName) {
 		   "test the image <image> with the given options.\n");
 }
 
-int missingArg(char *exeName, char *command) {
+int missingArg(char *exeName, char *command)
+{
 	printf("Missing argument for %s.\n", command);
 	printHelp(exeName);
 	return 1;
 }
 
-void exeRotate(char *filename, int angle) {
+void exeRotate(char *filename, int angle)
+{
 	Image *image = openImage(filename, 1);
 	Image *rotated = rotateImage(image, angle, 0);
 	char filenameStripped[30];
@@ -98,7 +116,8 @@ void exeRotate(char *filename, int angle) {
 	freeImage(image);
 }
 
-void exeRotateView(char *filename) {
+void exeRotateView(char *filename)
+{
 	Image *image = openImage(filename, 1);
 	int theta = rotateWithView(image);
 	Image *rotated = rotateImage(image, theta, 0);
@@ -111,7 +130,8 @@ void exeRotateView(char *filename) {
 	freeImage(rotated);
 }
 
-void exeDemo(char *filename) {
+void exeDemo(char *filename)
+{
 	// open image
 	Image *image = openImage(filename, 1);
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -125,7 +145,8 @@ void exeDemo(char *filename) {
 	displayImage(rotated, "Saturated");
 	// detect grid
 	Quad *quad = detectGrid(rotated);
-	if (quad == NULL) {
+	if (quad == NULL)
+	{
 		freeImage(rotated);
 		errx(1, "No grid detected.");
 	}
@@ -144,22 +165,43 @@ void exeDemo(char *filename) {
 	freeImage(extracted);
 }
 
-void exeTest(char *filename, int radius) {
+void exeTest(char *filename)
+{
+	// pre treatment
 	Image *image = openImage(filename, 1);
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
 	displayImage(image, "Original image");
 	gaussianBlur(image);
-	calibrateImage(image, radius);
+	calibrateImage(image, 200, 255);
 	displayImage(image, "Saturated");
 	sobelFilter(image);
 	displayImage(image, "Sobel");
+	gaussianBlur(image);
+	calibrateImage(image, 10, 0);
+	displayImage(image, "Calibrate");
+
+
+	// detect
+	Quad *quad = detectGrid(image);
+	if (quad == NULL)
+		errx(1, "No grid detected.");
+	// display results
+	showQuad(image, quad, 0, 255, 0);
+	Image *extracted = extractGrid(image, quad, 9 * CELLSIZE, 9 * CELLSIZE);
+	displayImage(extracted, "Extracted grid");
+
 	freeImage(image);
+	freeQuad(quad);
 }
 
-void searchDigit(int **sudoku, int n, int *i, int *j) {
-	for (int y = 0; y < 9; y++) {
-		for (int x = 0; x < 9; x++) {
-			if (sudoku[y][x] == n) {
+void searchDigit(int **sudoku, int n, int *i, int *j)
+{
+	for (int y = 0; y < 9; y++)
+	{
+		for (int x = 0; x < 9; x++)
+		{
+			if (sudoku[y][x] == n)
+			{
 				*i = x;
 				*j = y;
 				return;
@@ -170,7 +212,8 @@ void searchDigit(int **sudoku, int n, int *i, int *j) {
 	*j = -1;
 }
 
-void exeDigit(char *filename) {
+void exeDigit(char *filename)
+{
 	Image *image = openImage(filename, 1);
 	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
 	// rotate image
@@ -180,9 +223,12 @@ void exeDigit(char *filename) {
 	// preprocess image
 	saturateImage(rotated);
 	// displayImage(rotated, "Saturated");
+
+
 	// detect grid
 	Quad *quad = detectGrid(rotated);
-	if (quad == NULL) {
+	if (quad == NULL)
+	{
 		freeImage(rotated);
 		errx(1, "No grid detected.");
 	}
@@ -198,7 +244,6 @@ void exeDigit(char *filename) {
 	saveBoard(extracted, filenameStripped);
 	freeImage(extracted);
 
-	// puts back numbers in rotated
 	int **sudoku = readSudoku("../Solver/grid_00");
 	int **solved = readSudoku("../Solver/grid_00.result");
 	Image *digits[9];
@@ -218,22 +263,25 @@ void exeDigit(char *filename) {
 	Quad *grid = rotateQuad(quad, theta, image, rotated);
 	for (int j = 0; j < 9; j++)
 		for (int i = 0; i < 9; i++)
-			if (!sudoku[j][i]) {
+			if (!sudoku[j][i])
+			{
 				int n = solved[j][i];
-				if (!digits[n - 1]) {
+				if (!digits[n - 1])
+				{
 					// loads from cells
 					int i, j;
 					searchDigit(sudoku, n, &i, &j);
 					if (i < 0 || j < 0)
 						sprintf(path, "Numbers/_%d.png", n);
 					else
-						sprintf(path, "board_image_03/%d_%d.png", j + 1, i + 1);
+						sprintf(
+							path, "board_image_03/%d_%d.png", j + 1, i + 1);
 					digits[n - 1] = openImage(path, 4);
 					if (digits[n - 1]->height != 256)
-						resizeImage(digits[n-1], 256, 256);
+						resizeImage(digits[n - 1], 256, 256);
 					invertImage(digits[n - 1]);
 					createAlpha(digits[n - 1], 0, 127);
-					toColor(digits[n -1], 0, 255, 0);
+					toColor(digits[n - 1], 0, 255, 0);
 				}
 				placeDigit(final, digits[n - 1], grid, i, j);
 			}
@@ -244,7 +292,8 @@ void exeDigit(char *filename) {
 	freeImage(image);
 	freeImage(final);
 	freeImage(rotated);
-	for (st i = 0; i < 9; i++) {
+	for (st i = 0; i < 9; i++)
+	{
 		free(sudoku[i]);
 		free(solved[i]);
 		freeImage(digits[i]);
@@ -253,36 +302,54 @@ void exeDigit(char *filename) {
 	free(solved);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 	char *exeName = argv[0];
-	if (argc < 2) {
+	if (argc < 2)
+	{
 		printHelp(exeName);
 		return 1;
 	}
 	init();
-	for (int i = 1; i < argc; i++) {
+	for (int i = 1; i < argc; i++)
+	{
 		char *command = argv[i];
-		if (!strcmp(command, "-h") || !strcmp(command, "--help")) {
+		if (!strcmp(command, "-h") || !strcmp(command, "--help"))
+		{
 			printHelp(exeName);
 			return 0;
-		} else if (!strcmp(command, "-r") || !strcmp(command, "--rotate")) {
-			if (i + 2 >= argc) return missingArg(exeName, command);
+		}
+		else if (!strcmp(command, "-r") || !strcmp(command, "--rotate"))
+		{
+			if (i + 2 >= argc)
+				return missingArg(exeName, command);
 			char *filename = argv[++i];
 			int angle = atoi(argv[++i]);
 			exeRotate(filename, angle);
-		} else if (!strcmp(command, "-R") || !strcmp(command, "--rotateView")) {
-			if (i + 1 >= argc) return missingArg(exeName, command);
+		}
+		else if (!strcmp(command, "-R") || !strcmp(command, "--rotateView"))
+		{
+			if (i + 1 >= argc)
+				return missingArg(exeName, command);
 			char *filename = argv[++i];
 			exeRotateView(filename);
-		} else if (!strcmp(command, "-d") || !strcmp(command, "--demo")) {
-			if (i + 1 >= argc) return missingArg(exeName, command);
+		}
+		else if (!strcmp(command, "-d") || !strcmp(command, "--demo"))
+		{
+			if (i + 1 >= argc)
+				return missingArg(exeName, command);
 			char *filename = argv[++i];
 			exeDemo(filename);
-		} else if (!strcmp(command, "-t") || !strcmp(command, "--test")) {
-			if (i + 1 >= argc) return missingArg(exeName, command);
+		}
+		else if (!strcmp(command, "-t") || !strcmp(command, "--test"))
+		{
+			if (i + 1 >= argc)
+				return missingArg(exeName, command);
 			char *filename = argv[++i];
-			exeDigit(filename);
-		} else {
+			exeTest(filename);
+		}
+		else
+		{
 			printf("Unknown command %s\n", command);
 			printHelp(exeName);
 			return 1;

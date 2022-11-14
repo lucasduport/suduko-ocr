@@ -1,8 +1,10 @@
 #include "transformImage.h"
 
-void toGrey(Image *image) {
+void toGrey(Image *image)
+{
 	uc nb_channels = image->nb_channels;
-	if (nb_channels == 1) errx(EXIT_FAILURE, "image already in grey");
+	if (nb_channels == 1)
+		errx(EXIT_FAILURE, "image already in grey");
 	st width = image->width, height = image->height;
 	Image *new_image = newImage(1, width, height);
 	st len = width * height;
@@ -12,7 +14,8 @@ void toGrey(Image *image) {
 	uc *b_p = image->channels[2];
 	uc *a_p = image->channels[3];
 	uc *end = new_channel + len;
-	for (uc *p = new_channel; p < end; p++, r_p++, g_p++, b_p++, a_p++) {
+	for (uc *p = new_channel; p < end; p++, r_p++, g_p++, b_p++, a_p++)
+	{
 		if (*a_p)
 			*p = (*r_p + *g_p + *b_p) / 3;
 		else
@@ -22,8 +25,10 @@ void toGrey(Image *image) {
 	*image = *new_image;
 }
 
-void toRGBA(Image *image) {
-	if (image->nb_channels == 4) errx(EXIT_FAILURE, "image already in RGBA");
+void toRGBA(Image *image)
+{
+	if (image->nb_channels == 4)
+		errx(EXIT_FAILURE, "image already in RGBA");
 	st width = image->width, height = image->height;
 	Image *new_image = newImage(4, width, height);
 	st len = width * height;
@@ -36,11 +41,14 @@ void toRGBA(Image *image) {
 	*image = *new_image;
 }
 
-void toColor(Image *image, uc r, uc g, uc b) {
-	if (image->nb_channels == 1) errx(EXIT_FAILURE, "image should be in RGBA");
+void toColor(Image *image, uc r, uc g, uc b)
+{
+	if (image->nb_channels == 1)
+		errx(EXIT_FAILURE, "image should be in RGBA");
 	st len = image->width * image->height;
 	uc color[3] = {r, g, b};
-	for (uc n = 0; n < 3; n++) {
+	for (uc n = 0; n < 3; n++)
+	{
 		uc *channel = image->channels[n];
 		uc val = color[n];
 		for (st i = 0; i < len; i++)
@@ -48,22 +56,26 @@ void toColor(Image *image, uc r, uc g, uc b) {
 	}
 }
 
-void createAlpha(Image *image, int min, int max) {
+void createAlpha(Image *image, int min, int max)
+{
 	uc nb_channels = image->nb_channels;
-	if (nb_channels == 1) errx(EXIT_FAILURE, "image should be in RGBA");
+	if (nb_channels == 1)
+		errx(EXIT_FAILURE, "image should be in RGBA");
 	st len = image->width * image->height;
 	uc *r_channel = image->channels[0];
 	uc *g_channel = image->channels[1];
 	uc *b_channel = image->channels[2];
 	uc *a_channel = image->channels[3];
-	for (st i = 0; i < len; i++) {
+	for (st i = 0; i < len; i++)
+	{
 		int val = (r_channel[i] + g_channel[i] + b_channel[i]) / 3;
 		if (val < min || val > max)
 			a_channel[i] = 0;
 	}
 }
 
-uc lerp(uc *pxls, float x, float y, st w) {
+uc lerp(uc *pxls, float x, float y, st w)
+{
 	// x1 <= x <= x2
 	// y1 <= y <= y2
 	st x1 = x;
@@ -82,20 +94,26 @@ uc lerp(uc *pxls, float x, float y, st w) {
 	return (uc)(val + 0.5);
 }
 
-void resizeImage(Image *image, st new_w, st new_h) {
+void resizeImage(Image *image, st new_w, st new_h)
+{
 	st w = image->width, h = image->height;
 	float ratio_w = (float)w / new_w;
 	float ratio_h = (float)h / new_h;
 	float x, y;
-	for (uc i = 0; i < image->nb_channels; i++) {
+	for (uc i = 0; i < image->nb_channels; i++)
+	{
 		uc *channel = image->channels[i];
 		uc *new_channel = (uc *)malloc(new_w * new_h * sizeof(uc));
-		if (channel == NULL) errx(EXIT_FAILURE, "malloc failed");
-		for (st new_y = 0; new_y < new_h; new_y++) {
+		if (channel == NULL)
+			errx(EXIT_FAILURE, "malloc failed");
+		for (st new_y = 0; new_y < new_h; new_y++)
+		{
 			y = new_y * ratio_h;
-			for (st new_x = 0; new_x < new_w; new_x++) {
+			for (st new_x = 0; new_x < new_w; new_x++)
+			{
 				x = new_x * ratio_w;
-				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h) {
+				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h)
+				{
 					new_channel[new_y * new_w + new_x] = 0;
 					continue;
 				}
@@ -135,16 +153,21 @@ void resizeImageRGBA(ImageRGBA *image, st new_w, st new_h) {
 }
 */
 
-void autoResize(Image *image, st max_w, st max_h) {
-	if (image->width <= max_w && image->height <= max_h) return;
+void autoResize(Image *image, st max_w, st max_h)
+{
+	if (image->width <= max_w && image->height <= max_h)
+		return;
 	// if ratio_w > ratio_h, then we resize by width
 	float ratio_w = (float)image->width / max_w;
 	float ratio_h = (float)image->height / max_h;
-	if (ratio_w > ratio_h) resizeImage(image, max_w, image->height / ratio_w);
-	else resizeImage(image, image->width / ratio_h, max_h);
+	if (ratio_w > ratio_h)
+		resizeImage(image, max_w, image->height / ratio_w);
+	else
+		resizeImage(image, image->width / ratio_h, max_h);
 }
 
-Image *extractGrid(Image *image, Quad *quad, st new_w, st new_h) {
+Image *extractGrid(Image *image, Quad *quad, st new_w, st new_h)
+{
 	// p1 : ul, p2 : ur,
 	// p3 : dl, p4 : dr
 	uc nb_channels = image->nb_channels;
@@ -154,18 +177,22 @@ Image *extractGrid(Image *image, Quad *quad, st new_w, st new_h) {
 	float mat[3][3];
 	getTransformMatrix(quad, new_w, new_h, mat);
 	float res[3];
-	for (uc i = 0; i < nb_channels; i++) {
+	for (uc i = 0; i < nb_channels; i++)
+	{
 		uc *channel = image->channels[i];
 		uc *new_channel = new_image->channels[i];
 		float x, y;
-		for (st new_y = 0; new_y < new_h; new_y++) {
+		for (st new_y = 0; new_y < new_h; new_y++)
+		{
 			input[1] = new_y;
-			for (st new_x = 0; new_x < new_w; new_x++) {
+			for (st new_x = 0; new_x < new_w; new_x++)
+			{
 				input[0] = new_x;
 				matMul33_31(mat, input, res);
 				x = res[0] / res[2];
 				y = res[1] / res[2];
-				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h) {
+				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h)
+				{
 					new_channel[new_y * new_w + new_x] = 0;
 					continue;
 				}
@@ -176,7 +203,8 @@ Image *extractGrid(Image *image, Quad *quad, st new_w, st new_h) {
 	return new_image;
 }
 
-Image *rotateImage(Image *image, int angle, uc background_color) {
+Image *rotateImage(Image *image, int angle, uc background_color)
+{
 	uc nb_channels = image->nb_channels;
 	int w = image->width, h = image->height;
 	// all corners ((0, 0), (w, 0), (0, h), (w, h)) must be in the new image
@@ -185,17 +213,21 @@ Image *rotateImage(Image *image, int angle, uc background_color) {
 	int new_w = fabs(w * _cos) + fabs(h * _sin);
 	int new_h = fabs(w * _sin) + fabs(h * _cos);
 	Image *new_image = newImage(nb_channels, new_w, new_h);
-	for (uc i = 0; i < nb_channels; i++) {
+	for (uc i = 0; i < nb_channels; i++)
+	{
 		uc *channel = image->channels[i];
 		uc *new_channel = new_image->channels[i];
 		float new_x0, new_y0;
-		for (int new_y = 0; new_y < new_h; new_y++) {
+		for (int new_y = 0; new_y < new_h; new_y++)
+		{
 			new_y0 = new_y - new_h / 2.;
-			for (int new_x = 0; new_x < new_w; new_x++) {
+			for (int new_x = 0; new_x < new_w; new_x++)
+			{
 				new_x0 = new_x - new_w / 2.;
-				float x = (new_x0) * _cos - (new_y0) * _sin + w / 2;
-				float y = (new_x0) * _sin + (new_y0) * _cos + h / 2;
-				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h) {
+				float x = (new_x0)*_cos - (new_y0)*_sin + w / 2;
+				float y = (new_x0)*_sin + (new_y0)*_cos + h / 2;
+				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h)
+				{
 					new_channel[new_y * new_w + new_x] = background_color;
 					continue;
 				}
@@ -206,7 +238,8 @@ Image *rotateImage(Image *image, int angle, uc background_color) {
 	return new_image;
 }
 
-Quad *rotateQuad(Quad *quad, int theta, Image *image, Image *rotated) {
+Quad *rotateQuad(Quad *quad, int theta, Image *image, Image *rotated)
+{
 	int w = image->width, h = image->height;
 	int new_w = rotated->width, new_h = rotated->height;
 	float _cos = COS[theta], _sin = SIN[theta];
@@ -214,11 +247,12 @@ Quad *rotateQuad(Quad *quad, int theta, Image *image, Image *rotated) {
 	Point *ps[4] = {quad->p1, quad->p2, quad->p3, quad->p4};
 	Point *n_ps[4];
 	float x, y;
-	for (st i = 0; i < 4; i++) {
+	for (st i = 0; i < 4; i++)
+	{
 		new_x = ps[i]->x, new_y = ps[i]->y;
 		new_x0 = new_x - new_w / 2., new_y0 = new_y - new_h / 2.;
-		x = (new_x0) * _cos - (new_y0) * _sin + w / 2;
-		y = (new_x0) * _sin + (new_y0) * _cos + h / 2;
+		x = (new_x0)*_cos - (new_y0)*_sin + w / 2;
+		y = (new_x0)*_sin + (new_y0)*_cos + h / 2;
 		n_ps[i] = newPoint(x + 0.5, y + 0.5);
 	}
 	return newQuad(n_ps[0], n_ps[1], n_ps[2], n_ps[3]);
