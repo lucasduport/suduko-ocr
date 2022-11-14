@@ -1,7 +1,7 @@
 #pragma once
 
-#include "tools.h"
 #include "quad.h"
+#include "tools.h"
 
 typedef struct
 {
