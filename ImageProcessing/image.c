@@ -155,7 +155,7 @@ void placeRGBA(Image *bg, Image *digit, float mat[3][3], int i, int j) {
 					uc b_a = b_a_channel[y * w + x];
 					val = d_pxl * d_a * 255 + b_pxl * b_a * (255 - d_a);
 					val /= d_a * 255 + b_a * (255 - d_a);
-					b_channel[d_y * 256 + d_x] = val;
+					b_channel[y * w + x] = val;
 				}
 				else { // alpha channel
 					uc d_a = d_channel[d_y * 256 + d_x];

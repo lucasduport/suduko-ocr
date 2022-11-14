@@ -212,6 +212,7 @@ void exeDigit(char *filename) {
 		digits[i - 1] = openImageRGBA(path);
 	}
 	*/
+	/*
 	for (int j = 0; j < 9; j++)
 		for (int i = 0; i < 9; i++)
 			if (!sudoku[j][i]) {
@@ -231,8 +232,11 @@ void exeDigit(char *filename) {
 				placeDigit(rotated, digits[n - 1], quad, i, j);
 			}
 	displayImage(rotated, "With numbers placed");
+	*/
 
 	// puts numbers back in resized image
+	Image *final = openImage(filename, 4);
+	autoResize(final, WINDOW_WIDTH, WINDOW_HEIGHT);
 	Quad *grid = rotateQuad(quad, theta, image, rotated);
 	for (int j = 0; j < 9; j++)
 		for (int i = 0; i < 9; i++)
@@ -240,14 +244,25 @@ void exeDigit(char *filename) {
 				int n = solved[j][i];
 				if (!digits[n - 1]) {
 					// loads from cells
+					int i, j;
+					searchDigit(sudoku, n, &i, &j);
+					if (i < 0 || j < 0)
+						sprintf(path, "Numbers/_%d.png", n);
+					else
+						sprintf(path, "board_image_03/%d_%d.png", j + 1, i + 1);
+					digits[n - 1] = openImage(path, 4);
+					if (digits[n - 1]->height != 256)
+						resizeImage(digits[n-1], 256, 256);
+					invertImage(digits[n - 1]);
 				}
-				placeDigit(image, digits[n - 1], grid, i, j);
+				placeDigit(final, digits[n - 1], grid, i, j);
 			}
-	displayImage(image, "With numbers placed");
+	displayImage(final, "With numbers placed");
 
 	freeQuad(quad);
 	freeQuad(grid);
 	freeImage(image);
+	freeImage(final);
 	freeImage(rotated);
 	for (st i = 0; i < 9; i++) {
 		free(sudoku[i]);

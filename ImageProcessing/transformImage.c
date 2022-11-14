@@ -19,43 +19,6 @@ uc lerp(uc *pxls, float x, float y, st w) {
 	return (uc)(val + 0.5);
 }
 
-/*
-Pixel lerpPixel(Pixel *pxls, float x, float y, st w) {
-	// x1 <= x <= x2
-	// y1 <= y <= y2
-	st x1 = x;
-	st x2 = x1 + 1;
-	st y1 = y;
-	st y2 = y1 + 1;
-	float w_x1 = x2 - x;
-	float w_x2 = x - x1;
-	float w_y1 = y2 - y;
-	float w_y2 = y - y1;
-	Pixel p11 = pxls[y1 * w + x1];
-	Pixel p12 = pxls[y1 * w + x2];
-	Pixel p21 = pxls[y2 * w + x1];
-	Pixel p22 = pxls[y2 * w + x2];
-	float r = 0, g = 0, b = 0, a = 0;
-	r += p11.r * w_x1 * w_y1;
-	r += p12.r * w_x2 * w_y1;
-	r += p21.r * w_x1 * w_y2;
-	r += p22.r * w_x2 * w_y2;
-	g += p11.g * w_x1 * w_y1;
-	g += p12.g * w_x2 * w_y1;
-	g += p21.g * w_x1 * w_y2;
-	g += p22.g * w_x2 * w_y2;
-	b += p11.b * w_x1 * w_y1;
-	b += p12.b * w_x2 * w_y1;
-	b += p21.b * w_x1 * w_y2;
-	b += p22.b * w_x2 * w_y2;
-	a += p11.a * w_x1 * w_y1;
-	a += p12.a * w_x2 * w_y1;
-	a += p21.a * w_x1 * w_y2;
-	a += p22.a * w_x2 * w_y2;
-	return (Pixel){r + 0.5, g + 0.5, b + 0.5, a + 0.5};
-}
-*/
-
 void resizeImage(Image *image, st new_w, st new_h) {
 	st w = image->width, h = image->height;
 	float ratio_w = (float)w / new_w;
