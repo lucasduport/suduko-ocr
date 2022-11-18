@@ -10,7 +10,7 @@ all:
 	clang -fsanitize=address *.o -o main -lm -lSDL2 -lSDL2_image
 
 nosan:
-	clang -Wall -Wextra -std=c99 -O3 -MMD *.c -c -g `pkg-config --cflags sdl2`
+	clang -Wall -Wextra -std=c99 -O3 -MMD *.c -c `pkg-config --cflags sdl2`
 	clang *.o -o main -lm -lSDL2 -lSDL2_image
 
 run:

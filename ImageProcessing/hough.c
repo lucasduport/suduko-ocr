@@ -7,7 +7,7 @@
 #include "transformImage.h"
 
 #define RANGE_DEL_R 15
-#define RANGE_DEL_THETA 3
+#define RANGE_DEL_THETA 1
 
 #define NB_SEGMENTS 100
 #define COORD_ERROR 3.0	 // percentage of the size of the image
@@ -147,8 +147,16 @@ void deleteBest(uc *r_theta, st r_max, st best_r, st best_theta)
 {
 	st r_min = best_r - RANGE_DEL_R > best_r ? 0 : best_r - RANGE_DEL_R;
 	r_max = best_r + RANGE_DEL_R > r_max ? r_max : best_r + RANGE_DEL_R;
+	st theta_min = (best_theta + 360 - RANGE_DEL_THETA) % 360;
+	st theta_max = (best_theta + RANGE_DEL_THETA) % 360;
 	for (st r = r_min; r < r_max; r++)
-		r_theta[r * 360 + best_theta] = 0;
+	{
+		for (st theta = theta_min; theta % 360 != theta_max; theta++)
+		{
+			theta %= 360;
+			r_theta[r * 360 + theta] = 0;
+		}
+	}
 }
 
 st st_pow(st a, st b)

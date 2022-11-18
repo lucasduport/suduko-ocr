@@ -189,7 +189,7 @@ void exeTest(char *filename)
 	}
 	displayImage(image, "Sobel");
 	gaussianBlur(image);
-	thresholdToUpper(image, 32);
+	thresholdToUpper(image, 230);
 	displayImage(image, "Calibrate");
 
 	// detect
