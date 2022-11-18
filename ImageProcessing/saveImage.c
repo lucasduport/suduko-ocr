@@ -5,15 +5,17 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "tools.h"
 #include "saveImage.h"
 #include "display.h"
 
+// unused
 void saveImage(Image *image, const char *filename)
 {
 	SDL_Surface *surface = imageToSurface(image);
 	char path[40];
-	struct stat st = {0};
-	if (stat("saved_images/", &st) == -1)
+	struct stat st_ = {0};
+	if (stat("saved_images/", &st_) == -1)
 		mkdir("saved_images/", 0700);
 	sprintf(path, "saved_images/%s", filename);
 	if (IMG_SavePNG(surface, path) != 0)
@@ -23,55 +25,60 @@ void saveImage(Image *image, const char *filename)
 	return;
 }
 
-void saveSquare(Image *image, const char *filename, Point *point, int size)
+Image *getCell(Image *image, int i, int j)
 {
-	SDL_Surface *surface = imageToSurface(image);
-	SDL_Rect rect = {point->x, point->y, size, size};
-	SDL_Surface *cell = SDL_CreateRGBSurface(0, size, size, 32, 0, 0, 0, 0);
-	SDL_BlitSurface(surface, &rect, cell, NULL);
-	if (IMG_SavePNG(cell, filename) != 0)
+	int cell_size = 38;
+	int border = 5;
+	int digit_size = cell_size - 2 * border;
+	uc nb_channels = image->nb_channels;
+	Image *cell = newImage(nb_channels, digit_size, digit_size);
+	int w = image->width;
+	int x, y;
+	for (uc n = 0; n < nb_channels; n++)
 	{
-		errx(1, "Error while saving image");
+		uc *channel = image->channels[n];
+		uc *new_channel = cell->channels[n];
+		for (int y0 = 0; y0 < digit_size; y0++)
+		{
+			y = i * cell_size + border + y0;
+			for (int x0 = 0; x0 < digit_size; x0++)
+			{
+				x = j * cell_size + border + x0;
+				new_channel[y0 * digit_size + x0] = channel[y * w + x];
+			}
+		}
 	}
-	SDL_FreeSurface(cell);
-	SDL_FreeSurface(surface);
-	return;
+	return cell;
 }
+
+void saveCell(Image *image, const char *dirname, int i, int j)
+{
+	Image *cell = getCell(image, i, j);
+	SDL_Surface *surface = imageToSurface(cell);
+	st len = strlen(dirname) + 9;
+	char filename[len];
+	snprintf(filename, len, "%s/%d_%d.png", dirname, i+1, j+1);
+	if (IMG_SavePNG(surface, filename) != 0)
+	{
+		errx(EXIT_FAILURE, "Error while saving image");
+	}
+	freeImage(cell);
+	SDL_FreeSurface(surface);
+}
+
 // image must be an extracted board
 // filename is the name of the folder to save the image to
 void saveBoard(Image *image, const char *filename)
 {
-	double percentageOfCell = 0.75; // 75% of the cell size
-	struct stat st = {0};
-	char dirname[40];
-	sprintf(dirname, "board_%s", filename);
-	if (stat(dirname, &st) == -1)
+	st len = strlen(filename) + 7;
+	char dirname[len];
+	snprintf(dirname, len, "board_%s", filename);
+	struct stat st_ = {0};
+	if (stat(dirname, &st_) == -1)
 	{
 		mkdir(dirname, 0700);
 	}
-	int size = image->width / 9;
-	int effectiveSize = size * percentageOfCell;
-	int gap = (size - effectiveSize) / 2;
-	SDL_Surface *surface = imageToSurface(image);
-	SDL_Surface *cell = SDL_CreateRGBSurface(
-		0, effectiveSize, effectiveSize, 32, 0, 0, 0, 0);
-
 	for (int i = 0; i < 9; i++)
-	{
 		for (int j = 0; j < 9; j++)
-		{
-			SDL_Rect rect = {
-				j * size + gap, i * size + gap, effectiveSize, effectiveSize};
-			SDL_BlitSurface(surface, &rect, cell, NULL);
-			char name[40];
-			sprintf(name, "%s/%d_%d.png", dirname, i + 1, j + 1);
-			if (IMG_SavePNG(cell, name) != 0)
-			{
-				errx(1, "Error while saving image");
-			}
-		}
-	}
-	SDL_FreeSurface(cell);
-	SDL_FreeSurface(surface);
-	return;
+			saveCell(image, dirname, i, j);
 }
