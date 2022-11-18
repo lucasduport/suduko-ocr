@@ -1,7 +1,7 @@
 #include <err.h>
 #include <stdio.h>
 #include "display.h"
-#include "openImage.h"
+#include "saveImage.h"
 #include "transformImage.h"
 
 void showLines(Image *background, Segment **segments, st nb_segments, int r,

@@ -21,8 +21,12 @@ void toGrey(Image *image)
 		else
 			*p = 255;
 	}
-	freeImage(image);
-	*image = *new_image;
+	for (uc i = 0; i < nb_channels; i++)
+		free(image->channels[i]);
+	free(image->channels);
+	image->channels = new_image->channels;
+	image->nb_channels = 1;
+	free(new_image);
 }
 
 void toRGBA(Image *image)

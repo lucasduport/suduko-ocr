@@ -6,7 +6,7 @@
 #include "display.h"
 #include "filters.h"
 #include "hough.h"
-#include "openImage.h"
+#include "saveImage.h"
 #include "tools.h"
 #include "transformImage.h"
 
@@ -226,50 +226,35 @@ void searchDigit(int **sudoku, int n, int *i, int *j)
 
 void exeDigit(char *filename)
 {
-	Image *image = openImage(filename, 1);
-	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
+	Image *final = openImage(filename, 4);
+	autoResize(final, WINDOW_WIDTH, WINDOW_HEIGHT);
+	Image *image = copyImage(final);
+	toGrey(image);
+	Image *to_extract = copyImage(image);
+
+	// preprocessing
 	displayImage(image, "Original image");
 	gaussianBlur(image);
 	calibrateImage(image, 200, 255);
 	displayImage(image, "Saturated");
 	sobelFilter(image);
-	uc *channel = image->channels[0];
-	st w = image->width, h = image->height;
-	for (st x = 0; x < w; x++)
-	{
-		channel[0 * w + x] = 0;
-		channel[(h - 1) * w + x] = 0;
-	}
-	for (st y = 0; y < h; y++)
-	{
-		channel[y * w + 0] = 0;
-		channel[y * w + (w - 1)] = 0;
-	}
 	displayImage(image, "Sobel");
 	gaussianBlur(image);
 	thresholdToUpper(image, 32);
 	displayImage(image, "Calibrate");
-	/*
-	Image *image = openImage(filename, 1);
-	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
-	// rotate image
-	int theta = rotateWithView(image);
-	Image *rotated = rotateImage(image, theta, 255);
-	Image *copy = copyImage(rotated);
-	// preprocess image
-	saturateImage(rotated);
-	// displayImage(rotated, "Saturated");
-	// */
 
 	// detect grid
 	Quad *quad = detectGrid(image);
 	if (quad == NULL)
 		errx(1, "No grid detected.");
+
 	// display results
 	showQuad(image, quad, 0, 255, 0);
-	Image *extracted = extractGrid(image, quad, 9 * CELLSIZE, 9 * CELLSIZE);
+	Image *extracted = extractGrid(to_extract, quad, 9 * CELLSIZE, 9 * CELLSIZE);
+	invertImage(extracted);
 	thresholdCells(extracted);
 	displayImage(extracted, "Extracted grid");
+
 	// save image
 	char filenameStripped[30];
 	cleanPath(filename, filenameStripped);
@@ -290,8 +275,6 @@ void exeDigit(char *filename)
 	*/
 
 	// puts numbers back in original image
-	Image *final = openImage(filename, 4);
-	autoResize(final, WINDOW_WIDTH, WINDOW_HEIGHT);
 	// Quad *grid = rotateQuad(quad, theta, image, rotated);
 	for (int j = 0; j < 9; j++)
 		for (int i = 0; i < 9; i++)

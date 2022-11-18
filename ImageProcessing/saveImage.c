@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "openImage.h"
+#include "saveImage.h"
 #include "display.h"
 
 void saveImage(Image *image, const char *filename)

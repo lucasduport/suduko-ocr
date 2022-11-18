@@ -227,6 +227,17 @@ void sobelFilter(Image *image)
 			channel[i] = gradients[i] * 255 / gradientMax;
 		}
 		free(gradients);
+		// sets borders to black
+		for (int y = 0; y < h; y++)
+		{
+			channel[y * w] = 0;
+			channel[y * w + w - 1] = 0;
+		}
+		for (int x = 0; x < w; x++)
+		{
+			channel[x] = 0;
+			channel[(h - 1) * w + x] = 0;
+		}
 	}
 }
 
