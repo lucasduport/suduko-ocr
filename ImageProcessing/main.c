@@ -251,6 +251,7 @@ void exeDigit(char *filename)
 	// display results
 	showQuad(image, quad, 0, 255, 0);
 	Image *extracted = extractGrid(to_extract, quad, 9 * CELLSIZE, 9 * CELLSIZE);
+	freeImage(to_extract);
 	invertImage(extracted);
 	thresholdCells(extracted);
 	displayImage(extracted, "Extracted grid");
