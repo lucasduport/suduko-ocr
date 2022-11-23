@@ -535,7 +535,7 @@ Quad *detectGrid(Image *image)
 			continue;
 		segments[nb_segments] = segment;
 		nb_segments++;
-		printf("nb_segments : %zu\n", nb_segments);
+		// printf("nb_segments : %zu\n", nb_segments);
 		quad = constructGrid(segments, nb_segments, min_dist);
 		if (quad)
 			break;

@@ -9,6 +9,7 @@
 #include "saveImage.h"
 #include "tools.h"
 #include "transformImage.h"
+#include "cellExtraction.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
@@ -161,7 +162,8 @@ void exeDemo(char *filename)
 	// save image
 	char filenameStripped[30];
 	cleanPath(filename, filenameStripped);
-	saveBoard(extracted, filenameStripped);
+	// remove for testing
+	//saveBoard(extracted, filenameStripped);
 	freeImage(extracted);
 }
 
@@ -253,13 +255,13 @@ void exeDigit(char *filename)
 	Image *extracted = extractGrid(to_extract, quad, 9 * CELLSIZE, 9 * CELLSIZE);
 	freeImage(to_extract);
 	invertImage(extracted);
-	thresholdCells(extracted);
 	displayImage(extracted, "Extracted grid");
 
 	// save image
 	char filenameStripped[30];
 	cleanPath(filename, filenameStripped);
-	saveBoard(extracted, filenameStripped);
+	//saveBoard(extracted, filenameStripped);
+	saveCells(extracted, 28, 5, filenameStripped);
 	freeImage(extracted);
 
 	int **sudoku = readSudoku("../Solver/grid_00");

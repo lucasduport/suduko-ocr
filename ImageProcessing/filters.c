@@ -56,7 +56,7 @@ void thresholdCells(Image *image)
 							max = value;
 					}
 				}
-				int threshold = min * 0.7 + max * 0.3;
+				int threshold = min * 0.3 + max * 0.7;
 				for (int x = i * cell_size; x < (i + 1) * cell_size; x++)
 				{
 					for (int y = j * cell_size; y < (j + 1) * cell_size; y++)
@@ -184,8 +184,7 @@ void sobelFilter(Image *image)
 {
 	int kernelX[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
 	int kernelY[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
-	int w = image->width;
-	int h = image->height;
+	int w = image->width, h = image->height;
 	uc nb_channels = image->nb_channels;
 	for (uc n = 0; n < nb_channels; n++)
 	{
@@ -294,4 +293,11 @@ void saturateImage(Image *image)
 			for (st x = 0; x < w; x++)
 				channel[y * w + x] = channel[y * w + x] >= median ? 255 : 0;
 	}
+}
+
+void calibrateCell(Image *image)
+{
+	int w = image->width, h = image->height;
+	uc nb_channels = image->nb_channel;
+
 }

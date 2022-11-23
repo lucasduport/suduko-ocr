@@ -51,6 +51,8 @@ Image *getCell(Image *image, int i, int j)
 	return cell;
 }
 
+/*
+// in cellExtraction.c
 void saveCell(Image *image, const char *dirname, int i, int j)
 {
 	Image *cell = getCell(image, i, j);
@@ -82,3 +84,4 @@ void saveBoard(Image *image, const char *filename)
 		for (int j = 0; j < 9; j++)
 			saveCell(image, dirname, i, j);
 }
+*/
