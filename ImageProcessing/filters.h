@@ -9,3 +9,4 @@ void calibrateImage(Image *image, int radius, uc bg);
 void sobelFilter(Image *image);
 void thresholdToUpper(Image *image, uc threshold);
 void saturateImage(Image *image);
+void calibrateCell(Image *image);

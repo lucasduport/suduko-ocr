@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <err.h>
 
-void addBorders(Image *image, int border_size)
+void addBorders(Image *image, int border_size, uc bg)
 {
 	int w = image->width, h = image->height;
 	int new_w = w + 2 * border_size, new_h = h + 2 * border_size;
@@ -22,13 +22,13 @@ void addBorders(Image *image, int border_size)
 			if (y < border_size || y >= new_h - border_size)
 			{
 				for (int x = 0; x < new_w; x++)
-					new_channel[y * new_w + x] = 0;
+					new_channel[y * new_w + x] = bg;
 				continue;
 			}
 			for (int x = 0; x < new_w; x++)
 			{
 				if (x < border_size || x >= new_w - border_size)
-					new_channel[y * new_w + x] = 0;
+					new_channel[y * new_w + x] = bg;
 				else
 					new_channel[y * new_w + x] = channel[(y - border_size) * w + x - border_size];
 			}
@@ -91,8 +91,8 @@ void removeBorders(Image *image, int cell_size)
 void saveCell(Image *image, int cell_size, int border_size, const char *dirname, int i, int j)
 {
 	Image *cell = getCellWithBorders(image, cell_size, border_size, i, j);
-	calibrateImage(cell, cell_size, 0);
-	removeBorders(cell, cell_size);
+	calibrateCell(cell);
+	removeBorders(cell, 28);
 	SDL_Surface *surface = imageToSurface(cell);
 	st len = strlen(dirname) + 9;
 	char filename[len];
@@ -107,7 +107,7 @@ void saveCell(Image *image, int cell_size, int border_size, const char *dirname,
 
 void saveCells(Image *image, int cell_size, int border_size, const char *filename)
 {
-	addBorders(image, border_size);
+	addBorders(image, border_size, 127);
 	st len = strlen(filename) + 7;
 	char dirname[len];
 	snprintf(dirname, len, "board_%s", filename);

@@ -261,7 +261,7 @@ void exeDigit(char *filename)
 	char filenameStripped[30];
 	cleanPath(filename, filenameStripped);
 	//saveBoard(extracted, filenameStripped);
-	saveCells(extracted, 28, 5, filenameStripped);
+	saveCells(extracted, CELLSIZE, 5, filenameStripped);
 	freeImage(extracted);
 
 	int **sudoku = readSudoku("../Solver/grid_00");
@@ -293,7 +293,7 @@ void exeDigit(char *filename)
 						sprintf(path, "Numbers/_%d.png", n);
 					else
 						sprintf(
-							path, "board_image_03/%d_%d.png", j + 1, i + 1);
+							path, "board_image_03/%d_%d.png", i + 1, j + 1);
 					// TODO: open the correct dir
 					digits[n - 1] = openImage(path, 4);
 					if (digits[n - 1]->height != 256)

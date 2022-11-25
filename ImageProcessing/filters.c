@@ -298,6 +298,37 @@ void saturateImage(Image *image)
 void calibrateCell(Image *image)
 {
 	int w = image->width, h = image->height;
-	uc nb_channels = image->nb_channel;
-
+	uc nb_channels = image->nb_channels;
+	uc min, max;
+	for (uc n = 0; n < nb_channels; n++)
+	{
+		if (n == 3)
+			continue; // alpha channel
+		uc *channel = image->channels[n];
+		min = 255;
+		max = 0;
+		for (int y = 0; y < h; y++)
+		{
+			for (int x = 0; x < w; x++)
+			{
+				uc pixel = channel[y * w + x];
+				if (pixel > max)
+					max = pixel;
+				if (pixel < min)
+					min = pixel;
+			}
+		}
+		if (max == min)
+			continue;
+		for (int y = 0; y < h; y++)
+		{
+			for (int x = 0; x < w; x++)
+			{
+				uc pixel = channel[y * w + x];
+				// uses quadratic function to calibrate
+				float v = (float)(pixel - min) / (max - min);
+				channel[y * w + x] = pow(v, 3) * 255;
+			}
+		}
+	}
 }
