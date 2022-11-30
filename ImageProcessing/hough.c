@@ -531,11 +531,11 @@ Quad *detectGrid(Image *image)
 		Segment *segment = getBestSegment(r_theta, r_max, image, &left);
 		if (!left)
 			break;
+		// printf("nb_segments : %zu\n", nb_segments);
 		if (!segment)
 			continue;
 		segments[nb_segments] = segment;
 		nb_segments++;
-		// printf("nb_segments : %zu\n", nb_segments);
 		quad = constructGrid(segments, nb_segments, min_dist);
 		if (quad)
 			break;

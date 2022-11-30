@@ -124,3 +124,46 @@ void saveCells(Image *image, int cell_size, int border_size, const char *filenam
 		}
 	}
 }
+
+Image **loadCells(int **solved, char *dirname)
+{
+	Image **digits = malloc(9 * sizeof(Image *));
+	if (digits == NULL)
+		errx(EXIT_FAILURE, "malloc failed");
+	for (int i = 0; i < 9; i++)
+		digits[i] = NULL;
+	st n;
+	for (st i = 0; i < 9; i++)
+	{
+		for (st j = 0; j < 9; j++)
+		{
+			n = solved[i][j];
+			if (digits[n - 1])
+				continue;
+			st len = strlen(dirname) + 9;
+			char filename[len];
+			snprintf(filename, len, "%s/%zu_%zu.png", dirname, i+1, j+1);
+			Image *image = openImage(filename, 4);
+			if (image == NULL)
+				errx(EXIT_FAILURE, "Error while loading image");
+			digits[n - 1] = image;
+		}
+	}
+	return digits;
+}
+
+void cleanPath(char *filename, char *dest)
+{
+	char *slash = strrchr(filename, '/');
+	if (slash == NULL)
+	{
+		strcpy(dest, filename);
+	}
+	else
+	{
+		strcpy(dest, slash + 1);
+	}
+	char *dot = strrchr(dest, '.');
+	if (dot && dot != dest)
+		*dot = '\0';
+}

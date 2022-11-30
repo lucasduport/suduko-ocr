@@ -11,15 +11,12 @@
 #include "transformImage.h"
 #include "cellExtraction.h"
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
-#define CELLSIZE 38
-
 // function directly copied from ../Solver/main.c
 // cannot import it beacause of the presence of a main function
 // also renamed because SDL2 doesn't like "read" as a function
 int **readSudoku(const char *filename)
 {
+
 	int **array = malloc(9 * sizeof(int *));
 	for (int i = 0; i < 9; i++)
 		array[i] = (int *)malloc(9 * sizeof(int));
@@ -55,24 +52,6 @@ int **readSudoku(const char *filename)
 	} while (count != 0);
 	fclose(file);
 	return array;
-}
-
-char *cleanPath(char *filename, char *dest)
-{
-	char *slash = strrchr(filename, '/');
-	if (slash == NULL)
-	{
-		strcpy(dest, filename);
-	}
-	else
-	{
-		strcpy(dest, slash + 1);
-	}
-	char *dot = strrchr(dest, '.');
-	if (!dot || dot == dest)
-		return dest;
-	*dot = '\0';
-	return dest;
 }
 
 void init()
@@ -177,18 +156,6 @@ void exeTest(char *filename)
 	calibrateImage(image, 200, 255);
 	displayImage(image, "Saturated");
 	sobelFilter(image);
-	uc *channel = image->channels[0];
-	st w = image->width, h = image->height;
-	for (st x = 0; x < w; x++)
-	{
-		channel[0 * w + x] = 0;
-		channel[(h - 1) * w + x] = 0;
-	}
-	for (st y = 0; y < h; y++)
-	{
-		channel[y * w + 0] = 0;
-		channel[y * w + (w - 1)] = 0;
-	}
 	displayImage(image, "Sobel");
 	gaussianBlur(image);
 	thresholdToUpper(image, 230);
