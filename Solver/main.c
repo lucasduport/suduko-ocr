@@ -1,5 +1,7 @@
 #include "solver.h"
+#include "solver16.h"
 #include "openFile.h"
+#include "openFile16.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -138,7 +140,11 @@ int main(int argc, char **argv) {
 		printf("Too much argument\nOnly one grid is needed\n");
 		return 0;
 	}
-	fileProcessing(argv[1]);
+	if (argc == 2) {
+		const char *filename = argv[1];
+		fileProcessing(filename);
+	}
+	//fileProcessing(argv[1]);
 	return 0;
 	/*int array2[9][9] =
 	{

@@ -1,227 +1,149 @@
 #include "transformImage.h"
-#include "matrices.h"
-#include "tools.h"
-#include <math.h>
-#include <stdio.h>
 
-void invertImage(Image *image) {
-	uc *pixels = image->pixels;
+void toGrey(Image *image)
+{
+	uc nb_channels = image->nb_channels;
+	if (nb_channels == 1)
+		errx(EXIT_FAILURE, "image already in grey");
+	st width = image->width, height = image->height;
+	Image *new_image = newImage(1, width, height);
+	st len = width * height;
+	uc *new_channel = new_image->channels[0];
+	uc *r_p = image->channels[0];
+	uc *g_p = image->channels[1];
+	uc *b_p = image->channels[2];
+	uc *a_p = image->channels[3];
+	uc *end = new_channel + len;
+	for (uc *p = new_channel; p < end; p++, r_p++, g_p++, b_p++, a_p++)
+	{
+		if (*a_p)
+			*p = (*r_p + *g_p + *b_p) / 3;
+		else
+			*p = 255;
+	}
+	freeImage(image);
+	*image = *new_image;
+}
+
+void toRGBA(Image *image)
+{
+	if (image->nb_channels == 4)
+		errx(EXIT_FAILURE, "image already in RGBA");
+	st width = image->width, height = image->height;
+	Image *new_image = newImage(4, width, height);
+	st len = width * height;
+	for (uc n = 0; n < 3; n++)
+		for (st i = 0; i < len; i++)
+			new_image->channels[n][i] = image->channels[0][i];
+	for (st i = 0; i < len; i++)
+		new_image->channels[4][i] = 255;
+	freeImage(image);
+	*image = *new_image;
+}
+
+void toColor(Image *image, uc r, uc g, uc b)
+{
+	if (image->nb_channels == 1)
+		errx(EXIT_FAILURE, "image should be in RGBA");
 	st len = image->width * image->height;
-	for (size_t i = 0; i < len; i++) pixels[i] = 255 - pixels[i];
+	uc color[3] = {r, g, b};
+	for (uc n = 0; n < 3; n++)
+	{
+		uc *channel = image->channels[n];
+		uc val = color[n];
+		for (st i = 0; i < len; i++)
+			channel[i] = val;
+	}
 }
 
-uc median(uc *pixels, int size) {
-	for (int i = 0; i < size; i++) {
-		// checks if pixels[i] is the median
-		int nbLess = 0;
-		int nbMore = 0;
-		for (int j = 0; j < size; j++) {
-			if (pixels[i] < pixels[j]) nbLess++;
-			if (pixels[i] > pixels[j]) nbMore++;
-		}
-		int diff = abs(nbLess - nbMore);
-		if (diff <= 1) return pixels[i];
+void createAlpha(Image *image, int min, int max)
+{
+	uc nb_channels = image->nb_channels;
+	if (nb_channels == 1)
+		errx(EXIT_FAILURE, "image should be in RGBA");
+	st len = image->width * image->height;
+	uc *r_channel = image->channels[0];
+	uc *g_channel = image->channels[1];
+	uc *b_channel = image->channels[2];
+	uc *a_channel = image->channels[3];
+	for (st i = 0; i < len; i++)
+	{
+		int val = (r_channel[i] + g_channel[i] + b_channel[i]) / 3;
+		if (val < min || val > max)
+			a_channel[i] = 0;
 	}
-	return pixels[0];
 }
 
-void medianFilter(Image *image, int radius) {
-	uc *pixels = image->pixels;
-	int w = image->width, h = image->height;
-	uc *pixels_copy = copyPixels(pixels, w * h);
-	for (int x = 0; x < w; x++) {
-		for (int y = 0; y < h; y++) {
-			// takes the median of the pixels in the square of radius radius
-			// centered on (x,y)
-			int min_x = x < radius ? 0 : x - radius;
-			int max_x = x + radius >= w ? w - 1 : x + radius;
-			int min_y = y < radius ? 0 : y - radius;
-			int max_y = y + radius >= h ? h - 1 : y + radius;
-			int len = (max_x - min_x + 1) * (max_y - min_y + 1);
-			uc *values = malloc(len * sizeof(uc));
-			int i = 0;
-			for (int x2 = min_x; x2 <= max_x; x2++) {
-				for (int y2 = min_y; y2 <= max_y; y2++) {
-					values[i] = pixels_copy[x2 + y2 * w];
-					i++;
-				}
-			}
-			pixels[x + y * w] = median(values, len);
-			free(values);
-		}
-	}
-	free(pixels_copy);
+uc lerp(uc *pxls, float x, float y, st w)
+{
+	// x1 <= x <= x2
+	// y1 <= y <= y2
+	st x1 = x;
+	st x2 = x1 + 1;
+	st y1 = y;
+	st y2 = y1 + 1;
+	float w_x1 = x2 - x;
+	float w_x2 = x - x1;
+	float w_y1 = y2 - y;
+	float w_y2 = y - y1;
+	float val = 0;
+	val += pxls[y1 * w + x1] * w_x1 * w_y1;
+	val += pxls[y1 * w + x2] * w_x2 * w_y1;
+	val += pxls[y2 * w + x1] * w_x1 * w_y2;
+	val += pxls[y2 * w + x2] * w_x2 * w_y2;
+	return (uc)(val + 0.5);
 }
 
-void gaussianBlur(Image *image) {
-	int kernel[5][5] = {{2, 4, 5, 4, 2},
-						{4, 9, 12, 9, 4},
-						{5, 12, 15, 12, 5},
-						{4, 9, 12, 9, 4},
-						{2, 4, 5, 4, 2}};
-	uc *pixels = image->pixels;
-	int w = image->width;
-	int h = image->height;
-	uc *newPixels = malloc(sizeof(uc) * w * h);
-	if (newPixels == NULL) errx(EXIT_FAILURE, "malloc failed");
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			int sum = 0;
-			int weight = 0;
-			for (int i = -2; i <= 2; i++) {
-				for (int j = -2; j <= 2; j++) {
-					int x2 = x + j;
-					int y2 = y + i;
-					if (x2 < 0 || x2 >= w || y2 < 0 || y2 >= h) continue;
-					sum += pixels[y2 * w + x2] * kernel[i + 2][j + 2];
-					weight += kernel[i + 2][j + 2];
-				}
-			}
-			newPixels[y * w + x] = sum / weight;
-		}
-	}
-	free(pixels);
-	image->pixels = newPixels;
-}
-
-void calibrateImage(Image *image, int radius, uc default_value) {
-	int w = image->width, h = image->height;
-	uc *pixels = image->pixels;
-	uc *copy_pixels = copyPixels(pixels, w * h);
-	uc maxs[w];
-	uc mins[w];
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			uc max = 0;
-			uc min = 255;
-			for (int j = y - radius; j <= y + radius; j++) {
-				if (j < 0) {j = -1; continue;}
-				if (j >= h) break;
-				uc pixel = copy_pixels[j * w + x];
-				if (pixel > max) max = pixel;
-				if (pixel < min) min = pixel;
-			}
-			maxs[x] = max;
-			mins[x] = min;
-		}
-		for (int x = 0; x < w; x++) {
-			uc min = 255;
-			uc max = 0;
-			for (int i = x - radius; i <= x + radius; i++) {
-				if (i < 0) {i = -1; continue;}
-				if (i >= w) break;
-				uc pixel = maxs[i];
-				if (pixel > max) max = pixel;
-				pixel = mins[i];
-				if (pixel < min) min = pixel;
-			}
-			uc pixel = copy_pixels[y * w + x];
-			if (min == max) {
-				pixels[y * w + x] = default_value;
-			} else {
-				pixels[y * w + x] = (pixel - min) * 255 / (max - min);
-			}
-		}
-	}
-	free(copy_pixels);
-}
-
-void sobelFilter(Image *image) {
-	int kernelX[3][3] = {{-1, 0, 1},
-						 {-2, 0, 2},
-						 {-1, 0, 1}};
-	int kernelY[3][3] = {{-1, -2, -1},
-						 {0, 0, 0},
-						 {1, 2, 1}};
-	uc *pixels = image->pixels;
-	int w = image->width;
-	int h = image->height;
-	int *gradients = malloc(sizeof(int) * w * h);
-	if (gradients == NULL) errx(EXIT_FAILURE, "malloc failed");
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			if (x == 0 || x == w - 1 || y == 0 || y == h - 1) {
-				gradients[y * w + x] = 0;
-				continue;
-			}
-			int sumX = 0;
-			int sumY = 0;
-			for (int i = -1; i <= 1; i++) {
-				for (int j = -1; j <= 1; j++) {
-					int x2 = x + j;
-					int y2 = y + i;
-					if (x2 < 0 || x2 >= w || y2 < 0 || y2 >= h) continue;
-					sumX += pixels[y2 * w + x2] * kernelX[i + 1][j + 1];
-					sumY += pixels[y2 * w + x2] * kernelY[i + 1][j + 1];
-				}
-			}
-			gradients[y * w + x] = sqrt(sumX * sumX + sumY * sumY);
-		}
-	}
-	int gradientMax = 0;
-	for (int i = 0; i < w * h; i++) {
-		if (gradients[i] > gradientMax) gradientMax = gradients[i];
-	}
-	for (int i = 0; i < w * h; i++) {
-		pixels[i] = gradients[i] * 255 / gradientMax;
-	}
-	free(gradients);
-}
-
-void saturateImage(Image *image) {
-	// Unused
-	uc *pixels = image->pixels;
+void resizeImage(Image *image, st new_w, st new_h)
+{
 	st w = image->width, h = image->height;
-	st histo[256] = {0};
-
-	for (st y = 0; y < h; y++)
-		for (st x = 0; x < w; x++) histo[pixels[y * w + x]]++;
-
-	st median = 0;
-	for (st i = 255; i >= 0; i--) {
-		median += histo[i];
-		if (median > w * h * 0.875) {
-			median = i;
-			break;
-		}
-	}
-	if (median == 255) median = 254;
-	if (median == 0) median = 1;
-	for (st y = 0; y < h; y++)
-		for (st x = 0; x < w; x++)
-			pixels[y * w + x] = pixels[y * w + x] >= median ? 255 : 0;
-	return;
-}
-
-void resizeImage(Image *image, st new_w, st new_h) {
-	uc *pixels = image->pixels;
-	st w = image->width, h = image->height;
-	uc *new_pixels = malloc(sizeof(uc) * new_w * new_h);
 	float ratio_w = (float)w / new_w;
 	float ratio_h = (float)h / new_h;
+	float x, y;
+	for (uc i = 0; i < image->nb_channels; i++)
+	{
+		uc *channel = image->channels[i];
+		uc *new_channel = (uc *)malloc(new_w * new_h * sizeof(uc));
+		if (channel == NULL)
+			errx(EXIT_FAILURE, "malloc failed");
+		for (st new_y = 0; new_y < new_h; new_y++)
+		{
+			y = new_y * ratio_h;
+			for (st new_x = 0; new_x < new_w; new_x++)
+			{
+				x = new_x * ratio_w;
+				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h)
+				{
+					new_channel[new_y * new_w + new_x] = 0;
+					continue;
+				}
+				new_channel[new_y * new_w + new_x] = lerp(channel, x, y, w);
+			}
+		}
+		free(channel);
+		image->channels[i] = new_channel;
+	}
+	image->width = new_w;
+	image->height = new_h;
+}
+
+/*
+void resizeImageRGBA(ImageRGBA *image, st new_w, st new_h) {
+	Pixel *pixels = image->pixels;
+	st w = image->width, h = image->height;
+	Pixel *new_pixels = (Pixel *)malloc(sizeof(Pixel) * new_w * new_h);
+	float ratio_w = (float)w / new_w;
+	float ratio_h = (float)h / new_h;
+	float x, y;
 	for (st new_y = 0; new_y < new_h; new_y++) {
-		float y = new_y * ratio_h;
-		st upper_y = y;
-		st lower_y = upper_y + 1;
+		y = new_y * ratio_h;
 		for (st new_x = 0; new_x < new_w; new_x++) {
-			float x = new_x * ratio_w;
-			st left_x = x;
-			st right_x = left_x + 1;
-			if (left_x < 0 || right_x >= w || upper_y < 0 || lower_y >= h) {
-				new_pixels[new_y * new_w + new_x] = 0;
+			x = new_x * ratio_w;
+			if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h) {
+				new_pixels[new_y * new_w + new_x] = (Pixel){0, 0, 0, 0};
 				continue;
 			}
-			float weight_left = 1 - (x - left_x);
-			float weight_right = 1 - weight_left;
-			float weight_top = 1 - (y - upper_y);
-			float weight_bottom = 1 - weight_top;
-			float value = 0;
-			value += pixels[upper_y * w + left_x] * weight_left * weight_top;
-			value += pixels[upper_y * w + right_x] * weight_right * weight_top;
-			value += pixels[lower_y * w + left_x] * weight_left * weight_bottom;
-			value +=
-				pixels[lower_y * w + right_x] * weight_right * weight_bottom;
-			new_pixels[new_y * new_w + new_x] = (uc)(value + 0.5);
+			new_pixels[new_y * new_w + new_x] = lerpPixel(pixels, x, y, w);
 		}
 	}
 	free(pixels);
@@ -229,138 +151,109 @@ void resizeImage(Image *image, st new_w, st new_h) {
 	image->width = new_w;
 	image->height = new_h;
 }
+*/
 
-void autoResize(Image *image, st maw_w, st max_h) {
-	if (image->width <= maw_w && image->height <= max_h)
+void autoResize(Image *image, st max_w, st max_h)
+{
+	if (image->width <= max_w && image->height <= max_h)
 		return;
 	// if ratio_w > ratio_h, then we resize by width
-	float ratio_w = (float)image->width / maw_w;
+	float ratio_w = (float)image->width / max_w;
 	float ratio_h = (float)image->height / max_h;
 	if (ratio_w > ratio_h)
-		resizeImage(image, maw_w, image->height / ratio_w);
+		resizeImage(image, max_w, image->height / ratio_w);
 	else
 		resizeImage(image, image->width / ratio_h, max_h);
 }
 
-Image *extractGrid(Image *image, Quadri *quadri, st new_w, st new_h) {
+Image *extractGrid(Image *image, Quad *quad, st new_w, st new_h)
+{
 	// p1 : ul, p2 : ur,
 	// p3 : dl, p4 : dr
-	uc *pixels = image->pixels;
+	uc nb_channels = image->nb_channels;
 	st w = image->width, h = image->height;
-	Image *new_image = newImage(new_w, new_h);
-	uc *new_pixels = new_image->pixels;
-	float mat33[3][3];
-	getTransformMatrix(quadri, new_w, new_h, mat33);
-	float mat31[3];
-	mat31[2] = 1;
+	Image *new_image = newImage(nb_channels, new_w, new_h);
+	float input[3] = {0, 0, 1};
+	float mat[3][3];
+	getTransformMatrix(quad, new_w, new_h, mat);
 	float res[3];
-	for (st new_y = 0; new_y < new_h; new_y++) {
-		for (st new_x = 0; new_x < new_w; new_x++) {
-			mat31[0] = new_x;
-			mat31[1] = new_y;
-			// mat31[2] = 1;
-			matMul33_31(mat33, mat31, res);
-			float x = res[0] / res[2];
-			float y = res[1] / res[2];
-			if (x < 0 || x >= w - 1 || y < 0 || y >= h - 1) {
-				new_pixels[new_y * new_w + new_x] = 0;
-				continue;
-			}
-			st left_x = x;
-			st right_x = left_x + 1;
-			st upper_y = y;
-			st lower_y = upper_y + 1;
-			float weight_left = 1 - (x - left_x);
-			float weight_right = 1 - weight_left;
-			float weight_top = 1 - (y - upper_y);
-			float weight_bottom = 1 - weight_top;
-			float value = 0;
-			value += pixels[upper_y * w + left_x] * weight_left * weight_top;
-			value += pixels[upper_y * w + right_x] * weight_right * weight_top;
-			value += pixels[lower_y * w + left_x] * weight_left * weight_bottom;
-			value +=
-				pixels[lower_y * w + right_x] * weight_right * weight_bottom;
-			new_pixels[new_y * new_w + new_x] = (uc)(value + 0.5);
-		}
-	}
-	return new_image;
-}
-
-Image *rotateImage(Image *image, int angleD, uc background_color) {
-	double angle = angleD * PI / 180;
-	uc *pixels = image->pixels;
-	st w = image->width, h = image->height;
-	// all corners ((0, 0), (w, 0), (0, h), (w, h)) must be in the new image
-	float _cos = cos(angle);
-	float _sin = sin(angle);
-	st new_w = fabs(w * cos(angle)) + fabs(h * sin(angle));
-	st new_h = fabs(w * sin(angle)) + fabs(h * cos(angle));
-	Image *new_image = newImage(new_w, new_h);
-	uc *new_pixels = new_image->pixels;
-	for (st new_y = 0; new_y < new_h; new_y++) {
-		for (st new_x = 0; new_x < new_w; new_x++) {
-			float x = ((float)new_x - new_w / 2) * _cos
-					  - ((float)new_y - new_h / 2) * _sin + w / 2;
-			float y = ((float)new_x - new_w / 2) * _sin
-					  + ((float)new_y - new_h / 2) * _cos + h / 2;
-			if (background_color != 255) {
-				if (x < 0 || x >= w - 1 || y < 0 || y >= h - 1) {
-					new_pixels[new_y * new_w + new_x] = background_color;
+	for (uc i = 0; i < nb_channels; i++)
+	{
+		uc *channel = image->channels[i];
+		uc *new_channel = new_image->channels[i];
+		float x, y;
+		for (st new_y = 0; new_y < new_h; new_y++)
+		{
+			input[1] = new_y;
+			for (st new_x = 0; new_x < new_w; new_x++)
+			{
+				input[0] = new_x;
+				matMul33_31(mat, input, res);
+				x = res[0] / res[2];
+				y = res[1] / res[2];
+				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h)
+				{
+					new_channel[new_y * new_w + new_x] = 0;
 					continue;
 				}
+				new_channel[new_y * new_w + new_x] = lerp(channel, x, y, w);
 			}
-			else {
-				if (x < 0) x = 0;
-				if (x >= w - 1) x = w - 2;
-				if (y < 0) y = 0;
-				if (y >= h - 1) y = h - 2;
-			}
-			st upper_y = (st)y;
-			st lower_y = upper_y + 1;
-			st left_x = (st)x;
-			st right_x = left_x + 1;
-			float weight_left = 1 - (x - left_x);
-			float weight_right = 1 - weight_left;
-			float weight_top = 1 - (y - upper_y);
-			float weight_bottom = 1 - weight_top;
-			float value = 0;
-			value += pixels[upper_y * w + left_x] * weight_left * weight_top;
-			value += pixels[upper_y * w + right_x] * weight_right * weight_top;
-			value += pixels[lower_y * w + left_x] * weight_left * weight_bottom;
-			value +=
-				pixels[lower_y * w + right_x] * weight_right * weight_bottom;
-			new_pixels[new_y * new_w + new_x] = (uc)(value + 0.5);
 		}
 	}
 	return new_image;
 }
 
-// it integrate the number in the image with the origin : origin.
-// only if the pixel of number is less than 10
-void integrateNumber(Image *image, Image *number, Point *origin) {
-	uc *pixels = image->pixels;
-	st w = image->width, h = image->height;
-	uc *integrated_pixels = number->pixels;
-	st integrated_w = number->width, integrated_h = number->height;
-	for (st y = 0; y < integrated_h; y++) {
-		for (st x = 0; x < integrated_w; x++) {
-			st new_x = x + origin->x;
-			st new_y = y + origin->y;
-			if (new_x < 0 || new_x >= w || new_y < 0 || new_y >= h
-				|| integrated_pixels[y * integrated_w + x] > 20)
-				continue;
-			pixels[new_y * w + new_x] = integrated_pixels[y * integrated_w + x];
+Image *rotateImage(Image *image, int angle, uc background_color)
+{
+	uc nb_channels = image->nb_channels;
+	int w = image->width, h = image->height;
+	// all corners ((0, 0), (w, 0), (0, h), (w, h)) must be in the new image
+	float _cos = COS[angle];
+	float _sin = SIN[angle];
+	int new_w = fabs(w * _cos) + fabs(h * _sin);
+	int new_h = fabs(w * _sin) + fabs(h * _cos);
+	Image *new_image = newImage(nb_channels, new_w, new_h);
+	for (uc i = 0; i < nb_channels; i++)
+	{
+		uc *channel = image->channels[i];
+		uc *new_channel = new_image->channels[i];
+		float new_x0, new_y0;
+		for (int new_y = 0; new_y < new_h; new_y++)
+		{
+			new_y0 = new_y - new_h / 2.;
+			for (int new_x = 0; new_x < new_w; new_x++)
+			{
+				new_x0 = new_x - new_w / 2.;
+				float x = (new_x0)*_cos - (new_y0)*_sin + w / 2;
+				float y = (new_x0)*_sin + (new_y0)*_cos + h / 2;
+				if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h)
+				{
+					new_channel[new_y * new_w + new_x] = background_color;
+					continue;
+				}
+				new_channel[new_y * new_w + new_x] = lerp(channel, x, y, w);
+			}
 		}
 	}
+	return new_image;
 }
 
-/*
-void resize(Image *image, st new_w, st new_h) {
-	Image *new_image = resizeImage(image, new_w, new_h);
-	free(image->pixels);
-	image->pixels = new_image->pixels;
-	image->width = new_image->width;
-	image->height = new_image->height;
-	free(new_image);
+Quad *rotateQuad(Quad *quad, int theta, Image *image, Image *rotated)
+{
+	int w = image->width, h = image->height;
+	int new_w = rotated->width, new_h = rotated->height;
+	float _cos = COS[theta], _sin = SIN[theta];
+	float new_x, new_y, new_x0, new_y0;
+	Point *ps[4] = {quad->p1, quad->p2, quad->p3, quad->p4};
+	Point *n_ps[4];
+	float x, y;
+	for (st i = 0; i < 4; i++)
+	{
+		new_x = ps[i]->x, new_y = ps[i]->y;
+		new_x0 = new_x - new_w / 2., new_y0 = new_y - new_h / 2.;
+		x = (new_x0)*_cos - (new_y0)*_sin + w / 2;
+		y = (new_x0)*_sin + (new_y0)*_cos + h / 2;
+		n_ps[i] = newPoint(x + 0.5, y + 0.5);
+	}
+	return newQuad(n_ps[0], n_ps[1], n_ps[2], n_ps[3]);
 }
-*/

@@ -4,9 +4,6 @@ main
 # IDE files
 .vscode/
 
-# Format files
-.clang-format
-
 # Tests
 test*
 verbose*

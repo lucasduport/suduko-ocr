@@ -5,21 +5,27 @@
 .SILENT: format
 
 all:
-	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 -MMD *.c -c -g `pkg-config --cflags sdl2`
+	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
+	-MMD *.c -c -g `pkg-config --cflags sdl2`
 	clang -fsanitize=address *.o -o main -lm -lSDL2 -lSDL2_image
+
+nosan:
+	clang -Wall -Wextra -std=c99 -O3 -MMD *.c -c -g `pkg-config --cflags sdl2`
+	clang *.o -o main -lm -lSDL2 -lSDL2_image
 
 run:
 	make
 	clear
-	echo "========== Running main =========="
-	./main Images/image_06.jpeg
-	echo "========== End of output =========="
+	echo "==================== Running main ====================="
+	./main -t Images/image_03.jpeg
+	echo "==================== End of output ===================="
 	rm main *.d
 
 clean:
 	rm -rf *.[do] main *.out
 	rm -rf saved_images/
 	rm -rf board_*/
+	rm -rf COMMIT_MESSAGE
 	clear
 
 save:
@@ -31,5 +37,5 @@ save:
 	git status --porcelain >> COMMIT_MESSAGE
 	git commit -F COMMIT_MESSAGE
 	
-format: .clang-format
-	clang-format --style=file -i *.c
+format:
+	clang-format --style=file -i *.[ch]

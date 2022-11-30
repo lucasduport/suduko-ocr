@@ -11,7 +11,7 @@ void fileProcessing(const char *filename) {
 	FILE *file = fopen(filename, "r");
 	if (!file) fprintf(stderr, "malloc file failed");
 	size_t count;
-	char buffer = '0';
+	char buffer = 'a'; //modified
 	int value;
 	size_t i = 0;
 	size_t j = 0;
@@ -19,7 +19,7 @@ void fileProcessing(const char *filename) {
 	do {
 		count = fread(&buffer, 1, 1, file);
 		if (buffer == '.') value = 0;
-		else if (buffer >= '0' && buffer <= '9') value = atoi(&buffer);
+		else if (buffer >= '1' && buffer <= '9') value = atoi(&buffer);
 		else {
 			if (buffer == '\n' && j) {
 				i++;
