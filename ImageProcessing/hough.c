@@ -7,12 +7,12 @@
 #include "transformImage.h"
 
 #define RANGE_DEL_R 15
-#define RANGE_DEL_THETA 3
+#define RANGE_DEL_THETA 1
 
 #define NB_SEGMENTS 100
-#define COORD_ERROR 3.0	 // percentage of the size of the image
-#define ANGLE_ERROR 15	 // in degrees
-#define LENGTH_ERROR 1.2 // max ratio of length
+#define COORDINATES_ERROR 3.0	// percentage of the size of the image
+#define ANGLE_ERROR 15			// in degrees
+#define LENGTH_ERROR 1.2		// max ratio of length
 
 int isVertical(st theta)
 {
@@ -147,11 +147,19 @@ void deleteBest(uc *r_theta, st r_max, st best_r, st best_theta)
 {
 	st r_min = best_r - RANGE_DEL_R > best_r ? 0 : best_r - RANGE_DEL_R;
 	r_max = best_r + RANGE_DEL_R > r_max ? r_max : best_r + RANGE_DEL_R;
+	st theta_min = (best_theta + 360 - RANGE_DEL_THETA) % 360;
+	st theta_max = (best_theta + RANGE_DEL_THETA) % 360;
 	for (st r = r_min; r < r_max; r++)
-		r_theta[r * 360 + best_theta] = 0;
+	{
+		for (st theta = theta_min; theta % 360 != theta_max; theta++)
+		{
+			theta %= 360;
+			r_theta[r * 360 + theta] = 0;
+		}
+	}
 }
 
-st st_pow(st a, st b)
+int stDiffSquare(st a, st b)
 {
 	return a > b ? pow(a - b, 2) : pow(b - a, 2);
 }
@@ -326,6 +334,187 @@ Point *getBottomRight(Point *p1, Point *p2, Point *p3, Point *p4)
 	return NULL;
 }
 
+int checkAngle(Segment *segment1, Segment *segment2)
+{
+	int angle1 = segment1->theta;
+	int angle2 = segment2->theta;
+	int diff = abs(angle1 - angle2 + 90) % 180;
+	return diff <= ANGLE_ERROR || diff >= 180 - ANGLE_ERROR;
+}
+
+int checkLength(Segment *segment1, Segment *segment2)
+{
+	int length1 = segment1->length;
+	int length2 = segment2->length;
+	if (length1 * LENGTH_ERROR < length2)
+		return 0;
+	if (length2 * LENGTH_ERROR < length1)
+		return 0;
+	return 1;
+}
+
+int checkCoordinates(Segment *s1, Segment *s2, int p2, int min_dist, int *swap)
+{
+	int diff1, diff2;
+	if (!p2)
+	{
+		diff1 = stDiffSquare(s1->x1, s2->x1) +
+				stDiffSquare(s1->y1, s2->y1);
+		diff2 = stDiffSquare(s1->x1, s2->x2) +
+				stDiffSquare(s1->y1, s2->y2);
+	}
+	else
+	{
+		diff1 = stDiffSquare(s1->x2, s2->x1) +
+				stDiffSquare(s1->y2, s2->y1);
+		diff2 = stDiffSquare(s1->x2, s2->x2) +
+				stDiffSquare(s1->y2, s2->y2);
+	}
+	if (diff1 <= min_dist)
+	{
+		*swap = 0;
+		return 1;
+	}
+	if (diff2 <= min_dist)
+	{
+		*swap = 1;
+		return 1;
+	}
+	return 0;
+}
+
+Quad *constructGrid(Segment **segments, st nb_segments, int min_dist)
+{
+	st i1 = nb_segments - 1;
+	Segment *segment1 = segments[i1];
+	st segments2[nb_segments];
+	int swap;
+	st j = 0;
+	for (st i2 = 0; i2 < nb_segments; i2++)
+	{
+		if (i2 == i1)
+			continue;
+		Segment *segment2 = segments[i2];
+		if (!checkAngle(segment1, segment2))
+			continue;
+		if (!checkLength(segment1, segment2))
+			continue;
+		if (!checkCoordinates(segment1, segment2, 0, min_dist, &swap))
+			continue;
+		if (swap)
+			swapPoints(segment2);
+		segments2[j++] = i2;
+		/*
+		printf("cmp1-2 : (%zu, %zu) (%zu, %zu)\n", segment1->x1,
+		segment1->y1, segment2->x1, segment2->y1);
+		printSegment(segment1, 1);
+		printSegment(segment2, 2);
+		*/
+	}
+	segments2[j] = nb_segments;
+
+	j = 0;
+	st segments3[nb_segments];
+	for (st i3 = 0; i3 < nb_segments; i3++)
+	{
+		if (i3 == i1)
+			continue;
+		Segment *segment3 = segments[i3];
+		if (!checkAngle(segment1, segment3))
+			continue;
+		if (!checkLength(segment1, segment3))
+			continue;
+		if (!checkCoordinates(segment1, segment3, 1, min_dist, &swap))
+			continue;
+		if (swap)
+			swapPoints(segment3);
+		segments3[j++] = i3;
+		/*
+		printf("cmp1-3 : (%zu, %zu) (%zu, %zu)\n", segment1->x1,
+		segment1->y1, segment3->x1, segment3->y1);
+		printSegment(segment1, 1);
+		printSegment(segment3, 3);
+		*/
+	}
+	segments3[j] = nb_segments;
+
+	for (st i4 = 0; i4 < nb_segments; i4++)
+	{
+		if (i4 == i1)
+			continue;
+		st k;
+		for (k = 0; segments2[k] != nb_segments; k++)
+		{
+			if (i4 == segments2[k])
+				break;
+		}
+		if (segments2[k] != nb_segments)
+			continue;
+		for (k = 0; segments3[k] != nb_segments; k++)
+		{
+			if (i4 == segments3[k])
+				break;
+		}
+		if (segments3[k] != nb_segments)
+			continue;
+		Segment *segment4 = segments[i4];
+		for (st i2 = 0; segments2[i2] != nb_segments; i2++)
+		{
+			Segment *segment2 = segments[segments2[i2]];
+			if (!checkAngle(segment2, segment4))
+				continue;
+			if (!checkLength(segment2, segment4))
+				continue;
+			if (!checkCoordinates(segment2, segment4, 1, min_dist, &swap))
+				continue;
+			if (swap)
+				swapPoints(segment4);
+			/*
+			printf("cmp2-4 : (%zu, %zu) (%zu, %zu)\n", segment2->x2,
+			segment2->y2, segment4->x1, segment4->y1);
+			printSegment(segment2, 2);
+			printSegment(segment4, 4);
+			*/
+			for (st i3 = 0; segments3[i3] != nb_segments; i3++)
+			{
+				Segment *segment3 = segments[segments3[i3]];
+				if (!checkAngle(segment3, segment4))
+					continue;
+				if (!checkLength(segment3, segment4))
+					continue;
+				if (!checkCoordinates(segment3, segment4, 1, min_dist, &swap))
+					continue;
+				if (!swap)
+					continue;
+				/*
+				printf("cmp3-4 : (%zu, %zu) (%zu, %zu)\n", segment3->x2,
+				segment3->y2, segment4->x2, segment4->y2);
+				printSegment(segment1, 1);
+				printSegment(segment2, 2);
+				printSegment(segment3, 3);
+				printSegment(segment4, 4);
+				*/
+				Point *p1
+					= getIntersection(segment1, segment2); // top left
+				Point *p2
+					= getIntersection(segment2, segment4); // top right
+				Point *p3
+					= getIntersection(segment1, segment3); // bottom left
+				Point *p4
+					= getIntersection(segment3, segment4); // bottom right
+				Point *top_left = getTopLeft(p1, p2, p3, p4);
+				Point *top_right = getTopRight(p1, p2, p3, p4);
+				Point *bottom_left = getBottomLeft(p1, p2, p3, p4);
+				Point *bottom_right = getBottomRight(p1, p2, p3, p4);
+				Quad *quad = newQuad(
+					top_left, top_right, bottom_left, bottom_right);
+				return quad;
+			}
+		}
+	}
+	return NULL;
+}
+
 Quad *detectGrid(Image *image)
 {
 	st width = image->width, height = image->height;
@@ -334,148 +523,24 @@ Quad *detectGrid(Image *image)
 	fillR_theta(image, r_theta, r_max);
 	Segment *segments[NB_SEGMENTS];
 	st nb_segments = 0;
+	int min_dist = pow(COORDINATES_ERROR / 100.0 * r_max, 2);
+	Quad *quad = NULL;
 	int left;
 	while (nb_segments < NB_SEGMENTS)
 	{
 		Segment *segment = getBestSegment(r_theta, r_max, image, &left);
-		if (segment != NULL)
-		{
-			segments[nb_segments] = segment;
-			nb_segments++;
-			// printf("Segment: (%zu, %zu), (%zu, %zu)\n", segment->x1,
-			// segment->y1, segment->x2, segment->y2); printf("Theta: %zu\n",
-			// segment->theta); printf("Length: %zu\n\n", segment->length);
-		}
-		// printf("Got segment: %p\n", segment);
 		if (!left)
+			break;
+		if (!segment)
+			continue;
+		segments[nb_segments] = segment;
+		nb_segments++;
+		// printf("nb_segments : %zu\n", nb_segments);
+		quad = constructGrid(segments, nb_segments, min_dist);
+		if (quad)
 			break;
 	}
 	showLines(image, segments, nb_segments, 255, 0, 0, 1);
-	st min_dist = pow(COORD_ERROR / 100.0 * r_max, 2);
-	for (st i1 = 0; i1 < nb_segments; i1++)
-	{
-		Segment *segment1 = segments[i1];
-		st segments2[nb_segments];
-		st j = 0;
-		for (st i2 = 0; i2 < nb_segments; i2++)
-		{
-			if (i2 == i1)
-				continue;
-			Segment *segment2 = segments[i2];
-			if (segment1->length * LENGTH_ERROR < segment2->length
-				|| segment2->length * LENGTH_ERROR < segment1->length)
-				continue;
-			int diff_theta = (-90 + segment1->theta - segment2->theta) % 180;
-			if (diff_theta > ANGLE_ERROR && diff_theta < 180 - ANGLE_ERROR)
-				continue;
-			st diff_coord1 = st_pow(segment1->x1, segment2->x1)
-							 + st_pow(segment1->y1, segment2->y1);
-			st diff_coord2 = st_pow(segment1->x1, segment2->x2)
-							 + st_pow(segment1->y1, segment2->y2);
-			if (diff_coord2 <= min_dist)
-				swapPoints(segment2);
-			else if (diff_coord1 > min_dist)
-				continue;
-			segments2[j] = i2;
-			j++;
-			// printf("cmp1-2 : (%zu, %zu) (%zu, %zu)\n", segment1->x1,
-			// segment1->y1, segment2->x1, segment2->y1);
-		}
-		segments2[j] = nb_segments;
-		j = 0;
-		st segments3[nb_segments];
-		for (st i3 = 0; i3 < nb_segments; i3++)
-		{
-			if (i3 == i1)
-				continue;
-			Segment *segment3 = segments[i3];
-			if (segment1->length * LENGTH_ERROR < segment3->length
-				|| segment3->length * LENGTH_ERROR < segment1->length)
-				continue;
-			int diff_theta = (-90 + segment1->theta - segment3->theta) % 180;
-			if (diff_theta > ANGLE_ERROR && diff_theta < 180 - ANGLE_ERROR)
-				continue;
-			st diff_coord1 = st_pow(segment1->x2, segment3->x1)
-							 + st_pow(segment1->y2, segment3->y1);
-			st diff_coord2 = st_pow(segment1->x2, segment3->x2)
-							 + st_pow(segment1->y2, segment3->y2);
-			// printf("cmp1-3 : (%zu, %zu) (%zu, %zu)\n", segment1->x2,
-			// segment1->y2, segment3->x1, segment3->y1);
-			if (diff_coord2 <= min_dist)
-				swapPoints(segment3);
-			else if (diff_coord1 > min_dist)
-				continue;
-			segments3[j] = i3;
-			j++;
-		}
-		segments3[j] = nb_segments;
-
-		for (st i4 = 0; i4 < nb_segments; i4++)
-		{
-			if (i4 == i1)
-				continue;
-			st k;
-			for (k = 0; segments2[k] != nb_segments; k++)
-			{
-				if (i4 == segments2[k])
-					break;
-			}
-			if (segments2[k] != nb_segments)
-				continue;
-			for (k = 0; segments3[k] != nb_segments; k++)
-			{
-				if (i4 == segments3[k])
-					break;
-			}
-			if (segments3[k] != nb_segments)
-				continue;
-			Segment *segment4 = segments[i4];
-			for (st i2 = 0; segments2[i2] != nb_segments; i2++)
-			{
-				Segment *segment2 = segments[segments2[i2]];
-				st diff_coord1 = st_pow(segment2->x2, segment4->x1)
-								 + st_pow(segment2->y2, segment4->y1);
-				st diff_coord2 = st_pow(segment2->x2, segment4->x2)
-								 + st_pow(segment2->y2, segment4->y2);
-				if (diff_coord2 <= min_dist)
-					swapPoints(segment4);
-				else if (diff_coord1 > min_dist)
-					continue;
-				// printf("cmp2-4 : (%zu, %zu) (%zu, %zu)\n", segment2->x2,
-				// segment2->y2, segment4->x1, segment4->y1);
-				for (st i3 = 0; segments3[i3] != nb_segments; i3++)
-				{
-					Segment *segment3 = segments[segments3[i3]];
-					st diff_coord3 = st_pow(segment3->x2, segment4->x2)
-									 + st_pow(segment3->y2, segment4->y2);
-					if (diff_coord3 > min_dist)
-						continue;
-					// printf("cmp3-4 : (%zu, %zu) (%zu, %zu)\n", segment3->x2,
-					// segment3->y2, segment4->x2, segment4->y2);
-					// printSegment(segment1, 1);
-					// printSegment(segment2, 2);
-					// printSegment(segment3, 3);
-					// printSegment(segment4, 4);
-					Point *p1
-						= getIntersection(segment1, segment2); // top left
-					Point *p2
-						= getIntersection(segment2, segment4); // top right
-					Point *p3
-						= getIntersection(segment1, segment3); // bottom left
-					Point *p4
-						= getIntersection(segment3, segment4); // bottom right
-					Point *top_left = getTopLeft(p1, p2, p3, p4);
-					Point *top_right = getTopRight(p1, p2, p3, p4);
-					Point *bottom_left = getBottomLeft(p1, p2, p3, p4);
-					Point *bottom_right = getBottomRight(p1, p2, p3, p4);
-					Quad *quad = newQuad(
-						top_left, top_right, bottom_left, bottom_right);
-					freeSegments(segments, nb_segments);
-					return quad;
-				}
-			}
-		}
-	}
 	freeSegments(segments, nb_segments);
-	return NULL;
+	return quad;
 }
