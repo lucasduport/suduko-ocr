@@ -1,8 +1,5 @@
 .SILENT: all
-.SILENT: run
 .SILENT: clean
-.SILENT: save
-.SILENT: format
 
 all:
 	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
@@ -14,7 +11,6 @@ all:
 
 clean:
 	rm -rf *.[do] main *.out
-	rm -rf saved_images/
 	rm -rf board_*/
 	rm -rf COMMIT_MESSAGE
 	clear

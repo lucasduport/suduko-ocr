@@ -1,6 +1,7 @@
 #include "cellExtraction.h"
 #include "filters.h"
 #include "display.h"
+#include "transformImage.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <sys/stat.h>
@@ -125,30 +126,53 @@ void saveCells(Image *image, int cell_size, int border_size, const char *filenam
 	}
 }
 
-Image **loadCells(int **solved, char *dirname)
+void loadDefaultCells(Image **cells, char *dirname)
 {
-	Image **digits = malloc(9 * sizeof(Image *));
+	for (int i = 0; i < 9; i++) {
+		if (!cells[i])
+		{
+			st len = strlen(dirname) + 8;
+			char filename[len];
+			snprintf(filename, len, "%s/%d.png", dirname, i+1);
+			Image *image = openImage(filename, 4);
+			createAlpha(image, 0, 191);
+			toColor(image, 0, 255, 0);
+			cells[i] = image;
+		}
+	}
+}
+
+
+Image **loadCells(int **grid, char *dirname)
+{
+	Image **digits = (Image **)malloc(9 * sizeof(Image *));
 	if (digits == NULL)
 		errx(EXIT_FAILURE, "malloc failed");
 	for (int i = 0; i < 9; i++)
 		digits[i] = NULL;
 	st n;
-	for (st i = 0; i < 9; i++)
+	for (st j = 0; j < 9; j++)
 	{
-		for (st j = 0; j < 9; j++)
+		for (st i = 0; i < 9; i++)
 		{
-			n = solved[i][j];
+			n = grid[j][i];
+			if (n == 0)
+				continue;
 			if (digits[n - 1])
 				continue;
-			st len = strlen(dirname) + 9;
+			st len = strlen(dirname) + 17;
 			char filename[len];
-			snprintf(filename, len, "%s/%zu_%zu.png", dirname, i+1, j+1);
+			snprintf(filename, len, "board_%s/%zu_%zu.png", dirname, i+1, j+1);
 			Image *image = openImage(filename, 4);
 			if (image == NULL)
 				errx(EXIT_FAILURE, "Error while loading image");
-			digits[n - 1] = image;
+			resizeImage(image, 256, 256);
+			invertImage(image);
+			createAlpha(image, 0, 191);
+			toColor(image, 0, 255, 0);
 		}
 	}
+	loadDefaultCells(digits, "../ImageProcessing/Numbers");
 	return digits;
 }
 
