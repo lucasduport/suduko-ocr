@@ -4,9 +4,9 @@
 #include <stdlib.h>
 
 // global variables for memorization
-bool isOnRow[16][16];
-bool isOnCol[16][16];
-bool isOnBloc[16][16];
+bool isOnRow16[16][16];
+bool isOnCol16[16][16];
+bool isOnBloc16[16][16];
 
 int findBestCell16(int x[256], int y[256], int v[256], int nbCell, int *value) {
 	int possibleVals[256][256][16];
@@ -19,8 +19,8 @@ int findBestCell16(int x[256], int y[256], int v[256], int nbCell, int *value) {
 		if (v[i] == -1) {
 			int val = 0, cvalue = 0;
 			for (int k = 0; k < 16; k++) { //modified
-				if (!isOnRow[x[i]][k] && !isOnCol[y[i]][k]
-					&& !isOnBloc[4 * (x[i] / 4) + (y[i] / 4)][k]) { //modified
+				if (!isOnRow16[x[i]][k] && !isOnCol16[y[i]][k]
+					&& !isOnBloc16[4 * (x[i] / 4) + (y[i] / 4)][k]) { //modified
 					cvalue = k;
 					val++;
 					possibleVals[x[i]][y[i]][k] = 1;
@@ -112,7 +112,7 @@ int solver16(int **array) {
 	// Initialization of the arrays
 	for (int i = 0; i < 16; i++) //modified
 		for (int j = 0; j < 16; j++) //modified
-			isOnRow[i][j] = isOnCol[i][j] = isOnBloc[i][j] = false;
+			isOnRow16[i][j] = isOnCol16[i][j] = isOnBloc16[i][j] = false;
 	// List cells to find
 	int k;
 	int nbCell = 0;
@@ -125,8 +125,8 @@ int solver16(int **array) {
 				v[nbCell] = -1;
 				nbCell++;
 			} else
-				isOnRow[i][k - 1] = isOnCol[j][k - 1]
-					= isOnBloc[4 * (i / 4) + (j / 4)][k - 1] = true; //modified ??
+				isOnRow16[i][k - 1] = isOnCol16[j][k - 1]
+					= isOnBloc16[4 * (i / 4) + (j / 4)][k - 1] = true; //modified ??
 		}
 	}
 
@@ -161,16 +161,16 @@ int solver16(int **array) {
 				currVal = v[s[indexCell]];
 				vx = x[s[indexCell]];
 				vy = y[s[indexCell]];
-				isOnRow[vx][currVal] = isOnCol[vy][currVal]
-					= isOnBloc[4 * (vx / 4) + (vy / 4)][currVal] = false; //modified
+				isOnRow16[vx][currVal] = isOnCol16[vy][currVal]
+					= isOnBloc16[4 * (vx / 4) + (vy / 4)][currVal] = false; //modified
 				if (f[s[indexCell] == -1]) bContinue = 0;
 			}
 		} else {
-			if (!isOnRow[vx][currVal] && !isOnCol[vy][currVal]
-				&& !isOnBloc[4 * (vx / 4) + (vy / 4)][currVal]) { //modified
+			if (!isOnRow16[vx][currVal] && !isOnCol16[vy][currVal]
+				&& !isOnBloc16[4 * (vx / 4) + (vy / 4)][currVal]) { //modified
 				v[s[indexCell]] = currVal;
-				isOnRow[vx][currVal] = isOnCol[vy][currVal]
-					= isOnBloc[4 * (vx / 4) + (vy / 4)][currVal] = true; //modified
+				isOnRow16[vx][currVal] = isOnCol16[vy][currVal]
+					= isOnBloc16[4 * (vx / 4) + (vy / 4)][currVal] = true; //modified
 				indexCell++;
 				s[indexCell] = findBestCell16(x, y, v, nbCell, &value);
 				f[s[indexCell]] = currVal = -1;

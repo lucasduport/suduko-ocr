@@ -90,15 +90,15 @@ int main(int argc, char **argv)
 	Image *to_extract = copyImage(image);
 
 	// preprocessing
-	displayImage(image, "Original image");
+	// displayImage(image, "Original image");
 	gaussianBlur(image);
 	calibrateImage(image, 200, 255);
-	displayImage(image, "Saturated");
+	// displayImage(image, "Saturated");
 	sobelFilter(image);
-	displayImage(image, "Sobel");
+	// displayImage(image, "Sobel");
 	gaussianBlur(image);
 	thresholdToUpper(image, 16);
-	displayImage(image, "Calibrate");
+	// displayImage(image, "Calibrate");
 
 	// detect grid
 	Quad *quad = detectGrid(image);

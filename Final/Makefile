@@ -9,6 +9,10 @@ all:
 	-MMD -g `pkg-config --cflags sdl2` -c *.c
 	clang -fsanitize=address -o main -lm -lSDL2 -lSDL2_image *.o
 
+run:
+	make
+	./main ../ImageProcessing/Images/image_03.jpeg
+
 clean:
 	rm -rf *.[do] main *.out
 	rm -rf board_*/

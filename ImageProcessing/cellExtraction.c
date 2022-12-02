@@ -129,7 +129,7 @@ void saveCells(Image *image, int cell_size, int border_size, const char *filenam
 void loadDefaultCells(Image **cells, char *dirname)
 {
 	for (int i = 0; i < 9; i++) {
-		if (!cells[i])
+		if (cells[i] == NULL)
 		{
 			st len = strlen(dirname) + 8;
 			char filename[len];
@@ -164,12 +164,11 @@ Image **loadCells(int **grid, char *dirname)
 			char filename[len];
 			snprintf(filename, len, "board_%s/%zu_%zu.png", dirname, i+1, j+1);
 			Image *image = openImage(filename, 4);
-			if (image == NULL)
-				errx(EXIT_FAILURE, "Error while loading image");
 			resizeImage(image, 256, 256);
 			invertImage(image);
 			createAlpha(image, 0, 191);
 			toColor(image, 0, 255, 0);
+			digits[n - 1] = image;
 		}
 	}
 	loadDefaultCells(digits, "../ImageProcessing/Numbers");
