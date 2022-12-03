@@ -195,12 +195,11 @@ int main(int argc, char **argv)
 		}
 	}
 
+	// puts numbers back in original image
 	char dirname[30];
 	cleanPath(filename, dirname);
 	// Image **digits = loadCells(sudoku, dirname);
 	Image **digits = loadCells((int **)hexa, dirname);
-
-	// puts numbers back in original image
 	for (int j = 0; j < nb_cells; j++)
 	{
 		for (int i = 0; i < nb_cells; i++)

@@ -11,6 +11,7 @@ typedef struct
 	uc **channels; // uc channels[nb_channels][width*height]
 } Image;
 
+uc *newChannel(st len);
 uc *copyChannel(uc *pixels, st len);
 Image *newImage(uc nb_channels, st width, st height);
 Image *copyImage(Image *image);

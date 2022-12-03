@@ -6,11 +6,17 @@
 
 // Contains basics functions for manipulating the Image struct
 
-uc *copyChannel(uc *channel, st len)
+uc *newChannel(st len)
 {
 	uc *new_channel = (uc *)malloc(sizeof(uc) * len);
 	if (new_channel == NULL)
 		errx(EXIT_FAILURE, "malloc failed");
+	return new_channel;
+}
+
+uc *copyChannel(uc *channel, st len)
+{
+	uc *new_channel = newChannel(len);
 	for (st i = 0; i < len; i++)
 		new_channel[i] = channel[i];
 	return new_channel;
@@ -30,10 +36,7 @@ Image *newImage(uc nb_channels, st width, st height)
 	uc *channel;
 	for (uc i = 0; i < nb_channels; i++)
 	{
-		channel = (uc *)malloc(width * height * sizeof(uc));
-		if (channel == NULL)
-			errx(EXIT_FAILURE, "malloc failed");
-		channels[i] = channel;
+		channels[i] = newChannel(width * height);
 	}
 	image->channels = channels;
 	return image;
