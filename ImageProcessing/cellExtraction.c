@@ -1,3 +1,5 @@
+#if 0
+
 #include "cellExtraction.h"
 #include "filters.h"
 #include "display.h"
@@ -190,3 +192,5 @@ void cleanPath(char *filename, char *dest)
 	if (dot && dot != dest)
 		*dot = '\0';
 }
+
+#endif // 0

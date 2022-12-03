@@ -327,7 +327,7 @@ void calibrateCell(Image *image)
 				uc pixel = channel[y * w + x];
 				// uses quadratic function to calibrate
 				float v = (float)(pixel - min) / (max - min);
-				channel[y * w + x] = pow(v, 3) * 255;
+				channel[y * w + x] = pow(v, 2) * 255;
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 #include "cellsDetection.h"
 #include "image.h"
 #include "tools.h"
+#include "param.h"
 #include <err.h>
 
 int *buildHistoH(Image *image)
@@ -42,7 +43,7 @@ int *buildHistoV(Image *image)
 	return histo_v;
 }
 
-void detectNbLines(int *histo, st len, st nb_lines, int **coords, int **values)
+void detectNbLines(int *histo, st len, st nb_lines, int *coords, int *values)
 {
 	float cell_size = (float)len / nb_lines;
 	int range = cell_size / 10;
@@ -59,17 +60,21 @@ void detectNbLines(int *histo, st len, st nb_lines, int **coords, int **values)
 				x_max = x;
 			}
 		}
-		*values[i] = max;
-		*coords[i] = x_max;
+		values[i - 1] = max;
+		coords[i - 1] = x_max;
 	}
 }
 
-void completeCoords(int *coords_in, int *coords_out, int len, int mean)
+void completeCoords(int *coords_in, int *coords_out, int len, int mean, int max)
 {
 	for (int i = 1; i < len; i++)
 		coords_out[i] = coords_in[i - 1];
 	coords_out[0] = coords_out[1] - mean;
+	if (coords_out[0] < 0)
+		coords_out[0] = 0;
 	coords_out[len] = coords_out[len - 1] + mean;
+	if (coords_out[len] > max)
+		coords_out[len] = max;
 }
 
 int getGridDimension(Image *image, int **coords_x, int **coords_y)
@@ -89,10 +94,10 @@ int getGridDimension(Image *image, int **coords_x, int **coords_y)
 	int coords_v_16[15];
 	int values_v_16[15];
 
-	detectNbLines(histo_h, height, 9, &coords_h_9 + 1, &values_h_9);
-	detectNbLines(histo_v, width, 9, &coords_v_9 + 1, &values_v_9);
-	detectNbLines(histo_h, height 16, &coords_h_16 + 1, &values_h_16);
-	detectNbLines(histo_v, width, 16, &coords_v_16 + 1, &values_v_16);
+	detectNbLines(histo_h, height, 9, coords_h_9, values_h_9);
+	detectNbLines(histo_v, width, 9, coords_v_9, values_v_9);
+	detectNbLines(histo_h, height, 16, coords_h_16, values_h_16);
+	detectNbLines(histo_v, width, 16, coords_v_16, values_v_16);
 
 	free(histo_h);
 	free(histo_v);
@@ -102,10 +107,9 @@ int getGridDimension(Image *image, int **coords_x, int **coords_y)
 	mean_9 += coords_v_9[7] - coords_v_9[0];
 	mean_9 /= 14;
 	float var_9 = 0;
-	float val;
     for (int i = 0; i < 8; i++)
 	{
-		val = coords_h_9[i];
+		float val = coords_h_9[i];
 		var_9 += (val - mean_9) * (val - mean_9);
 		val = coords_v_9[i];
 		var_9 += (val - mean_9) * (val - mean_9);
@@ -117,16 +121,14 @@ int getGridDimension(Image *image, int **coords_x, int **coords_y)
 	mean_16 += coords_v_16[14] - coords_v_16[0];
 	mean_16 /= 28;
 	float var_16 = 0;
-	float val;
     for (int i = 0; i < 15; i++)
 	{
-		val = coords_h_16[i];
+		float val = coords_h_16[i];
 		var_16 += (val - mean_16) * (val - mean_16);
 		val = coords_v_16[i];
 		var_16 += (val - mean_16) * (val - mean_16);
 	}
 	var_16 /= 16;
-
 
 	float max = 0;
 	for (int i = 0; i < 15; i++)
@@ -141,10 +143,11 @@ int getGridDimension(Image *image, int **coords_x, int **coords_y)
 	{
 		if (values_h_16[i] < max || values_v_16[i] < max)
 		{
-			*coords_x = (int *)malloc(10*(sizeof(int)));
-			completeCoords(coords_v_9, coords_x, 9, mean_9);
-			*coords_y = (int *)malloc(10*(sizeof(int)));
-			completeCoords(coords_h_9, coord_y, 9, mean_9);
+			*coords_x = (int *)malloc(10 * (sizeof(int)));
+			completeCoords(coords_v_9, *coords_x, 9, mean_9, width);
+			*coords_y = (int *)malloc(10 * (sizeof(int)));
+			completeCoords(coords_h_9, *coords_y, 9, mean_9, height);
+			setNbCells(9);
 			return 9;
 		}
 	}
@@ -162,26 +165,28 @@ int getGridDimension(Image *image, int **coords_x, int **coords_y)
 	{
 		if (values_h_9[i] < max || values_v_9[i] < max)
 		{
-			*coords_x = (int *)malloc(17*(sizeof(int)));
-			completeCoords(coords_v_16, coords_x, 16, mean_16);
-			*coords_y = (int *)malloc(17*(sizeof(int)));
-			completeCoords(coords_h_16, coords_y, 16, mean_16);
+			*coords_x = (int *)malloc(17 * (sizeof(int)));
+			completeCoords(coords_v_16, *coords_x, 16, mean_16, width);
+			*coords_y = (int *)malloc(17 * (sizeof(int)));
+			completeCoords(coords_h_16, *coords_y, 16, mean_16, height);
+			setNbCells(16);
 			return 16;
 		}
 	}
 
-
 	if (var_9 <= var_16)
 	{
-		*coords_x = (int *)malloc(10*(sizeof(int)));
-		completeCoords(coords_v_9, coords_x, 9, mean_9);
-		*coords_y = (int *)malloc(10*(sizeof(int)));
-		completeCoords(coords_h_9, coords_y, 9, mean_9);
+		*coords_x = (int *)malloc(10 * (sizeof(int)));
+		completeCoords(coords_v_9, *coords_x, 9, mean_9, width);
+		*coords_y = (int *)malloc(10 * (sizeof(int)));
+		completeCoords(coords_h_9, *coords_y, 9, mean_9, height);
+		setNbCells(9);
 		return 9;
 	}
-	*coords_x = (int *)malloc(17*(sizeof(int)));
-	completeCoords(coords_v_16, coords_x, 16, mean_16);
-	*coords_y = (int *)malloc(17*(sizeof(int)));
-	completeCoords(coords_h_16, coords_y, 16, mean_16);
+	*coords_x = (int *)malloc(17 * (sizeof(int)));
+	completeCoords(coords_v_16, *coords_x, 16, mean_16, width);
+	*coords_y = (int *)malloc(17 * (sizeof(int)));
+	completeCoords(coords_h_16, *coords_y, 16, mean_16, height);
+	setNbCells(16);
 	return 16;
 }

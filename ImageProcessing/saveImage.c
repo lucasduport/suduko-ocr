@@ -25,6 +25,7 @@ void saveImage(Image *image, const char *filename)
 	return;
 }
 
+/*
 Image *getCell(Image *image, int i, int j)
 {
 	int cell_size = 38;
@@ -51,7 +52,6 @@ Image *getCell(Image *image, int i, int j)
 	return cell;
 }
 
-/*
 // in cellExtraction.c
 void saveCell(Image *image, const char *dirname, int i, int j)
 {

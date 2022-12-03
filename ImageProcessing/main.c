@@ -1,3 +1,5 @@
+#if 0
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <err.h>
@@ -343,3 +345,5 @@ int main(int argc, char *argv[])
 	SDL_Quit();
 	return 0;
 }
+
+#endif // 0
