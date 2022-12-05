@@ -136,6 +136,11 @@ Layer *lvec_alloc(cui n) {
 float *Network_Predict(Network *net, ld *input, cui Size) {
 	Network_Forward(net, input, Size);
 	Layer *l = &net->layers[net->nbLayers - 1];
+	for (int i = 0; i < l->Neurons; i++)
+	{
+		printf("%LF ", l->output[i]);
+	}
+	puts("");
 	float *rtn = malloc(sizeof(float)*l->Neurons);
 	for(ui i=0; i<l->Neurons; i++) rtn[i] = (float)l->output[i];
 	return rtn;

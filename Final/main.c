@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "../ImageProcessing/display.h"
 #include "../ImageProcessing/filters.h"
 #include "../ImageProcessing/hough.h"
@@ -11,6 +12,8 @@
 #include "../ImageProcessing/transformImage.h"
 #include "../ImageProcessing/cellExtraction.h"
 #include "../ImageProcessing/cellsDetection.h"
+
+#include "../NeuralNetwork/Network.h"
 
 void init()
 {
@@ -76,6 +79,24 @@ void searchDigit(int **sudoku, int n, int *i, int *j)
 	*j = -1;
 }
 
+long double *center_input(const char *path)
+{
+	Image *cell = openImage(path, 1);
+	uc *channel = cell->channels[0];
+	long double *pixels = (long double *)malloc(784 * sizeof(long double));
+	if (pixels == NULL)
+	{
+		errx(EXIT_FAILURE, "malloc failed");
+	}
+	for (int i = 0; i < 784; i++)
+	{
+		uc val = channel[i];
+		pixels[i] = 2 * (long double)val / 255 - 1;
+	}
+	freeImage(cell);
+	return pixels;
+}
+
 int main(int argc, char **argv)
 {
 	if (argc != 2)
@@ -137,7 +158,63 @@ int main(int argc, char **argv)
 	freeImage(extracted);
 
 	//TODO: use neural network
-	int **sudoku = readSudoku("../Solver/grid_00");
+	int **sudoku = (int **)malloc(9 * sizeof(int *));
+	for (int i = 0; i < 9; i++)
+	{
+		sudoku[i] = (int *)malloc(9 * sizeof(int));
+	}
+	Network *net = (Network *)malloc(sizeof(Network));
+	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-MEXA_92.55.dnn");
+	printf("check : %p\n", net);
+	net->layers[2].activation = get_activation("softmax");
+	float *results[nb_cells * nb_cells];
+	for (int i = 0; i < nb_cells; i++)
+	{
+		for (int j = 0; j < nb_cells; j++)
+		{
+			char path[40];
+			sprintf(path, "board_%s/%02d_%02d.png", filename_stripped, i + 1, j + 1);
+			long double *input = center_input(path);
+			results[nb_cells * j + i] = Network_Predict(net, input, 784);
+			free(input);
+			// 0-15 -> 1-16
+			// 16 -> empty
+			int imax = 0;
+			float max = 0;
+			for (int k = 0; k < 17; k++)
+			{
+				float proba = results[j * nb_cells + i][k];
+				if (proba >= max)
+				{
+					max = proba;
+					imax = k;
+				}
+				// printf("%LF ", proba);
+			}
+			// puts("");
+			if (imax == 16)
+			{
+				sudoku[j][i] = 0;
+			}
+			else
+			{
+				sudoku[j][i] = imax + 1;
+			}
+			free(results[nb_cells * j + i]);
+		}
+	}
+	Network_Purge(net);
+	for (int i=0; i<9; i++)
+	{
+		for (int j=0; j<9; j++)
+		{
+			printf("%d ", sudoku[i][j]);
+			if ((j+1)%3==0) printf(" ");
+		}
+		printf("\n");
+		if ((i+1)%3==0) printf("\n");
+	}
+	// int **sudoku = readSudoku("../Solver/grid_00");
 	
 	// TODO: use Solver
 	int **solved = readSudoku("../Solver/grid_00.result");
@@ -200,15 +277,17 @@ int main(int argc, char **argv)
 	// puts numbers back in original image
 	char dirname[30];
 	cleanPath(filename, dirname);
-	// Image **digits = loadCells(sudoku, dirname);
-	Image **digits = loadCells((int **)hexa, dirname);
+	Image **digits = loadCells(sudoku, dirname);
+	// Image **digits = loadCells((int **)hexa, dirname);
 	for (int j = 0; j < nb_cells; j++)
 	{
 		for (int i = 0; i < nb_cells; i++)
 		{
-			if (!hexa[j][i])
+			// if (!hexa[j][i])
+			if (!sudoku[j][i])
 			{
-				int n = hexa_solved[j][i];
+				int n = solved[j][i];
+				// int n = hexa_solved[j][i];
 				placeDigit(final, digits[n - 1], quad, i, j);
 			}
 		}
@@ -226,10 +305,16 @@ int main(int argc, char **argv)
 	for (int i = 0; i < nb_cells; i++)
 	{
 		// free(sudoku[i]);
-		free(hexa[i]);
+		// free(hexa[i]);
 		// free(solved[i]);
-		free(hexa_solved[i]);
+		// free(hexa_solved[i]);
 		freeImage(digits[i]);
+	}
+
+	for (int i = 0; i < 16; i++)
+	{
+		free(hexa[i]);
+		free(hexa_solved[i]);
 	}
 	free(sudoku);
 	free(solved);
