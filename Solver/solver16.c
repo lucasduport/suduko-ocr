@@ -144,6 +144,10 @@ int solver16(int **array) {
 
 	while (indexCell < nbCell) {
 		countMove++;
+        if (countMove > 10000) {
+            printf("Not solvable");
+            break;
+        }
 
 		int vx = x[s[indexCell]];
 		int vy = y[s[indexCell]];

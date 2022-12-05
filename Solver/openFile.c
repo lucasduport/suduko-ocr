@@ -31,7 +31,10 @@ void fileProcessing(const char *filename) {
 		j++;
 	} while (count != 0);
 	fclose(file);
+
 	solver(array);
+    if (count > 10000)
+        return;
     /*for (int i=0; i<9; i++)
 	{
 		for (int j=0; j<9; j++)

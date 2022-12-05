@@ -50,17 +50,17 @@ void fileProcessing16(const char *filename) {
 		if ((i+1)%4==0) printf("\n");
 	}*/
     solver16(array);
-
-   
-
-    for (int i = 0; i < 16; i++) {
+    if (count > 10000)
+        return;
+    
+    /*for (int i = 0; i < 16; i++) {
         for (int j = 0; j < 16; j++) {
             array[i][j]--;
         }
-    }
+    }*/
         
 
-     for (int i=0; i<16; i++)
+    /*for (int i=0; i<16; i++)
 	{
 		for (int j=0; j<16; j++)
 		{
@@ -69,7 +69,7 @@ void fileProcessing16(const char *filename) {
 		}
 		printf("\n");
 		if ((i+1)%4==0) printf("\n");
-	}
+	}*/
    
     strcat((char*)filename, ".result");
     FILE *finalFile = NULL;

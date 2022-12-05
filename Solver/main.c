@@ -132,20 +132,27 @@ int array[9][9] =
 */
 
 int main(int argc, char **argv) {
-	if (argc == 1) {
-		printf("Missing argument\nPass a grid\n");
+	if (argc == 1 || argc == 2) {
+		printf("Missing argument\nPass a grid and size (s or h)\n");
 		return 0;
 	}
-	if (argc > 2) {
-		printf("Too much argument\nOnly one grid is needed\n");
+	if (argc > 3) {
+		printf("Too much argument\nOnly one grid and her size (s or h) is needed\n");
 		return 0;
 	}
-	if (argc == 2) {
+	if (argc == 3) {
 		const char *filename = argv[1];
-		fileProcessing(filename);
+		const char *n = argv[2];
+		if (*n == 's')
+			fileProcessing(filename);
+		else if (*n == 'h')
+			fileProcessing16(filename);
+		else
+			printf("Not a valid size (s or h)");
+			return 0;
 	}
 	//fileProcessing(argv[1]);
-	return 0;
+	return 1;
 	/*int array2[9][9] =
 	{
 		{5,3,0,0,7,0,0,0,0},
