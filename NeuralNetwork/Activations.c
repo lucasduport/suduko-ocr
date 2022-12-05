@@ -33,9 +33,9 @@ void sigmoid(ld *input, ld *output, cui Size) {
 }
 
 void softmax(ld *input, ld *output, cui Size) {
-	ld Max = input[0];
-	for (ld *i = input; i < input + Size; i++) Max = fmaxl((*i), Max);
-	for (ld *i = input; i < input + Size; i++) *i -= Max;
+	ld Maxd = input[0];
+	for (ld *i = input; i < input + Size; i++) Maxd = fmaxl((*i), Maxd);
+	for (ld *i = input; i < input + Size; i++) *i -= Maxd;
 
 	ld s = .0, expd[Size];
 	for (ld *i = input, *e = expd; i < input + Size; i++, e++) {

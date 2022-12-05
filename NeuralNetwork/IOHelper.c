@@ -1,72 +1,40 @@
 #include "IOHelper.h"
 
-Network *CSave(ui hn) {
+Network *NetCreate(NNParam *param) {
 
 	Network *net = (Network *)malloc(sizeof(Network));
 	if (net == NULL) {
 		printf("Error: Out of memory ...\n");
 		exit(1);
 	}
-	Network_Init(net, 3);
+	Network_Init(net, param->nbLayer);
 
-	Layer *l1 = (Layer *)malloc(sizeof(Layer));
-	Layer *l2 = (Layer *)malloc(sizeof(Layer));
-	Layer *l3 = (Layer *)malloc(sizeof(Layer));
-	Layer_Init(l1, NULL, l2, 2, NULL, NULL, false, "none");
-	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "relu");
-	Layer_Init(l3, l2, NULL, 1, NULL, NULL, false, "sigmoid");
+	Layer *lS = malloc(sizeof(Layer)), *lE = malloc(sizeof(Layer));
+	Layer **hidden_L = malloc(sizeof(Layer*) * (param->nbLayer-2));
+	for (ui i=0; i < param->nbLayer-2; i++) {
+        Layer *l = malloc(sizeof(Layer));
+        if (i==0) Layer_Init(lS, NULL, l, param->iSize, NULL, NULL, false, "none");
+        hidden_L[i] = l;
+	}
 
-	Network_AddLayer(net, l1);
-	Network_AddLayer(net, l2);
-	Network_AddLayer(net, l3);
+	Layer *l_prev = lS;
+	for (ui i=0; i < param->nbLayer-2; i++) {
+        Layer_Init(hidden_L[i], l_prev, i < param->nbLayer-3 ?
+                   hidden_L[i+1] : lE, param->hNeurons[i], NULL, NULL,
+                   false, param->act_funcs[i]);
+        l_prev = hidden_L[i];
+	}
+	Layer_Init(lE, l_prev, NULL, param->oSize, NULL, NULL, false, param->endLayerAct);
+
+	Network_AddLayer(net, lS);
+	for (ui i=0; i < param->nbLayer-2; i++) Network_AddLayer(net, hidden_L[i]);
+	Network_AddLayer(net, lE);
 	Network_Wire(net);
+    free(hidden_L);
 	return net;
 }
 
-void LoadXOR(NNParam *param) {
-
-	param->iSize = 2;
-	param->oSize = 1;
-	param->toLoopTrain = 4;
-	param->toLoopValidate = 4;
-
-	param->inputTrain = (ld **)malloc(sizeof(ld *) * param->toLoopTrain);
-	param->outputTrain = (ld **)malloc(sizeof(ld *) * param->toLoopTrain);
-	for (ui i = 0; i < param->toLoopTrain; i++) {
-		param->inputTrain[i] = malloc(sizeof(ld) * param->iSize);
-		param->outputTrain[i] = malloc(sizeof(ld) * param->oSize);
-	}
-	param->inputTrain[0][0] = .0L;
-	param->inputTrain[0][1] = .0L;
-	param->outputTrain[0][0] = .0L;
-
-	param->inputTrain[1][0] = .0L;
-	param->inputTrain[1][1] = 1.0L;
-	param->outputTrain[1][0] = 1.0L;
-
-	param->inputTrain[2][0] = 1.0L;
-	param->inputTrain[2][1] = .0L;
-	param->outputTrain[2][0] = 1.0L;
-
-	param->inputTrain[3][0] = 1.0L;
-	param->inputTrain[3][1] = 1.0L;
-	param->outputTrain[3][0] = .0L;
-
-	param->inputTest = param->inputTrain;
-	param->outputTest = param->outputTrain;
-}
-
 void LoadData(NNParam *param) {
-
-	param->iSize = 784;
-	param->oSize = 10;
-
-	ui startI = 0;
-	// char pathTrain[] =
-	// "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
-	// char pathValidate[] =
-	// "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
-
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain)
 		!= 1) {
@@ -81,46 +49,40 @@ void LoadData(NNParam *param) {
 			   "filename; Exiting...\n");
 		exit(1);
 	}
-
 	FILE *fptr1, *fptr2;
 
 	if ((fptr1 = fopen(param->trainingFile, "rb")) == NULL) {
 		fprintf(stderr, "Cannot open file '%s'\n", param->trainingFile);
 		exit(1);
 	}
-	param->toLoopTrain = min(SamplesTrain, param->toLoopTrain);
-	param->inputTrain = (ld **)malloc(sizeof(float *) * param->toLoopTrain);
-	param->outputTrain = (ld **)malloc(sizeof(float *) * param->toLoopTrain);
+	param->toLoopTrain = Min(SamplesTrain, param->toLoopTrain);
+	param->inputTrain = malloc(sizeof(ld*) * param->toLoopTrain);
+	param->outputTrain = malloc(sizeof(ld*) * param->toLoopTrain);
 	ld *tempIn, *tempOut;
-	ld *temp;
+	ui temp;
 	for (ui i = 0; i < param->toLoopTrain; i++) {
 		tempIn = fvec_alloc(param->iSize, false);
 		tempOut = fvec_alloc(param->oSize, true);
-		temp = fvec_alloc(1, false);
-		fread(temp, sizeof(ld), 1, fptr1);
-		tempOut[(int)((ui)temp[0] - startI)] = 1.0L;
-		free(temp);
-		fread(tempIn, sizeof(ld), param->iSize, fptr1);
+		fread(&temp, sizeof(ui), 1, fptr1);
+		tempOut[temp] = 1.0L;
+		fread(tempIn, sizeof(double), param->iSize, fptr1);
 		param->inputTrain[i] = tempIn;
 		param->outputTrain[i] = tempOut;
 	}
 	fclose(fptr1);
-
 	if ((fptr2 = fopen(param->validationFile, "rb")) == NULL) {
 		fprintf(stderr, "Cannot open file '%s'\n", param->validationFile);
 		exit(1);
 	}
-	param->toLoopValidate = min(SamplesValidate, param->toLoopValidate);
-	param->inputTest = (ld **)malloc(sizeof(float *) * param->toLoopValidate);
-	param->outputTest = (ld **)malloc(sizeof(float *) * param->toLoopValidate);
+	param->toLoopValidate = Min(SamplesValidate, param->toLoopValidate);
+	param->inputTest = malloc(sizeof(ld*) * param->toLoopValidate);
+	param->outputTest = malloc(sizeof(ld*) * param->toLoopValidate);
 	for (ui i = 0; i < param->toLoopValidate; i++) {
 		tempIn = fvec_alloc(param->iSize, false);
 		tempOut = fvec_alloc(param->oSize, true);
-		temp = fvec_alloc(1, false);
-		fread(temp, sizeof(float), 1, fptr2);
-		tempOut[(int)((ui)temp[0] - startI)] = 1.0L;
-		free(temp);
-		fread(tempIn, sizeof(float), param->iSize, fptr2);
+		fread(&temp, sizeof(ui), 1, fptr2);
+		tempOut[temp] = 1.0L;
+		fread(tempIn, sizeof(double), param->iSize, fptr2);
 		param->inputTest[i] = tempIn;
 		param->outputTest[i] = tempOut;
 	}
@@ -147,14 +109,8 @@ float Validate(Network *net, const NNParam *P, float bperf) {
 
 	printf("%s%.2f%%\033[0m\n",
 		   (single ? AScore : VScore) > bperf ? "\033[0;32m" : "\033[0;31m",
-		   single ? AScore : min(AScore, VScore));
-	/*
-	printf("%.2f%% (%u/%u)\tScore :
-	%s%.2f%%\033[0m\tValidated : %u/%u\n", AScore, score,
-	all, VScore > bperf ? "\033[0;32m" : "\033[0;31m",
-		   VScore, pos, P->toLoopValidate);
-	*/
-	return single ? AScore : min(AScore, VScore);
+		   single ? AScore : Min(AScore, VScore));
+	return single ? AScore : Min(AScore, VScore);
 }
 
 void ConfusionMatrix(Network *net, const NNParam *P) {
@@ -182,23 +138,26 @@ void ConfusionMatrix(Network *net, const NNParam *P) {
 		matrix[bufferAct][bufferExp]++;
 	}
 
+	float bf = 0;
 	printf("\n\t\033[0;31m");
 	for (ui i = 0; i < P->oSize; i++) printf("%5d ", i);
 	printf("\033[0m\n");
 	for (ui i = 0; i < P->oSize; i++) {
 		printf("\033[0;31m%d\t\033[0m", i);
-		for (ui j = 0; j < P->oSize; j++) { printf("%5d ", matrix[i][j]); }
-		printf("\n");
+		bf = 0;
+		for (ui j = 0; j < P->oSize; j++) {
+                if(i==j) printf("\033[0;34m");
+                printf("%5d \033[0m", matrix[j][i]);
+                bf += matrix[j][i];
+        }
+        float v = matrix[i][i]/bf;
+		printf("\t%s%.2f%s\n", v < 0.6f ? "\033[0;31m" : v < 0.9 ?
+                "\033[0;33m" : "\033[0;32m", v, "\033[0m");
 	}
 	printf("\n");
 }
 
 void OverfitLoad(NNParam *param) {
-	param->iSize = 784;
-	param->oSize = 10;
-
-	ui startI = 0;
-
 	ui SamplesTrain = 0;
 	if (sscanf(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain)
 		!= 1) {
@@ -208,15 +167,14 @@ void OverfitLoad(NNParam *param) {
 	}
 
 	FILE *fptr1;
-
 	if ((fptr1 = fopen(param->trainingFile, "rb")) == NULL) {
 		fprintf(stderr, "Cannot open file '%s'\n", param->trainingFile);
 		exit(1);
 	}
-	param->toLoopTrain = min(SamplesTrain, param->toLoopTrain);
+	param->toLoopTrain = Min(SamplesTrain, param->toLoopTrain);
 	param->toLoopValidate = param->toLoopTrain;
-	param->inputTrain = (ld **)malloc(sizeof(float *) * param->toLoopTrain);
-	param->outputTrain = (ld **)malloc(sizeof(float *) * param->toLoopTrain);
+	param->inputTrain = malloc(sizeof(float *) * param->toLoopTrain);
+	param->outputTrain = malloc(sizeof(float *) * param->toLoopTrain);
 	ld *tempIn, *tempOut;
 	ld *temp;
 	for (ui i = 0; i < param->toLoopTrain; i++) {
@@ -224,7 +182,7 @@ void OverfitLoad(NNParam *param) {
 		tempOut = fvec_alloc(param->oSize, true);
 		temp = fvec_alloc(1, false);
 		fread(temp, sizeof(ld), 1, fptr1);
-		tempOut[(int)((ui)temp[0] - startI)] = 1.0L;
+		tempOut[(ui)temp[0]] = 1.0L;
 		free(temp);
 		fread(tempIn, sizeof(ld), param->iSize, fptr1);
 		param->inputTrain[i] = tempIn;
@@ -236,16 +194,17 @@ void OverfitLoad(NNParam *param) {
 	param->outputTest = param->outputTrain;
 }
 
-void PerfSearch(NNParam *origin, Network *net, int attempt) {
+void PerfSearch(NNParam *origin, Network *netOrg, int attempt) {
 	float bperf = (float)origin->toExceed, curr_perf = .0f;
-	ui eSize = floor(log10(origin->epoch)) + 1;
+	ui eSize = floor(log10(origin->epoch == 0 ? 1 : origin->epoch)) + 1;
 	printf("\nBeginning Neural Network training with "
 		   "following parameters :\n");
 	NNParam_Display(origin);
 	bool maxed = false;
 	while (attempt > 0 && !maxed) {
 		srand((ui)time(NULL));
-		if (net == NULL) net = CSave(origin->hiddenN);
+		Network *net = netOrg == NULL ? NetCreate(origin) : Network_DeepCopy(netOrg);
+		Network_Display(net, false);
 		if (origin->track) fclose(fopen(origin->StatsFile, "w"));
 		Optimizer_Init(net, origin->optimizer);
 		for (ui e = 0; e < origin->epoch && !maxed;) {
@@ -253,8 +212,9 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
 			curr_perf = Validate(net, origin, bperf);
 			if (curr_perf > bperf) {
 				bperf = curr_perf;
-				char *s = (char *)malloc(sizeof(char) * 12);
-				snprintf(s, 10, "%s_%.2f", origin->NNName, bperf);
+				ui ns = strlen(origin->NNName)+7;
+				char *s = malloc(sizeof(char) * (ns));
+				snprintf(s, ns, "%s_%.2f", origin->NNName, bperf);
 				Network_Save(net, s);
 				free(s);
 			}
@@ -262,7 +222,7 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
 			else {
 				Network_Train(net, origin);
 				ui ne
-					= min((int)origin->epochInterval, (int)(origin->epoch - e));
+					= Min((int)origin->epochInterval, (int)(origin->epoch - e));
 				origin->epochInterval = ne;
 				e += ne;
 			}
@@ -273,13 +233,13 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
 		if (curr_perf >= 100.0f) maxed = 1;
 		if (curr_perf > bperf) {
 			bperf = curr_perf;
-			char *s = (char *)malloc(sizeof(char) * 12);
-			snprintf(s, 10, "%s_%.2f", origin->NNName, bperf);
+			ui ns = strlen(origin->NNName)+7;
+			char *s = malloc(sizeof(char) * (ns));
+			snprintf(s, ns, "%s_%.2f", origin->NNName, bperf);
 			Network_Save(net, s);
 			free(s);
 		}
-		// Network_Display(net, true);
-		// ConfusionMatrix(net, origin);
+		ConfusionMatrix(net, origin);
 		Optimizer_Dispose(net, origin->optimizer, !attempt);
 		Network_Purge(net);
 		net = NULL;
@@ -289,7 +249,6 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
 
 void NNParam_Display(NNParam *param) {
 	// printf("\nNeural Network Params :\n");
-	printf("\n\tHidden neurons : %u", param->hiddenN);
 	printf("\t\t\tLearning Rate : %Lg\n", param->l_rate);
 	printf("\tTraining samples : %u", param->toLoopTrain);
 	printf("\t\t\tValidation samples : %u\n", param->toLoopValidate);
@@ -303,8 +262,12 @@ void NNParam_Display(NNParam *param) {
 
 void Purge_NNParam(NNParam *param) {
 	if (param->cost_func) free(param->cost_func);
+	if (param->endLayerAct) free(param->endLayerAct);
 	if (param->NNName != NULL) free(param->NNName);
 	if (param->StatsFile != NULL) free(param->StatsFile);
+	free(param->hNeurons);
+	for (ui i = 0; i < param->nbLayer-2; i++) free(param->act_funcs[i]);
+	free(param->act_funcs);
 	bool freeOnce = param->toLoopTrain == param->toLoopValidate;
 	for (ui i = 0; i < param->toLoopTrain; i++) {
 		free(param->inputTrain[i]);

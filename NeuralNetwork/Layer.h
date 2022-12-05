@@ -27,6 +27,7 @@ void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
 				ld *weights, ld *bias, bool loaded, char *act_name);
 void Layer_Dispose(Layer *layer);
 void Layer_Activate(Layer *layer);
+Layer* Layer_DeepCopy(Layer *layer);
 void Layer_Display(Layer *layer, const ui ieme, bool display_matr);
 
 
