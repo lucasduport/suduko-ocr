@@ -26,14 +26,16 @@ struct Optimizer
 typedef struct NNParam NNParam;
 struct NNParam
 {
-    ui hiddenN, toLoopTrain, toLoopValidate,
-        epoch, epochInterval, iSize, oSize, track;
+    ui nbLayer, toLoopTrain, toLoopValidate, epoch,
+    epochInterval, iSize, oSize, track, currH;
     ld l_rate, toExceed;
     ld l1Norm, l2Norm;
     ld **inputTrain, **outputTrain;
     ld **inputTest, **outputTest;
-    char *cost_func, *StatsFile, *NNName;
+    char *cost_func, *StatsFile, *NNName, *endLayerAct;
     char *trainingFile, *validationFile;
+    char **act_funcs;
+    ui *hNeurons;
     Optimizer *optimizer;
 };
 
@@ -42,9 +44,10 @@ void Network_Init(Network *net, cui nbLayers);
 void Network_AddLayer(Network *net, Layer *layer);
 void Network_Save(Network *net, char name[]);
 void Network_Purge(Network *net);
+Network *Network_DeepCopy(Network *net);
 void Network_Display(Network *net, bool display_matr);
 void Network_Wire(Network *net);
-ui Network_Predict(Network *net, ld *input, cui Size);
+float *Network_Predict(Network *net, ld *input, cui Size);
 ld *Network_Validate(Network *net, ld *input, cui Size, bool os1);
 void Network_Train(Network *net, NNParam *params);
 static void Network_Forward(Network *net, ld *input, cui iSize);

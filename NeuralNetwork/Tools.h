@@ -16,8 +16,8 @@ typedef const ui cui;
 //typedef long double ld;
 typedef const ld cld;
 
-inline ui max(ui a, ui b) {return a > b ? a : b;}
-inline ui min(ui a, ui b) {return a > b ? b : a;}
+static inline ui Max(ui a, ui b) {return a > b ? a : b;}
+static inline ui Min(ui a, ui b) {return a > b ? b : a;}
 void matr_display(ld *arr, cui s, cui cols);
 ld *fvec_alloc(cui n, bool zInit);
 char *cvec_alloc(cui n);
