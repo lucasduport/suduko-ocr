@@ -3,6 +3,7 @@
 #include <err.h>
 #include "image.h"
 #include "matrices.h"
+#include "param.h"
 
 // Contains basics functions for manipulating the Image struct
 
@@ -33,7 +34,6 @@ Image *newImage(uc nb_channels, st width, st height)
 	uc **channels = (uc **)malloc(nb_channels * sizeof(uc *));
 	if (channels == NULL)
 		errx(EXIT_FAILURE, "malloc failed");
-	uc *channel;
 	for (uc i = 0; i < nb_channels; i++)
 	{
 		channels[i] = newChannel(width * height);
@@ -204,12 +204,13 @@ void placeRGBA(Image *bg, Image *digit, float mat[3][3], int i, int j)
 
 void placeDigit(Image *background, Image *digit, Quad *grid, int i, int j)
 {
+	int nb_cells = getNbCells();
 	uc nb_channels = background->nb_channels;
 	if (digit->nb_channels != nb_channels)
 		errx(EXIT_FAILURE, "background and digit must have the same number of "
 						   "channels");
 	float mat[3][3];
-	getTransformMatrix(grid, 9 * 384, 9 * 384, mat);
+	getTransformMatrix(grid, nb_cells * 384, nb_cells * 384, mat);
 	switch (nb_channels)
 	{
 		case 1:

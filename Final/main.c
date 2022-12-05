@@ -138,6 +138,8 @@ int main(int argc, char **argv)
 
 	//TODO: use neural network
 	int **sudoku = readSudoku("../Solver/grid_00");
+	
+	// TODO: use Solver
 	int **solved = readSudoku("../Solver/grid_00.result");
 	int a = 10, b = 11, c = 12, d = 13, e = 14, f = 15, n = 16;
 	int _hexa[16][16] = {
