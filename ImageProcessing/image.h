@@ -17,4 +17,4 @@ Image *newImage(uc nb_channels, st width, st height);
 Image *copyImage(Image *image);
 void freeImage(Image *image);
 Image *openImage(const char *filename, uc nb_channels);
-void placeDigit(Image *bg, Image *d, Quad *grid, int *coords_x, int *coords_y);
+void placeDigit(Image *bg, Image *d, Quad *grid, int x0, int y0);

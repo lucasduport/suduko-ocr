@@ -162,7 +162,7 @@ void placePixel(Image *bg, int x_bg, int y_bg, Image *d, int x_d, int y_d)
 	bg->channels[3][coord_bg] = (uc)(val / 255);
 }
 
-void placeDigit(Image *bg, Image *d, Quad *grid, int *coords_x, int *coords_y)
+void placeDigit(Image *bg, Image *d, Quad *grid, int x0, int y0)
 {
 	int nb_cells = getNbCells();
 	uc nb_channels = bg->nb_channels;
@@ -179,9 +179,11 @@ void placeDigit(Image *bg, Image *d, Quad *grid, int *coords_x, int *coords_y)
 	for (int y_d = 0; y_d < h_d; y_d++)
 	{
 		// input[1] = y_d + 384 * j + 64;
+		input[1] = y_d + y0;
 		for (int x_d = 0; x_d < w_d; x_d++)
 		{
 			// input[0] = x_d + 384 * i + 64;
+			input[0] = x_d + x0;
 			matMul33_31(mat, input, res);
 			x_bg = res[0] / res[2];
 			y_bg = res[1] / res[2];
