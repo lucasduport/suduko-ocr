@@ -13,16 +13,16 @@
 
 //typedef unsigned int ui;
 typedef const ui cui;
-//typedef long double ld;
-typedef const ld cld;
+//typedef long double dl;
+typedef const dl cdl;
 
 static inline ui Max(ui a, ui b) {return a > b ? a : b;}
 static inline ui Min(ui a, ui b) {return a > b ? b : a;}
-void matr_display(ld *arr, cui s, cui cols);
-ld *fvec_alloc(cui n, bool zInit);
+void matr_display(dl *arr, cui s, cui cols);
+dl *fvec_alloc(cui n, bool zInit);
 char *cvec_alloc(cui n);
-ld *fvec_rInit(cui n, cui conns, bool he_init);
-inline ld absl(cld nb) {return (nb < 0) ? -nb : nb;}
-void arr_shuffle(ld *arr[], ld *paired_arr[], cui Size);
+dl *fvec_rInit(cui n, cui conns, bool he_init);
+inline dl absl(cdl nb) {return (nb < 0) ? -nb : nb;}
+void arr_shuffle(dl *arr[], dl *paired_arr[], cui Size);
 
 #endif // TOOLS_H

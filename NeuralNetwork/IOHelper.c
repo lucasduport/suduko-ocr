@@ -38,14 +38,14 @@ void LoadData(NNParam *param) {
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain)
 		!= 1) {
-		printf("Could not read amount of samples in "
+		printf("Coudl not read amount of samples in "
 			   "filename; Exiting...\n");
 		exit(1);
 	}
 	if (sscanf(param->validationFile, "%*[^_]%*[_]%*[^_]%*[_]%u",
 			   &SamplesValidate)
 		!= 1) {
-		printf("Could not read amount of samples in "
+		printf("Coudl not read amount of samples in "
 			   "filename; Exiting...\n");
 		exit(1);
 	}
@@ -56,9 +56,9 @@ void LoadData(NNParam *param) {
 		exit(1);
 	}
 	param->toLoopTrain = Min(SamplesTrain, param->toLoopTrain);
-	param->inputTrain = malloc(sizeof(ld*) * param->toLoopTrain);
-	param->outputTrain = malloc(sizeof(ld*) * param->toLoopTrain);
-	ld *tempIn, *tempOut;
+	param->inputTrain = malloc(sizeof(dl*) * param->toLoopTrain);
+	param->outputTrain = malloc(sizeof(dl*) * param->toLoopTrain);
+	dl *tempIn, *tempOut;
 	ui temp;
 	for (ui i = 0; i < param->toLoopTrain; i++) {
 		tempIn = fvec_alloc(param->iSize, false);
@@ -75,8 +75,8 @@ void LoadData(NNParam *param) {
 		exit(1);
 	}
 	param->toLoopValidate = Min(SamplesValidate, param->toLoopValidate);
-	param->inputTest = malloc(sizeof(ld*) * param->toLoopValidate);
-	param->outputTest = malloc(sizeof(ld*) * param->toLoopValidate);
+	param->inputTest = malloc(sizeof(dl*) * param->toLoopValidate);
+	param->outputTest = malloc(sizeof(dl*) * param->toLoopValidate);
 	for (ui i = 0; i < param->toLoopValidate; i++) {
 		tempIn = fvec_alloc(param->iSize, false);
 		tempOut = fvec_alloc(param->oSize, true);
@@ -92,7 +92,7 @@ void LoadData(NNParam *param) {
 float Validate(Network *net, const NNParam *P, float bperf) {
 	ui score = 0, all = 0, pos = 0;
 	for (ui i = 0; i < P->toLoopValidate; i++) {
-		ld *out
+		dl *out
 			= Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
 		for (ui j = 0; j < P->oSize; j++) {
 			// printf("\n%u : %.0LF\t%.0LF", j, out[j],
@@ -127,7 +127,7 @@ void ConfusionMatrix(Network *net, const NNParam *P) {
 		bufferExp = 0;
 		Acted = false;
 		Exped = false;
-		ld *out
+		dl *out
 			= Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
 		for (ui j = 0; j < P->oSize; j++) {
 			if (P->outputTest[i][j] >= 1.0L) Exped = true;
@@ -161,7 +161,7 @@ void OverfitLoad(NNParam *param) {
 	ui SamplesTrain = 0;
 	if (sscanf(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain)
 		!= 1) {
-		printf("Could not read amount of samples in "
+		printf("Coudl not read amount of samples in "
 			   "filename; Exiting...\n");
 		exit(1);
 	}
@@ -175,16 +175,16 @@ void OverfitLoad(NNParam *param) {
 	param->toLoopValidate = param->toLoopTrain;
 	param->inputTrain = malloc(sizeof(float *) * param->toLoopTrain);
 	param->outputTrain = malloc(sizeof(float *) * param->toLoopTrain);
-	ld *tempIn, *tempOut;
-	ld *temp;
+	dl *tempIn, *tempOut;
+	dl *temp;
 	for (ui i = 0; i < param->toLoopTrain; i++) {
 		tempIn = fvec_alloc(param->iSize, false);
 		tempOut = fvec_alloc(param->oSize, true);
 		temp = fvec_alloc(1, false);
-		fread(temp, sizeof(ld), 1, fptr1);
+		fread(temp, sizeof(dl), 1, fptr1);
 		tempOut[(ui)temp[0]] = 1.0L;
 		free(temp);
-		fread(tempIn, sizeof(ld), param->iSize, fptr1);
+		fread(tempIn, sizeof(dl), param->iSize, fptr1);
 		param->inputTrain[i] = tempIn;
 		param->outputTrain[i] = tempOut;
 	}
@@ -249,15 +249,15 @@ void PerfSearch(NNParam *origin, Network *netOrg, int attempt) {
 
 void NNParam_Display(NNParam *param) {
 	// printf("\nNeural Network Params :\n");
-	printf("\t\t\tLearning Rate : %Lg\n", param->l_rate);
+	printf("\t\t\tLearning Rate : %g\n", param->l_rate);
 	printf("\tTraining samples : %u", param->toLoopTrain);
 	printf("\t\t\tValidation samples : %u\n", param->toLoopValidate);
 	printf("\tEpoch : %u", param->epoch);
 	printf("\t\t\t\tEpoch interval : %u\n", param->epochInterval);
 	printf("\tCost Function : %s", param->cost_func);
 	printf("\t\t\tTracking : %s\n", param->track ? "true" : "false");
-	printf("\tL1 Regularization : %LF", param->l1Norm);
-	printf("\t\tL2 Regularization : %LF\n\n", param->l2Norm);
+	printf("\tL1 Regularization : %f", param->l1Norm);
+	printf("\t\tL2 Regularization : %f\n\n", param->l2Norm);
 }
 
 void Purge_NNParam(NNParam *param) {

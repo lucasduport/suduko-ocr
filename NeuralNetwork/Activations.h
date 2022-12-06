@@ -5,20 +5,20 @@
 #include <float.h>
 #include "Tools.h"
 
-void sigmoid(ld *input, ld *output, cui Size);
-void softmax(ld *input, ld *output, cui Size);
-void argmax(ld *input, ld *output, cui Size);
-void step(ld *input, ld *output, cui Size);
-void relu(ld *input, ld *output, cui Size);
-void selu(ld *input, ld *output, cui Size);
-void leakyrelu(ld *input, ld *output, cui Size);
-void none(ld *input, ld *output, cui Size);
+void sigmoid(dl *input, dl *output, cui Size);
+void softmax(dl *input, dl *output, cui Size);
+void argmax(dl *input, dl *output, cui Size);
+void step(dl *input, dl *output, cui Size);
+void relu(dl *input, dl *output, cui Size);
+void selu(dl *input, dl *output, cui Size);
+void leakyrelu(dl *input, dl *output, cui Size);
+void none(dl *input, dl *output, cui Size);
 
-void (*get_activation(const char *name))(ld *input, ld *output, cui Size);
+void (*get_activation(const char *name))(dl *input, dl *output, cui Size);
 
 const static struct {
   const char *name;
-  void (*func)(ld *input, ld *output, cui Size);
+  void (*func)(dl *input, dl *output, cui Size);
 } function_map [] = {
   { "none", none },
   { "sigmoid", sigmoid },

@@ -14,7 +14,6 @@ debug:
 
 clean:
 	rm -rf *[.do] main
-	clear
 
 clear:
 	rm ./NeuralNetwork
