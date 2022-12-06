@@ -132,6 +132,7 @@ int array[9][9] =
 */
 
 int main(int argc, char **argv) {
+	/*
 	if (argc == 1 || argc == 2) {
 		printf("Missing argument\nPass a grid and size (s or h)\n");
 		return 0;
@@ -148,11 +149,60 @@ int main(int argc, char **argv) {
 		else if (*n == 'h')
 			fileProcessing16(filename);
 		else
+		{
 			printf("Not a valid size (s or h)");
 			return 0;
+		}
 	}
+	*/
+	int a = 10, b = 11, c = 12, d = 13, e = 14, f = 15, n = 16;
+	int _hexa[16][16] = {
+		{7, 0, e, 0, a, 0, 3, 0, 0, 2, 0, 9, 0, n, 5, b},
+		{4, 0, c, 6, e, 2, 0, n, d, 5, 0, 3, a, 0, f, 1},
+		{f, 2, 9, 0, 0, 0, 5, b, e, 0, 0, 0, 0, 0, 0, d},
+		{0, 0, 0, 3, c, 8, 7, d, b, 0, 0, a, 6, 0, 0, 2},
+		{8, 3, 6, 1, 5, 0, 4, 0, 2, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, c},
+		{0, f, 0, 9, 0, a, 0, 0, 0, 8, 0, d, 1, 2, 0, 0},
+		{d, 0, 2, 0, 1, e, n, 9, 0, 0, 0, f, 0, 0, 0, 0},
+		{e, 4, 0, 0, 0, 7, 2, 1, 0, 0, 6, c, 5, f, 0, 0},
+		{9, 6, 0, n, 0, 0, 0, 5, f, 0, 2, 0, c, 0, a, 0},
+		{c, 1, 0, 7, 0, 0, 0, 0, 9, d, 0, e, 0, 4, 0, n},
+		{0, 0, 0, 0, f, 9, d, 0, 0, n, 4, 7, 0, 0, 0, 0},
+		{1, 0, d, 0, 2, n, b, f, 0, 0, 9, 0, 0, 0, 7, 5},
+		{0, 0, n, 0, 0, 0, 1, 0, 0, 0, 0, b, d, e, 0, a},
+		{2, e, 7, 0, 9, 0, a, 8, n, 0, 0, 5, b, c, 6, 4},
+		{b, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 9, 1, 0, 0},
+	};
+	int **hexa = (int **)malloc(sizeof(int *) * 16);
+	for (int i = 0; i < 16; i++)
+	{
+		hexa[i] = (int *)malloc(sizeof(int) * 16);
+		for (int j = 0; j < 16; j++)
+		{
+			if (!_hexa[i][j])
+				hexa[i][j] = -1;
+			else
+				hexa[i][j] = _hexa[i][j];
+		}
+	}
+	solver16(hexa);
+	for (int i=0; i<16; i++)
+	{
+		for (int j=0; j<16; j++)
+		{
+			printf("%02d ", hexa[i][j]);
+			if ((j+1)%4==0)
+				printf(" ");
+		}
+		printf("\n");
+		if ((i+1)%4==0)
+			printf("\n");
+	}
+
+
 	//fileProcessing(argv[1]);
-	return 1;
+	return 0;
 	/*int array2[9][9] =
 	{
 		{5,3,0,0,7,0,0,0,0},

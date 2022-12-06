@@ -1,15 +1,20 @@
 .SILENT: all
 .SILENT: clean
 
-all: ImageProcessing NeuralNetwork
+all: Solver NeuralNetwork ImageProcessing
 	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
 	-MMD -g `pkg-config --cflags sdl2` -c *.c
 	clang -fsanitize=address -o main -lm -lSDL2 -lSDL2_image *.o
 
+Solver:
+	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
+	-MMD -g -c ../Solver/*.c
+	rm -rf main*.o
+
 NeuralNetwork:
 	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
 	-MMD -g -c ../NeuralNetwork/*.c
-	rm -rf main*.o cellExtraction.o
+	rm -rf main*.o
 
 ImageProcessing:
 	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \

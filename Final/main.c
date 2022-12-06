@@ -15,50 +15,14 @@
 
 #include "../NeuralNetwork/Network.h"
 
+#include "../Solver/solver.h"
+#include "../Solver/solver16.h"
+
 void init()
 {
 	initTrig();
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
-}
-
-int **readSudoku(const char *filename)
-{
-	int **array = malloc(9 * sizeof(int *));
-	for (int i = 0; i < 9; i++)
-		array[i] = (int *)malloc(9 * sizeof(int));
-	if (!array)
-		return NULL;
-	FILE *file = fopen(filename, "r");
-	if (!file)
-		errx(1, "Couldn't open file \"%s\"", filename);
-	size_t count;
-	char buffer = '0';
-	int value;
-	size_t i = 0;
-	size_t j = 0;
-
-	do
-	{
-		count = fread(&buffer, 1, 1, file);
-		if (buffer == '.')
-			value = 0;
-		else if (buffer >= '0' && buffer <= '9')
-			value = buffer - '0';
-		else
-		{
-			if (buffer == '\n' && j)
-			{
-				i++;
-				j = 0;
-			}
-			continue;
-		}
-		array[i][j] = value;
-		j++;
-	} while (count != 0);
-	fclose(file);
-	return array;
 }
 
 void searchDigit(int **sudoku, int n, int *i, int *j)
@@ -164,8 +128,9 @@ int main(int argc, char **argv)
 		sudoku[i] = (int *)malloc(9 * sizeof(int));
 	}
 	Network *net = (Network *)malloc(sizeof(Network));
-	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-MEXA_92.55.dnn");
+	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-MNIST_92.4.dnn");
 	printf("check : %p\n", net);
+	Network_Display(net, 1);
 	net->layers[2].activation = get_activation("softmax");
 	float *results[nb_cells * nb_cells];
 	for (int i = 0; i < nb_cells; i++)
@@ -215,9 +180,28 @@ int main(int argc, char **argv)
 		if ((i+1)%3==0) printf("\n");
 	}
 	// int **sudoku = readSudoku("../Solver/grid_00");
-	
-	// TODO: use Solver
-	int **solved = readSudoku("../Solver/grid_00.result");
+
+	int **solved = (int **)malloc(9 * sizeof(int *));
+	for (int i = 0; i < 9; i++)
+	{
+		solved[i] = (int *)malloc(9 * sizeof(int));
+		for (int j = 0; j < 9; j++)
+		{
+			solved[i][j] = sudoku[i][j];
+		}
+	}
+	switch (nb_cells)
+	{
+	case 9:
+		solver(solved);
+		break;
+	case 16:
+		solver16(solved);
+	default:
+		errx(EXIT_FAILURE, "wrong value of nb_cells");
+		break;
+	}
+
 	int a = 10, b = 11, c = 12, d = 13, e = 14, f = 15, n = 16;
 	int _hexa[16][16] = {
 		{7, 0, e, 0, a, 0, 3, 0, 0, 2, 0, 9, 0, n, 5, b},
