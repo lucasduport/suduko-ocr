@@ -5,43 +5,43 @@
 #include <math.h>
 #include <stdlib.h>
 
-void relu(ld *input, ld *output, cui Size) {
-	for (ld *o = output, *i = input; o < output + Size; o++, i++)
+void relu(dl *input, dl *output, cui Size) {
+	for (dl *o = output, *i = input; o < output + Size; o++, i++)
 		*o = fmaxl(.0L, *i);
 }
 
-void leakyrelu(ld *input, ld *output, cui Size) {
+void leakyrelu(dl *input, dl *output, cui Size) {
 	for (ui i = 0; i < Size; i++) output[i] = fmaxl(.01 * input[i], input[i]);
 }
 
-void selu(ld *input, ld *output, cui Size) {
-	cld alpha = 1.6732632423543772848170429916717;
-	cld lambda = 1.0507009873554804934193349852946;
+void selu(dl *input, dl *output, cui Size) {
+	cdl alpha = 1.6732632423543772848170429916717;
+	cdl lambda = 1.0507009873554804934193349852946;
 	for (ui i = 0; i < Size; i++)
 		output[i]
 			= lambda
 			  * (input[i] > 0 ? input[i] : alpha * expl(input[i]) - alpha);
 }
 
-void none(ld *input, ld *output, cui Size) {
-	for (ld *o = output, *i = input; o < output + Size; o++, i++) *o = *i;
+void none(dl *input, dl *output, cui Size) {
+	for (dl *o = output, *i = input; o < output + Size; o++, i++) *o = *i;
 }
 
-void sigmoid(ld *input, ld *output, cui Size) {
-	for (ld *o = output, *i = input; o < output + Size; o++, i++)
+void sigmoid(dl *input, dl *output, cui Size) {
+	for (dl *o = output, *i = input; o < output + Size; o++, i++)
 		*o = 1.0L / (1 + expl(-(*i)));
 }
 
-void softmax(ld *input, ld *output, cui Size) {
-	ld Maxd = input[0];
-	for (ld *i = input; i < input + Size; i++) Maxd = fmaxl((*i), Maxd);
-	for (ld *i = input; i < input + Size; i++) *i -= Maxd;
+void softmax(dl *input, dl *output, cui Size) {
+	dl Maxd = input[0];
+	for (dl *i = input; i < input + Size; i++) Maxd = fmaxl((*i), Maxd);
+	for (dl *i = input; i < input + Size; i++) *i -= Maxd;
 
-	ld s = .0, expd[Size];
-	for (ld *i = input, *e = expd; i < input + Size; i++, e++) {
+	dl s = .0, expd[Size];
+	for (dl *i = input, *e = expd; i < input + Size; i++, e++) {
 		/*
 		if (isnan(expl(input[i]))) {
-			printf("\nnan in softmax caused by exp(%LF)\n",
+			printf("\nnan in softmax caused by exp(%f)\n",
 		input[i]); exit(3);
 		}
 		*/
@@ -49,7 +49,7 @@ void softmax(ld *input, ld *output, cui Size) {
 		s += *e;
 	}
 
-	for (ld *o = output, *e = expd; o < output + Size; o++, e++) {
+	for (dl *o = output, *e = expd; o < output + Size; o++, e++) {
 		/*
 		if (isnan(expd[i]/(s+EPS))) {
 			puts("nan 2 in softmax");
@@ -60,7 +60,7 @@ void softmax(ld *input, ld *output, cui Size) {
 	}
 }
 
-void argmax(ld *input, ld *output, cui Size) {
+void argmax(dl *input, dl *output, cui Size) {
 	ui c = 0, p[Size];
 	p[c] = 0;
 	for (ui i = 0; i < Size; i++) {
@@ -76,11 +76,11 @@ void argmax(ld *input, ld *output, cui Size) {
 	for (ui i = 0; i < c + 1; i++) output[p[i]] = 1.0L;
 }
 
-void step(ld *input, ld *output, cui Size) {
+void step(dl *input, dl *output, cui Size) {
 	for (ui i = 0; i < Size; i++) output[i] = (input[i] < .5L) ? .0L : 1.0L;
 }
 
-void (*get_activation(const char *name))(ld *input, ld *output, cui Size) {
+void (*get_activation(const char *name))(dl *input, dl *output, cui Size) {
 	for (ui i = 0; i < (sizeof(function_map) / sizeof(function_map[0])); i++)
 		if (!strcmp(function_map[i].name, name)) return function_map[i].func;
 	return NULL;

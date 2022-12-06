@@ -7,46 +7,46 @@
 #define MAX_IN_FIELD (MAX_IN_LINE-3)/2
 
 static void matchParams(NNParam *origin, char *line) {
-	char field[MAX_IN_FIELD], value[MAX_IN_FIELD];
-	sscanf(line, "%s = %s", field, value);
+	char fiedl[MAX_IN_FIELD], value[MAX_IN_FIELD];
+	sscanf(line, "%s = %s", fiedl, value);
 
-	if (!strcmp(field, "toLoopTrain"))
+	if (!strcmp(fiedl, "toLoopTrain"))
 		origin->toLoopTrain = (ui)strtol(value, NULL, 10);
-	else if (!strcmp(field, "toLoopValidate"))
+	else if (!strcmp(fiedl, "toLoopValidate"))
 		origin->toLoopValidate = (ui)strtol(value, NULL, 10);
-	else if (!strcmp(field, "epoch"))
+	else if (!strcmp(fiedl, "epoch"))
 		origin->epoch = (ui)strtol(value, NULL, 10);
-	else if (!strcmp(field, "epochInterval"))
+	else if (!strcmp(fiedl, "epochInterval"))
 		origin->epochInterval = (ui)strtol(value, NULL, 10);
-	else if (!strcmp(field, "l_rate")) origin->l_rate = (ld)strtod(value, NULL);
-	else if (!strcmp(field, "l1Norm")) origin->l1Norm = (ld)strtod(value, NULL);
-	else if (!strcmp(field, "l2Norm")) origin->l2Norm = (ld)strtod(value, NULL);
-	else if (!strcmp(field, "cost_func")) {
+	else if (!strcmp(fiedl, "l_rate")) origin->l_rate = (dl)strtod(value, NULL);
+	else if (!strcmp(fiedl, "l1Norm")) origin->l1Norm = (dl)strtod(value, NULL);
+	else if (!strcmp(fiedl, "l2Norm")) origin->l2Norm = (dl)strtod(value, NULL);
+	else if (!strcmp(fiedl, "cost_func")) {
 		origin->cost_func = (char *)malloc(sizeof(char) * (strlen(value) + 1));
 		strcpy(origin->cost_func, value);
-	} else if (!strcmp(field, "optimizer")) {
+	} else if (!strcmp(fiedl, "optimizer")) {
 		origin->optimizer = !strcmp(value, "true")
 								? (Optimizer *)malloc(sizeof(Optimizer))
 								: NULL;
-	} else if (!strcmp(field, "track"))
+	} else if (!strcmp(fiedl, "track"))
 		origin->track = !strcmp(value, "true") ? true : false;
-	else if (!strcmp(field, "StatsFile")) {
+	else if (!strcmp(fiedl, "StatsFile")) {
 		origin->StatsFile = (char *)malloc(sizeof(char) * (strlen(value) + 1));
 		strcpy(origin->StatsFile, value);
-	} else if (!strcmp(field, "NNName")) {
+	} else if (!strcmp(fiedl, "NNName")) {
 		origin->NNName = (char *)malloc(sizeof(char) * (strlen(value) + 1));
 		strcpy(origin->NNName, value);
-	} else if (!strcmp(field, "toExceed"))
-		origin->toExceed = (ld)strtod(value, NULL);
-    else if (!strcmp(field, "iSize")) origin->iSize = (ui)strtol(value, NULL, 10);
-    else if (!strcmp(field, "oSize")) origin->oSize = (ui)strtol(value, NULL, 10);
-    else if (!strcmp(field, "nbLayer")) {
+	} else if (!strcmp(fiedl, "toExceed"))
+		origin->toExceed = (dl)strtod(value, NULL);
+    else if (!strcmp(fiedl, "iSize")) origin->iSize = (ui)strtol(value, NULL, 10);
+    else if (!strcmp(fiedl, "oSize")) origin->oSize = (ui)strtol(value, NULL, 10);
+    else if (!strcmp(fiedl, "nbLayer")) {
         ui nbl = (ui)strtol(value, NULL, 10);
         origin->nbLayer = nbl;
         origin->hNeurons = malloc(sizeof(ui) * (nbl-2));
         origin->act_funcs = malloc(sizeof(char *) * (nbl-2));
     }
-    else if (!strcmp(field, "hLayer")) {
+    else if (!strcmp(fiedl, "hLayer")) {
         ui nbn;
         char naf[MAX_IN_FIELD];
         sscanf(value, "%u|%s", &nbn, naf);
@@ -55,13 +55,15 @@ static void matchParams(NNParam *origin, char *line) {
         strcpy(origin->act_funcs[origin->currH], naf);
         origin->currH++;
     }
-    else if (!strcmp(field, "endLayer")) {
+    else if (!strcmp(fiedl, "endLayer")) {
         origin->endLayerAct = malloc(sizeof(char) * (strlen(value) + 1));
 		strcpy(origin->endLayerAct, value);
     }
 }
 
 int main(int argc, char *argv[]) {
+
+
 
 /*
 	int argc = 6;
@@ -79,6 +81,7 @@ int main(int argc, char *argv[]) {
 					 "0"};
 
 */
+
 	argc--;
 	argv++;
 

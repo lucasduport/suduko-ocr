@@ -28,7 +28,7 @@ void Network_Wire(Network *net) {
 
 void Network_Load(Network *net, char path[]) {
 	if (sscanf(path, "%*[^_]%*[_]%u", &net->nbLayers) != 1) {
-		printf("Could not read amount of layer in "
+		printf("Coudl not read amount of layer in "
 			   "filename; Exiting...\n");
 		exit(1);
 	}
@@ -46,10 +46,10 @@ void Network_Load(Network *net, char path[]) {
 			char *name = cvec_alloc(saved.fSize + 1);
 			fread(name, sizeof(char), saved.fSize, fptr);
 			name[saved.fSize] = '\0';
-			ld *bias = fvec_alloc(saved.Neurons, false);
-			fread(bias, sizeof(ld), saved.Neurons, fptr);
-			ld *weights = fvec_alloc(saved.conns, false);
-			fread(weights, sizeof(ld), saved.conns, fptr);
+			dl *bias = fvec_alloc(saved.Neurons, false);
+			fread(bias, sizeof(dl), saved.Neurons, fptr);
+			dl *weights = fvec_alloc(saved.conns, false);
+			fread(weights, sizeof(dl), saved.conns, fptr);
 			Layer_Init(&layer, lSave, NULL, saved.Neurons, weights, bias, true,
 					   name);
 		} else {
@@ -93,8 +93,8 @@ void Network_Save(Network *net, char name[]) {
 		fwrite(&saved, sizeof(saved), 1, fptr);
 		if ((*l).pLayer != NULL) {
 			fwrite((*l).act_name, sizeof(char), len, fptr);
-			fwrite(&(*l).bias[0], sizeof(ld), (*l).Neurons, fptr);
-			fwrite(&(*l).weights[0], sizeof(ld), (*l).conns, fptr);
+			fwrite(&(*l).bias[0], sizeof(dl), (*l).Neurons, fptr);
+			fwrite(&(*l).weights[0], sizeof(dl), (*l).conns, fptr);
 		}
 	}
 	fclose(fptr);
@@ -133,12 +133,12 @@ Layer *lvec_alloc(cui n) {
 	return tmp;
 }
 
-float *Network_Predict(Network *net, ld *input, cui Size) {
+float *Network_Predict(Network *net, dl *input, cui Size) {
 	Network_Forward(net, input, Size);
 	Layer *l = &net->layers[net->nbLayers - 1];
-	for (int i = 0; i < l->Neurons; i++)
+	for (ui i = 0; i < l->Neurons; i++)
 	{
-		printf("%LF ", l->output[i]);
+		printf("%f ", l->output[i]);
 	}
 	puts("");
 	float *rtn = malloc(sizeof(float)*l->Neurons);
@@ -146,7 +146,7 @@ float *Network_Predict(Network *net, ld *input, cui Size) {
 	return rtn;
 }
 
-ld *Network_Validate(Network *net, ld *input, cui Size, bool os1) {
+dl *Network_Validate(Network *net, dl *input, cui Size, bool os1) {
 	Network_Forward(net, input, Size);
 	(os1 ? step : argmax)(net->layers[net->nbLayers - 1].output,
 						  net->layers[net->nbLayers - 1].output,
@@ -181,9 +181,9 @@ void Network_Train(Network *net, NNParam *params) {
 					params->toLoopTrain);
 		for (ui s = 0; s < params->toLoopTrain; s++) {
 			Network_Forward(net, params->inputTrain[s], params->iSize);
-			ld error = Network_BackProp(net, params, s);
+			dl error = Network_BackProp(net, params, s);
 			if (params->track) {
-				fprintf(f, "%LF\n", error);
+				fprintf(f, "%f\n", error);
 				c++;
 			}
 		}
@@ -192,7 +192,7 @@ void Network_Train(Network *net, NNParam *params) {
 	if (params->track) fclose(f);
 }
 
-static void Network_Forward(Network *net, ld *input, cui iSize) {
+static void Network_Forward(Network *net, dl *input, cui iSize) {
 	if (iSize != net->layers[0].Neurons) {
 		printf("Error: Input data size has different size "
 			   "than neurons");
@@ -202,19 +202,19 @@ static void Network_Forward(Network *net, ld *input, cui iSize) {
 	for (ui i = 1; i < net->currentLayer; i++) Layer_Activate(&net->layers[i]);
 }
 
-static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
+static dl Network_BackProp(Network *net, NNParam *params, cui nth) {
 
 	Layer *L = &net->layers[net->nbLayers - 1];
-	ld (*cost_deriv)(ld, ld) = get_cost_deriv(params->cost_func);
-	ld (*deriv)(ld *, cui, cui) = get_deriv(L->act_name);
-	ld *expected = params->outputTrain[nth];
+	dl (*cost_deriv)(dl, dl) = get_cost_deriv(params->cost_func);
+	dl (*deriv)(dl *, cui, cui) = get_deriv(L->act_name);
+	dl *expected = params->outputTrain[nth];
 
 	Optimizer *optz = params->optimizer;
 	bool dn1 = params->l1Norm == 0.0L, dn2 = params->l2Norm == 0.0L;
-	ld l1 = .0L, l2 = .0L;
+	dl l1 = .0L, l2 = .0L;
 
-	ld b1t = 0, b2t = 0, *mwt = NULL, *vwt = NULL, *mbt = NULL, *vbt = NULL;
-	ld **Gmwt = NULL, **Gvwt = NULL, **Gmbt = NULL, **Gvbt = NULL;
+	dl b1t = 0, b2t = 0, *mwt = NULL, *vwt = NULL, *mbt = NULL, *vbt = NULL;
+	dl **Gmwt = NULL, **Gvwt = NULL, **Gmbt = NULL, **Gvbt = NULL;
 	if (optz != NULL) {
 		b1t = powl(0.9L, optz->iter);
 		b2t = powl(0.999L, optz->iter);
@@ -224,33 +224,33 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 		vbt = optz->Vbt[net->nbLayers - 2];
 	}
 
-	ld error = get_cost(params->cost_func)(L->output, expected, params->oSize);
+	dl error = get_cost(params->cost_func)(L->output, expected, params->oSize);
 
-	ld CostOut[L->Neurons];
-	ld OutIn[L->Neurons];
+	dl CostOut[L->Neurons];
+	dl OutIn[L->Neurons];
 	ui i = 0;
-	for (ld *cO = CostOut, *oI = OutIn, *o = L->output, *e = expected;
+	for (dl *cO = CostOut, *oI = OutIn, *o = L->output, *e = expected;
 		 cO < CostOut + L->Neurons; cO++, oI++, o++, e++, i++) {
 		*cO = cost_deriv(*o, *e);
 		*oI = deriv(L->input, L->Neurons, i);
 	}
 
-	ld *Legacy = fvec_alloc(L->pLayer->Neurons, true);
+	dl *Legacy = fvec_alloc(L->pLayer->Neurons, true);
 	bool bias_done = false;
-	for (ld *pO = L->pLayer->output, *leg = Legacy, *w = L->weights;
+	for (dl *pO = L->pLayer->output, *leg = Legacy, *w = L->weights;
 		 pO < L->pLayer->output + L->pLayer->Neurons; pO++, leg++) {
-		for (ld *cO = CostOut, *oI = OutIn, *b = L->bias;
+		for (dl *cO = CostOut, *oI = OutIn, *b = L->bias;
 			 cO < CostOut + L->Neurons; cO++, oI++, w++, b++) {
-			ld ml = (*cO) * (*oI), pw = (*w);
+			dl ml = (*cO) * (*oI), pw = (*w);
 			*leg += ml * (*w);
 			if (!dn1) l1 += absl(*w);
 			if (!dn2) l2 += (*w) * (*w);
 			if (optz != NULL) {
-				ld gd = ml * (*pO);
+				dl gd = ml * (*pO);
 				*mwt = 0.9L * (*mwt) + (1 - 0.9) * gd;
 				*vwt = 0.999L * (*vwt) + (1 - 0.999L) * gd * gd;
-				ld mwc = (*mwt) / (1 - b1t);
-				ld vwc = (*vwt) / (1 - b2t);
+				dl mwc = (*mwt) / (1 - b1t);
+				dl vwc = (*vwt) / (1 - b2t);
 				*w -= params->l_rate * mwc / (sqrtl(vwc) + OPT_EPS);
 				mwt++;
 				vwt++;
@@ -261,8 +261,8 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 				if (optz != NULL) {
 					*mbt = 0.9 * (*mbt) + (1 - 0.9L) * ml;
 					*vbt = 0.999L * (*vbt) + (1 - 0.999L) * ml * ml;
-					ld mbc = (*mbt) / (1 - b1t);
-					ld vbc = (*vbt) / (1 - b2t);
+					dl mbc = (*mbt) / (1 - b1t);
+					dl vbc = (*vbt) / (1 - b2t);
 					*b -= params->l_rate * mbc / (sqrtl(vbc) + OPT_EPS);
 					mbt++;
 					vbt++;
@@ -279,13 +279,13 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 		Gvbt = optz->Vbt + net->nbLayers - 3;
 	}
 
-	ld *tempLegacy, *OutIn_i;
+	dl *tempLegacy, *OutIn_i;
 	for (L = net->layers + (net->nbLayers - 2); L > net->layers; L--) {
-		ld (*deriv_i)(ld *, cui, cui) = get_deriv(L->act_name);
+		dl (*deriv_i)(dl *, cui, cui) = get_deriv(L->act_name);
 		tempLegacy = fvec_alloc(L->pLayer->Neurons, true);
 		OutIn_i = fvec_alloc(L->Neurons, false);
 		i = 0;
-		for (ld *oI = OutIn_i; oI < OutIn_i + L->Neurons; oI++, i++)
+		for (dl *oI = OutIn_i; oI < OutIn_i + L->Neurons; oI++, i++)
 			*oI = deriv_i(L->input, L->Neurons, i);
 		if (optz != NULL) {
 			mwt = *Gmwt;
@@ -294,20 +294,20 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 			vbt = *Gvbt;
 		}
 		bias_done = false;
-		for (ld *tL = tempLegacy, *w = L->weights, *pO = L->pLayer->output;
+		for (dl *tL = tempLegacy, *w = L->weights, *pO = L->pLayer->output;
 			 tL < tempLegacy + L->pLayer->Neurons; tL++, pO++) {
-			for (ld *l = Legacy, *oI = OutIn_i, *b = L->bias;
+			for (dl *l = Legacy, *oI = OutIn_i, *b = L->bias;
 				 l < Legacy + L->Neurons; l++, oI++, w++, b++) {
-				ld ml = (*l) * (*oI), pw = (*w);
+				dl ml = (*l) * (*oI), pw = (*w);
 				*tL += ml * (*w);
 				if (!dn1) l1 += absl(*w);
 				if (!dn2) l2 += (*w) * (*w);
 				if (optz != NULL) {
-					ld gd = ml * (*pO);
+					dl gd = ml * (*pO);
 					*mwt = 0.9L * (*mwt) + (1 - 0.9) * gd;
 					*vwt = 0.999L * (*vwt) + (1 - 0.999L) * gd * gd;
-					ld mwc = (*mwt) / (1 - b1t);
-					ld vwc = (*vwt) / (1 - b2t);
+					dl mwc = (*mwt) / (1 - b1t);
+					dl vwc = (*vwt) / (1 - b2t);
 					*w -= params->l_rate * mwc / (sqrtl(vwc) + EPS);
 					mwt++;
 					vwt++;
@@ -319,8 +319,8 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 					if (optz != NULL) {
 						*mbt = 0.9 * (*mbt) + (1 - 0.9L) * ml;
 						*vbt = 0.999L * (*vbt) + (1 - 0.999L) * ml * ml;
-						ld mbc = (*mbt) / (1 - b1t);
-						ld vbc = (*vbt) / (1 - b2t);
+						dl mbc = (*mbt) / (1 - b1t);
+						dl vbc = (*vbt) / (1 - b2t);
 						*b -= params->l_rate * mbc / (sqrtl(vbc));
 						mbt++;
 						vbt++;
@@ -346,20 +346,20 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 static void IntegrityCheck(Network *net) {
 	for (ui i = 1; i < net->nbLayers; i++) {
 		for (ui j = 0; j < net->layers[i].conns; j++) {
-			// printf("\nw : %LF",
+			// printf("\nw : %f",
 			// net->layers[i].weights[j]);
 			if (isnan(net->layers[i].weights[j])
 				|| isinf(net->layers[i].weights[j])) {
-				printf("\nWeight Corruption : %LF\n",
+				printf("\nWeight Corruption : %f\n",
 					   net->layers[i].weights[j]);
 				exit(2);
 			}
 		}
 		for (ui j = 0; j < net->layers[i].Neurons; j++) {
-			// printf("\nb : %LF", net->layers[i].bias[j]);
+			// printf("\nb : %f", net->layers[i].bias[j]);
 			if (isnan(net->layers[i].bias[j])
 				|| isinf(net->layers[i].bias[j])) {
-				printf("\nBias Corruption : %LF\n", net->layers[i].bias[j]);
+				printf("\nBias Corruption : %f\n", net->layers[i].bias[j]);
 				exit(2);
 			}
 		}
@@ -370,10 +370,10 @@ static void IntegrityCheck(Network *net) {
 void Optimizer_Init(Network *net, Optimizer *optz) {
 	if (optz == NULL) return;
 	optz->iter = 1;
-	optz->Mwt = (ld **)malloc(sizeof(ld *) * net->nbLayers - 1);
-	optz->Mbt = (ld **)malloc(sizeof(ld *) * net->nbLayers - 1);
-	optz->Vwt = (ld **)malloc(sizeof(ld *) * net->nbLayers - 1);
-	optz->Vbt = (ld **)malloc(sizeof(ld *) * net->nbLayers - 1);
+	optz->Mwt = (dl **)malloc(sizeof(dl *) * net->nbLayers - 1);
+	optz->Mbt = (dl **)malloc(sizeof(dl *) * net->nbLayers - 1);
+	optz->Vwt = (dl **)malloc(sizeof(dl *) * net->nbLayers - 1);
+	optz->Vbt = (dl **)malloc(sizeof(dl *) * net->nbLayers - 1);
 	for (ui i = 0; i < net->nbLayers - 1; i++) {
 		optz->Mwt[i] = fvec_alloc(net->layers[i + 1].conns, true);
 		optz->Vwt[i] = fvec_alloc(net->layers[i + 1].conns, true);

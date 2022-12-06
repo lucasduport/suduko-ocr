@@ -1,7 +1,7 @@
 #include "Layer.h"
 
 void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
-				ld *weights, ld *bias, bool loaded, char *act_name) {
+				dl *weights, dl *bias, bool loaded, char *act_name) {
 	layer->conns = 0;
 	layer->bias = 0;
 	if (pLayer != NULL) {
@@ -34,12 +34,12 @@ void Layer_Dispose(Layer *layer) {
 }
 
 void Layer_Activate(Layer *layer) {
-	for (ld *pI = layer->input, *pB = layer->bias;
+	for (dl *pI = layer->input, *pB = layer->bias;
 		 pI < layer->input + layer->Neurons; pI++, pB++)
 		*pI = *pB;
-	for (ld *lO = layer->pLayer->output, *lW = layer->weights;
+	for (dl *lO = layer->pLayer->output, *lW = layer->weights;
 		 lO < layer->pLayer->output + layer->pLayer->Neurons; lO++) {
-		for (ld *lI = layer->input; lI < layer->input + layer->Neurons;
+		for (dl *lI = layer->input; lI < layer->input + layer->Neurons;
 			 lI++, lW++) *lI += (*lO) * (*lW);
 	}
 	layer->activation(layer->input, layer->output, layer->Neurons);
@@ -57,8 +57,8 @@ Layer* Layer_DeepCopy(Layer *layer) {
     if (layer->pLayer != NULL) {
         copy->input = fvec_alloc(layer->Neurons, false);
 		copy->output = fvec_alloc(layer->Neurons, false);
-		copy->bias = malloc(sizeof(ld) * layer->Neurons);
-        copy->weights = malloc(sizeof(ld) * layer->conns);
+		copy->bias = malloc(sizeof(dl) * layer->Neurons);
+        copy->weights = malloc(sizeof(dl) * layer->conns);
         for(ui i=0; i<layer->Neurons; i++) copy->bias[i] = layer->bias[i];
         for(ui i=0; i<layer->conns; i++) copy->weights[i] = layer->weights[i];
     }

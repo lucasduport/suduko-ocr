@@ -20,7 +20,7 @@ typedef struct Optimizer Optimizer;
 struct Optimizer
 {
     ui iter;
-    ld **Mwt, **Vwt, **Mbt, **Vbt;
+    dl **Mwt, **Vwt, **Mbt, **Vbt;
 };
 
 typedef struct NNParam NNParam;
@@ -28,10 +28,10 @@ struct NNParam
 {
     ui nbLayer, toLoopTrain, toLoopValidate, epoch,
     epochInterval, iSize, oSize, track, currH;
-    ld l_rate, toExceed;
-    ld l1Norm, l2Norm;
-    ld **inputTrain, **outputTrain;
-    ld **inputTest, **outputTest;
+    dl l_rate, toExceed;
+    dl l1Norm, l2Norm;
+    dl **inputTrain, **outputTrain;
+    dl **inputTest, **outputTest;
     char *cost_func, *StatsFile, *NNName, *endLayerAct;
     char *trainingFile, *validationFile;
     char **act_funcs;
@@ -47,11 +47,11 @@ void Network_Purge(Network *net);
 Network *Network_DeepCopy(Network *net);
 void Network_Display(Network *net, bool display_matr);
 void Network_Wire(Network *net);
-float *Network_Predict(Network *net, ld *input, cui Size);
-ld *Network_Validate(Network *net, ld *input, cui Size, bool os1);
+float *Network_Predict(Network *net, dl *input, cui Size);
+dl *Network_Validate(Network *net, dl *input, cui Size, bool os1);
 void Network_Train(Network *net, NNParam *params);
-static void Network_Forward(Network *net, ld *input, cui iSize);
-static ld Network_BackProp(Network *net, NNParam *params, cui nth);
+static void Network_Forward(Network *net, dl *input, cui iSize);
+static dl Network_BackProp(Network *net, NNParam *params, cui nth);
 static void IntegrityCheck(Network *net);
 Layer *lvec_alloc(cui n);
 

@@ -1,28 +1,28 @@
 #include "Rand.h"
 
-ld r8_uniform_01(int *seed) {
+dl r8_uniform_01(int *seed) {
 	const int i4_huge = 2147483647;
 	int k;
 	k = *seed / 127773;
 	*seed = 16807 * (*seed - k * 127773) - k * 2836;
 	if (*seed < 0) *seed += i4_huge;
-	return (ld)(*seed) * 4.656612875E-10;
+	return (dl)(*seed) * 4.656612875E-10;
 }
 
-ld r8_normal_01(int *seed) {
-	ld r1, r2;
-	const ld r8_pi = 3.141592653589793;
+dl r8_normal_01(int *seed) {
+	dl r1, r2;
+	const dl r8_pi = 3.141592653589793;
 	r1 = r8_uniform_01(seed);
 	r2 = r8_uniform_01(seed);
 	return sqrt(-2.0 * log(r1)) * cos(2.0 * r8_pi * r2);
 }
 
-ld *r8vec_normal_ab_new(ui n, ld b, ld c, int *seed) {
+dl *r8vec_normal_ab_new(ui n, dl b, dl c, int *seed) {
 	ui i, m, x_hi, x_lo;
-	ld *r, *x;
-	const ld r8_pi = 3.141592653589793;
+	dl *r, *x;
+	const dl r8_pi = 3.141592653589793;
 
-	x = (ld *)malloc(n * sizeof(ld));
+	x = (dl *)malloc(n * sizeof(dl));
 	x_lo = 1;
 	x_hi = n;
 
@@ -59,16 +59,16 @@ ld *r8vec_normal_ab_new(ui n, ld b, ld c, int *seed) {
 	return x;
 }
 
-ld *r8vec_uniform_01_new(ui n, int *seed) {
+dl *r8vec_uniform_01_new(ui n, int *seed) {
 	ui i, k;
 	const int i4_huge = 2147483647;
-	ld *r;
-	r = (ld *)malloc(n * sizeof(ld));
+	dl *r;
+	r = (dl *)malloc(n * sizeof(dl));
 	for (i = 0; i < n; i++) {
 		k = *seed / 127773;
 		*seed = 16807 * (*seed - k * 127773) - k * 2836;
 		if (*seed < 0) *seed = *seed + i4_huge;
-		r[i] = (ld)(*seed) * 4.656612875E-10;
+		r[i] = (dl)(*seed) * 4.656612875E-10;
 	}
 	return r;
 }
