@@ -43,11 +43,11 @@ void searchDigit(int **sudoku, int n, int *i, int *j)
 	*j = -1;
 }
 
-long double *center_input(const char *path)
+double *center_input(const char *path)
 {
 	Image *cell = openImage(path, 1);
 	uc *channel = cell->channels[0];
-	long double *pixels = (long double *)malloc(784 * sizeof(long double));
+	double *pixels = (double *)malloc(784 * sizeof(double));
 	if (pixels == NULL)
 	{
 		errx(EXIT_FAILURE, "malloc failed");
@@ -55,7 +55,7 @@ long double *center_input(const char *path)
 	for (int i = 0; i < 784; i++)
 	{
 		uc val = channel[i];
-		pixels[i] = 2 * (long double)val / 255 - 1;
+		pixels[i] = 2 * (double)val / 255 - 1;
 	}
 	freeImage(cell);
 	return pixels;
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 	sobelFilter(image);
 	// displayImage(image, "Sobel");
 	gaussianBlur(image);
-	thresholdToUpper(image, 16);
+	thresholdToUpper(image, 24);
 	// displayImage(image, "Calibrate");
 
 	// detect grid
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 	Network *net = (Network *)malloc(sizeof(Network));
 	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-MNIST_92.4.dnn");
 	printf("check : %p\n", net);
-	Network_Display(net, 1);
+	Network_Display(net, 0);
 	net->layers[2].activation = get_activation("softmax");
 	float *results[nb_cells * nb_cells];
 	for (int i = 0; i < nb_cells; i++)
@@ -139,14 +139,19 @@ int main(int argc, char **argv)
 		{
 			char path[40];
 			sprintf(path, "board_%s/%02d_%02d.png", filename_stripped, i + 1, j + 1);
-			long double *input = center_input(path);
+			double *input = center_input(path);
 			results[nb_cells * j + i] = Network_Predict(net, input, 784);
 			free(input);
-			// 0-15 -> 1-16
+			// for hexa:
+			// 0-15 -> 0-F
 			// 16 -> empty
+			//
+			// for decimal:
+			// 1-9 -> 1-9
+			// 0 -> empty
 			int imax = 0;
 			float max = 0;
-			for (int k = 0; k < 17; k++)
+			for (int k = 0; k < 10; k++)
 			{
 				float proba = results[j * nb_cells + i][k];
 				if (proba >= max)
@@ -154,17 +159,8 @@ int main(int argc, char **argv)
 					max = proba;
 					imax = k;
 				}
-				// printf("%LF ", proba);
 			}
-			// puts("");
-			if (imax == 16)
-			{
-				sudoku[j][i] = 0;
-			}
-			else
-			{
-				sudoku[j][i] = imax + 1;
-			}
+			sudoku[j][i] = imax;
 			free(results[nb_cells * j + i]);
 		}
 	}
@@ -173,7 +169,7 @@ int main(int argc, char **argv)
 	{
 		for (int j=0; j<9; j++)
 		{
-			printf("%d ", sudoku[i][j]);
+			printf("%02d ", sudoku[i][j]);
 			if ((j+1)%3==0) printf(" ");
 		}
 		printf("\n");
