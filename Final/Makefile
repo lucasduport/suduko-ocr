@@ -19,7 +19,7 @@ NeuralNetwork:
 ImageProcessing:
 	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
 	-MMD -g `pkg-config --cflags sdl2` -c ../ImageProcessing/*.c
-	rm -rf main*.o cellExtraction.o
+	rm -rf main*.o
 
 run:
 	make

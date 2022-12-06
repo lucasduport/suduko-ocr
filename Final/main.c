@@ -52,11 +52,14 @@ double *center_input(const char *path)
 	{
 		errx(EXIT_FAILURE, "malloc failed");
 	}
+	printf("{");
 	for (int i = 0; i < 784; i++)
 	{
 		uc val = channel[i];
 		pixels[i] = 2 * (double)val / 255 - 1;
+		printf("%.5f, ", pixels[i]);
 	}
+	printf("}\n");
 	freeImage(cell);
 	return pixels;
 }
@@ -78,7 +81,7 @@ int main(int argc, char **argv)
 	// preprocessing
 	// displayImage(image, "Original image");
 	gaussianBlur(image);
-	calibrateImage(image, 200, 255);
+	calibrateImage(image, 100, 255);
 	// displayImage(image, "Saturated");
 	sobelFilter(image);
 	// displayImage(image, "Sobel");
@@ -117,10 +120,18 @@ int main(int argc, char **argv)
 	cleanPath(filename, filename_stripped);
 	// saveCells(extracted, CELLSIZE, 5, filenameStripped);
 	saveCells(extracted, border_size, coords_x, coords_y, filename_stripped);
-	free(coords_x);
-	free(coords_y);
 	freeImage(extracted);
+	for (int i = 0; i < nb_cells + 1; i++)
+	{
+		coords_x[i] -= border_size;
+		coords_x[i] *= nb_cells * 384;
+		coords_x[i] /= 1440;
+		coords_y[i] -= border_size;
+		coords_y[i] *= nb_cells * 384;
+		coords_y[i] /= 1440;
+	}
 
+#if 0
 	//TODO: use neural network
 	int **sudoku = (int **)malloc(9 * sizeof(int *));
 	for (int i = 0; i < 9; i++)
@@ -128,10 +139,9 @@ int main(int argc, char **argv)
 		sudoku[i] = (int *)malloc(9 * sizeof(int));
 	}
 	Network *net = (Network *)malloc(sizeof(Network));
-	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-MNIST_92.4.dnn");
+	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-MEXA_92.55.dnn");
 	printf("check : %p\n", net);
 	Network_Display(net, 0);
-	net->layers[2].activation = get_activation("softmax");
 	float *results[nb_cells * nb_cells];
 	for (int i = 0; i < nb_cells; i++)
 	{
@@ -151,6 +161,7 @@ int main(int argc, char **argv)
 			// 0 -> empty
 			int imax = 0;
 			float max = 0;
+			printf("[");
 			for (int k = 0; k < 10; k++)
 			{
 				float proba = results[j * nb_cells + i][k];
@@ -159,7 +170,10 @@ int main(int argc, char **argv)
 					max = proba;
 					imax = k;
 				}
+				printf("%.3f ", proba);
 			}
+			puts("]");
+			printf("digit = %d\n", imax);
 			sudoku[j][i] = imax;
 			free(results[nb_cells * j + i]);
 		}
@@ -197,6 +211,7 @@ int main(int argc, char **argv)
 		errx(EXIT_FAILURE, "wrong value of nb_cells");
 		break;
 	}
+#endif // 0
 
 	int a = 10, b = 11, c = 12, d = 13, e = 14, f = 15, n = 16;
 	int _hexa[16][16] = {
@@ -235,22 +250,22 @@ int main(int argc, char **argv)
 		{2, e, 7, f, 9, 3, a, 8, n, 1, d, 5, b, c, 6, 4},
 		{b, 8, 3, 4, d, 5, 6, e, c, 7, a, 2, 9, 1, n, f},
 	};
-	int **hexa = (int **)malloc(16 * sizeof(int *));
+	int **sudoku = (int **)malloc(16 * sizeof(int *));
 	for (int i = 0; i < 16; i++)
 	{
-		hexa[i] = (int *)malloc(16 * sizeof(int));
+		sudoku[i] = (int *)malloc(16 * sizeof(int));
 		for (int j = 0; j < 16; j++)
 		{
-			hexa[i][j] = _hexa[i][j];
+			sudoku[i][j] = _hexa[i][j];
 		}
 	}
-	int **hexa_solved = (int **)malloc(16 * sizeof(int *));
+	int **solved = (int **)malloc(16 * sizeof(int *));
 	for (int i = 0; i < 16; i++)
 	{
-		hexa_solved[i] = (int *)malloc(16 * sizeof(int));
+		solved[i] = (int *)malloc(16 * sizeof(int));
 		for (int j = 0; j < 16; j++)
 		{
-			hexa_solved[i][j] = _hexa_solved[i][j];
+			solved[i][j] = _hexa_solved[i][j];
 		}
 	}
 
@@ -258,6 +273,34 @@ int main(int argc, char **argv)
 	char dirname[30];
 	cleanPath(filename, dirname);
 	Image **digits = loadCells(sudoku, dirname);
+	for (int i = 0; i < nb_cells; i++)
+	{
+		Image *cell = digits[i];
+		toRGBA(cell);
+		for (uc n = 0; n < 4; n++)
+		{
+			uc *channel = cell->channels[n];
+			uc *new_channel = newChannel(384 * 384);
+			// init to 0 (transparent)
+			for (int i = 0; i < 384 * 384; i++)
+			{
+				new_channel[i] = 0;
+			}
+			// add borders of 64 pixels on each side
+			for (int y = 0; y < 256; y++)
+			{
+				for (int x = 0; x < 256; x++)
+				{
+					new_channel[(y + 64) * 384 + (x + 64)] = channel[y * 256 + x];
+				}
+			}
+			free(channel);
+			cell->channels[n] = new_channel;
+		}
+		cell->width = 384;
+		cell->height = 384;
+		displayImage(cell, "cell");
+	}
 	// Image **digits = loadCells((int **)hexa, dirname);
 	for (int j = 0; j < nb_cells; j++)
 	{
@@ -268,37 +311,24 @@ int main(int argc, char **argv)
 			{
 				int n = solved[j][i];
 				// int n = hexa_solved[j][i];
-				placeDigit(final, digits[n - 1], quad, i, j);
+				placeDigit(final, digits[n - 1], quad, coords_x, coords_y);
 			}
 		}
 	}
+	free(coords_x);
+	free(coords_y);
 	displayImage(final, "With numbers placed");
 
 	freeQuad(quad);
 	freeImage(image);
 	freeImage(final);
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < nb_cells; i++)
 	{
 		free(sudoku[i]);
 		free(solved[i]);
-	}
-	for (int i = 0; i < nb_cells; i++)
-	{
-		// free(sudoku[i]);
-		// free(hexa[i]);
-		// free(solved[i]);
-		// free(hexa_solved[i]);
 		freeImage(digits[i]);
-	}
-
-	for (int i = 0; i < 16; i++)
-	{
-		free(hexa[i]);
-		free(hexa_solved[i]);
 	}
 	free(sudoku);
 	free(solved);
-	free(hexa);
-	free(hexa_solved);
 	free(digits);
 }

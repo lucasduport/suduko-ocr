@@ -4,7 +4,7 @@ void toGrey(Image *image)
 {
 	uc nb_channels = image->nb_channels;
 	if (nb_channels == 1)
-		errx(EXIT_FAILURE, "image already in grey");
+		return;
 	st width = image->width, height = image->height;
 	Image *new_image = newImage(1, width, height);
 	st len = width * height;
@@ -32,7 +32,7 @@ void toGrey(Image *image)
 void toRGBA(Image *image)
 {
 	if (image->nb_channels == 4)
-		errx(EXIT_FAILURE, "image already in RGBA");
+		return;
 	st width = image->width, height = image->height;
 	Image *new_image = newImage(4, width, height);
 	st len = width * height;
@@ -131,32 +131,6 @@ void resizeImage(Image *image, st new_w, st new_h)
 	image->height = new_h;
 }
 
-/*
-void resizeImageRGBA(ImageRGBA *image, st new_w, st new_h) {
-	Pixel *pixels = image->pixels;
-	st w = image->width, h = image->height;
-	Pixel *new_pixels = (Pixel *)malloc(sizeof(Pixel) * new_w * new_h);
-	float ratio_w = (float)w / new_w;
-	float ratio_h = (float)h / new_h;
-	float x, y;
-	for (st new_y = 0; new_y < new_h; new_y++) {
-		y = new_y * ratio_h;
-		for (st new_x = 0; new_x < new_w; new_x++) {
-			x = new_x * ratio_w;
-			if (x < 0 || x + 1 >= w || y < 0 || y + 1 >= h) {
-				new_pixels[new_y * new_w + new_x] = (Pixel){0, 0, 0, 0};
-				continue;
-			}
-			new_pixels[new_y * new_w + new_x] = lerpPixel(pixels, x, y, w);
-		}
-	}
-	free(pixels);
-	image->pixels = new_pixels;
-	image->width = new_w;
-	image->height = new_h;
-}
-*/
-
 void autoResize(Image *image, st max_w, st max_h)
 {
 	if (image->width <= max_w && image->height <= max_h)
@@ -240,24 +214,4 @@ Image *rotateImage(Image *image, int angle, uc background_color)
 		}
 	}
 	return new_image;
-}
-
-Quad *rotateQuad(Quad *quad, int theta, Image *image, Image *rotated)
-{
-	int w = image->width, h = image->height;
-	int new_w = rotated->width, new_h = rotated->height;
-	float _cos = COS[theta], _sin = SIN[theta];
-	float new_x, new_y, new_x0, new_y0;
-	Point *ps[4] = {quad->p1, quad->p2, quad->p3, quad->p4};
-	Point *n_ps[4];
-	float x, y;
-	for (st i = 0; i < 4; i++)
-	{
-		new_x = ps[i]->x, new_y = ps[i]->y;
-		new_x0 = new_x - new_w / 2., new_y0 = new_y - new_h / 2.;
-		x = (new_x0)*_cos - (new_y0)*_sin + w / 2;
-		y = (new_x0)*_sin + (new_y0)*_cos + h / 2;
-		n_ps[i] = newPoint(x + 0.5, y + 0.5);
-	}
-	return newQuad(n_ps[0], n_ps[1], n_ps[2], n_ps[3]);
 }

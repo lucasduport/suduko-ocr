@@ -132,94 +132,62 @@ Image *openImage(const char *filename, uc nb_channels)
 	return image;
 }
 
-void placeGrey(Image *bg, Image *digit, float mat[3][3], int i, int j)
+void placePixel(Image *bg, int x_bg, int y_bg, Image *d, int x_d, int y_d)
 {
-	int w = bg->width, h = bg->height;
-	float input[3] = {0, 0, 1};
-	float res[3];
-	int x, y;
-	uc *b_channel = bg->channels[0];
-	uc *d_channel = digit->channels[0];
-	for (int d_y = 0; d_y < 256; d_y++)
+	uc nb_channels_bg = bg->nb_channels;
+	int w_bg = bg->width, w_d = d->width;
+	int coord_bg = y_bg * w_bg + x_bg;
+	int coord_d = y_d * w_d + x_d;
+	if (nb_channels_bg != 4)
 	{
-		input[1] = d_y + 384 * j + 64;
-		for (int d_x = 0; d_x < 256; d_x++)
+		for (uc n = 0; n < nb_channels_bg; n++)
 		{
-			input[0] = d_x + 384 * i + 64;
-			matMul33_31(mat, input, res);
-			x = res[0] / res[2];
-			y = res[1] / res[2];
-			if (x < 0 || x >= w || y < 0 || y >= h)
-				continue;
-			b_channel[y * w + x] = d_channel[d_y * 256 + d_x];
+			bg->channels[n][coord_bg] = d->channels[n][coord_d];
 		}
+		return;
 	}
-}
-
-void placeRGBA(Image *bg, Image *digit, float mat[3][3], int i, int j)
-{
-	int w = bg->width, h = bg->height;
-	uc *b_a_channel = bg->channels[3];
-	uc *d_a_channel = digit->channels[3];
-	float input[3] = {0, 0, 1};
-	float res[3];
-	int x, y;
 	int val;
-	for (uc n = 0; n < 4; n++)
-	{
-		uc *b_channel = bg->channels[n];
-		uc *d_channel = digit->channels[n];
-		for (int d_y = 0; d_y < 256; d_y++)
-		{
-			input[1] = d_y + 384 * j + 64;
-			for (int d_x = 0; d_x < 256; d_x++)
-			{
-				input[0] = d_x + 384 * i + 64;
-				matMul33_31(mat, input, res);
-				x = res[0] / res[2];
-				y = res[1] / res[2];
-				if (x < 0 || x >= w || y < 0 || y >= h)
-					continue;
-				if (n < 4)
-				{ // RGB channels
-					uc d_pxl = d_channel[d_y * 256 + d_x];
-					uc d_a = d_a_channel[d_y * 256 + d_x];
-					uc b_pxl = b_channel[y * w + x];
-					uc b_a = b_a_channel[y * w + x];
-					val = d_pxl * d_a * 255 + b_pxl * b_a * (255 - d_a);
-					val /= d_a * 255 + b_a * (255 - d_a);
-					b_channel[y * w + x] = val;
-				}
-				else
-				{ // alpha channel
-					uc d_a = d_channel[d_y * 256 + d_x];
-					uc b_a = b_channel[y * w + x];
-					val = d_a * 255 + b_a * (255 - d_a);
-					b_channel[y * w + x] = val / 255;
-				}
-			}
-		}
+	uc a_bg = bg->channels[3][coord_bg];
+	uc a_d = d->channels[3][coord_d];
+	for (uc n = 0; n < 3; n++)
+	{ // RGB channels
+		uc pxl_d = d->channels[n][coord_d];
+		uc pxl_bg = bg->channels[n][coord_bg];
+		val = pxl_d * a_d * 255 + pxl_bg * a_bg * (255 - a_d);
+		val /= a_d * 255 + a_bg * (255 - a_d);
+		bg->channels[n][coord_bg] = (uc)val;
 	}
+	// alpha channel
+	val = a_d * 255 + a_bg * (255 - a_d);
+	bg->channels[3][coord_bg] = (uc)(val / 255);
 }
 
-void placeDigit(Image *background, Image *digit, Quad *grid, int i, int j)
+void placeDigit(Image *bg, Image *d, Quad *grid, int *coords_x, int *coords_y)
 {
 	int nb_cells = getNbCells();
-	uc nb_channels = background->nb_channels;
-	if (digit->nb_channels != nb_channels)
-		errx(EXIT_FAILURE, "background and digit must have the same number of "
+	uc nb_channels = bg->nb_channels;
+	if (d->nb_channels != nb_channels)
+		errx(EXIT_FAILURE, "background and d must have the same number of "
 						   "channels");
 	float mat[3][3];
 	getTransformMatrix(grid, nb_cells * 384, nb_cells * 384, mat);
-	switch (nb_channels)
+	int w_bg = bg->width, h_bg = bg->height;
+	int w_d = d->width, h_d = d->height;
+	float input[3] = {0, 0, 1};
+	float res[3];
+	int x_bg, y_bg;
+	for (int y_d = 0; y_d < h_d; y_d++)
 	{
-		case 1:
-			placeGrey(background, digit, mat, i, j);
-			break;
-		case 4:
-			placeRGBA(background, digit, mat, i, j);
-			break;
-		default:
-			errx(EXIT_FAILURE, "Image must have 1 or 4 channels");
+		// input[1] = y_d + 384 * j + 64;
+		for (int x_d = 0; x_d < w_d; x_d++)
+		{
+			// input[0] = x_d + 384 * i + 64;
+			matMul33_31(mat, input, res);
+			x_bg = res[0] / res[2];
+			y_bg = res[1] / res[2];
+			if (x_bg < 0 || x_bg >= w_bg || y_bg < 0 || y_bg >= h_bg)
+				continue;
+			placePixel(bg, x_bg, y_bg, d, x_d, y_d);
+		}
 	}
 }

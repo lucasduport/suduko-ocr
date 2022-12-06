@@ -1,9 +1,8 @@
-#if 0
-
 #include "cellExtraction.h"
 #include "filters.h"
 #include "display.h"
 #include "transformImage.h"
+#include "param.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <sys/stat.h>
@@ -43,15 +42,13 @@ void addBorders(Image *image, int border_size, uc bg)
 	image->height = new_h;
 }
 
-Image *getCellWithBorders(Image *image, int cell_size, int border_size, int i, int j)
+Image *getCell(Image *image, int x0, int x1, int y0, int y1)
 {
 	st w = image->width;
 	uc nb_channels = image->nb_channels;
-	st cell_w = cell_size + 2 * border_size;
-	st cell_h = cell_size + 2 * border_size;
+	st cell_w = x1 - x0;
+	st cell_h = y1 - y0;
 	Image *cell = newImage(nb_channels, cell_w, cell_h);
-	st x0 = i * cell_size;
-	st y0 = j * cell_size;
 	for (uc n = 0; n < nb_channels; n++)
 	{
 		uc *channel = image->channels[n];
@@ -63,43 +60,49 @@ Image *getCellWithBorders(Image *image, int cell_size, int border_size, int i, i
 	return cell;
 }
 
-void removeBorders(Image *image, int cell_size)
+void getCenterCell(Image *image, int w_cell, int h_cell)
 {
 	int w = image->width;
-	int border_size = (w - cell_size) / 2;
+	int h = image->height;
+	int w_border = (w - w_cell) / 2;
+	int h_border = (h - h_cell) / 2;
 	uc nb_channels = image->nb_channels;
 	int x0, y0;
 	for (uc n = 0; n < nb_channels; n++)
 	{
 		uc *channel = image->channels[n];
-		uc *new_channel = malloc(cell_size * cell_size * sizeof(uc));
+		uc *new_channel = malloc(w_cell * h_cell * sizeof(uc));
 		if (new_channel == NULL)
 			errx(EXIT_FAILURE, "malloc failed");
-		for (int y = 0; y < cell_size; y++)
+		for (int y = 0; y < h_cell; y++)
 		{
-			y0 = y + border_size;
-			for (int x = 0; x < cell_size; x++)
+			y0 = y + h_border;
+			for (int x = 0; x < w_cell; x++)
 			{
-				x0 = x + border_size;
-				new_channel[y * cell_size + x] = channel[y0 * w + x0];
+				x0 = x + w_border;
+				new_channel[y * w_cell + x] = channel[y0 * w + x0];
 			}
 		}
 		free(channel);
 		image->channels[n] = new_channel;
 	}
-	image->width = cell_size;
-	image->height = cell_size;
+	image->width = w_cell;
+	image->height = h_cell;
 }
 
-void saveCell(Image *image, int cell_size, int border_size, const char *dirname, int i, int j)
+void saveCell(Image *image, int x0, int x1, int y0, int y1, int border_size, const char *filename)
 {
-	Image *cell = getCellWithBorders(image, cell_size, border_size, i, j);
+	int x0_b = x0 - border_size;
+	int x1_b = x1 + border_size;
+	int y0_b = y0 - border_size;
+	int y1_b = y1 + border_size;
+	Image *cell = getCell(image, x0_b, x1_b, y0_b, y1_b);
 	calibrateCell(cell);
-	removeBorders(cell, 28);
+	int w_cell = x1 - x0 - 2 * border_size;
+	int h_cell = y1 - y0 - 2 * border_size;
+	getCenterCell(cell, w_cell, h_cell);
+	resizeImage(cell, 28, 28);
 	SDL_Surface *surface = imageToSurface(cell);
-	st len = strlen(dirname) + 9;
-	char filename[len];
-	snprintf(filename, len, "%s/%d_%d.png", dirname, i+1, j+1);
 	if (IMG_SavePNG(surface, filename) != 0)
 	{
 		errx(EXIT_FAILURE, "Error while saving image");
@@ -108,29 +111,40 @@ void saveCell(Image *image, int cell_size, int border_size, const char *dirname,
 	SDL_FreeSurface(surface);
 }
 
-void saveCells(Image *image, int cell_size, int border_size, const char *filename)
+void saveCells(Image *image, int border_size, int *coords_x, int *coords_y,
+		const char *basename)
 {
+	int nb_cells = getNbCells();
 	addBorders(image, border_size, 127);
-	st len = strlen(filename) + 7;
+	st len = strlen(basename) + 7;
 	char dirname[len];
-	snprintf(dirname, len, "board_%s", filename);
+	snprintf(dirname, len, "board_%s", basename);
 	struct stat st_ = {0};
 	if (stat(dirname, &st_) == -1)
 	{
 		mkdir(dirname, 0700);
 	}
-	for (int i = 0; i < 9; i++)
+	len = strlen(dirname) + 11;
+	char filename[len];
+	int x0, x1, y0, y1;
+	for (int i = 0; i < nb_cells; i++)
 	{
-		for (int j = 0; j < 9; j++)
+		for (int j = 0; j < nb_cells; j++)
 		{
-			saveCell(image, cell_size, border_size, dirname, i, j);
+			snprintf(filename, len, "%s/%02d_%02d.png", dirname, i+1, j+1);
+			x0 = coords_x[i];
+			x1 = coords_x[i + 1];
+			y0 = coords_y[j];
+			y1 = coords_y[j + 1];
+			saveCell(image, x0, x1, y0, y1, border_size, filename);
 		}
 	}
 }
 
 void loadDefaultCells(Image **cells, char *dirname)
 {
-	for (int i = 0; i < 9; i++) {
+	int nb_cells = getNbCells();
+	for (int i = 0; i < nb_cells; i++) {
 		if (cells[i] == NULL)
 		{
 			st len = strlen(dirname) + 8;
@@ -147,15 +161,16 @@ void loadDefaultCells(Image **cells, char *dirname)
 
 Image **loadCells(int **grid, char *dirname)
 {
-	Image **digits = (Image **)malloc(9 * sizeof(Image *));
+	int nb_cells = getNbCells();
+	Image **digits = (Image **)malloc(nb_cells * sizeof(Image *));
 	if (digits == NULL)
 		errx(EXIT_FAILURE, "malloc failed");
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < nb_cells; i++)
 		digits[i] = NULL;
 	st n;
-	for (st j = 0; j < 9; j++)
+	for (int j = 0; j < nb_cells; j++)
 	{
-		for (st i = 0; i < 9; i++)
+		for (int i = 0; i < nb_cells; i++)
 		{
 			n = grid[j][i];
 			if (n == 0)
@@ -164,7 +179,7 @@ Image **loadCells(int **grid, char *dirname)
 				continue;
 			st len = strlen(dirname) + 17;
 			char filename[len];
-			snprintf(filename, len, "board_%s/%zu_%zu.png", dirname, i+1, j+1);
+			snprintf(filename, len, "board_%s/%02d_%02d.png", dirname, i+1, j+1);
 			Image *image = openImage(filename, 4);
 			resizeImage(image, 256, 256);
 			invertImage(image);
@@ -192,5 +207,3 @@ void cleanPath(char *filename, char *dest)
 	if (dot && dot != dest)
 		*dot = '\0';
 }
-
-#endif // 0
