@@ -145,7 +145,7 @@ int solver16(int **array) {
 	while (indexCell < nbCell) {
 		countMove++;
         /*if (countMove > 100000000) {
-            printf("Not solvable");
+            printf("Not solvable\n");
             break;
         }*/
 

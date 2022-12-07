@@ -3,6 +3,7 @@
 #include "display.h"
 #include "transformImage.h"
 #include "param.h"
+#include "centerCell.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <sys/stat.h>
@@ -102,7 +103,7 @@ void saveCell(Image *image, int x0, int x1, int y0, int y1, int border_size, con
 	int h_cell = y1 - y0 - 2 * border_size;
 	getCenterCell(cell, w_cell, h_cell);
 	resizeImage(cell, 28, 28);
-	autoCenter(cell, 15, 0);
+	// autoCenter(cell, 127, 0);
 	SDL_Surface *surface = imageToSurface(cell);
 	if (IMG_SavePNG(surface, filename) != 0)
 	{
@@ -169,9 +170,9 @@ Image **loadCells(int **grid, char *dirname)
 	for (int i = 0; i < nb_cells; i++)
 		digits[i] = NULL;
 	st n;
-	for (int j = 0; j < nb_cells; j++)
+	for (int i = 0; i < nb_cells; i++)
 	{
-		for (int i = 0; i < nb_cells; i++)
+		for (int j = 0; j < nb_cells; j++)
 		{
 			n = grid[j][i];
 			if (n == 0)

@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 	int nb_cells;
 	nb_cells = getGridDimension(extracted, &coords_x, &coords_y);
 	int cell_size = 1440 / nb_cells;
-	int border_size = cell_size / 10;
+	int border_size = cell_size / 5;
 	for (int i = 0; i < nb_cells + 1; i++)
 	{
 		coords_x[i] += border_size;

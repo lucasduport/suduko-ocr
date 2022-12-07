@@ -147,9 +147,9 @@ int solver(int **array) {
 	while (indexCell < nbCell) {
 		countMove++;
 		if (countMove > 10000) {
-            printf("Not solvable");
-            break;
-        }
+			printf("Not solvable\n");
+			break;
+		}
 
 		int vx = x[s[indexCell]];
 		int vy = y[s[indexCell]];
@@ -164,6 +164,13 @@ int solver(int **array) {
 			while (bContinue) {
 				v[s[indexCell]] = -1;
 				indexCell--;
+				// Not sure about this
+				if (indexCell < 0) {
+					for (int i = 0; i < nbCell; i++) array[x[i]][y[i]] = v[i] + 1;
+					printf("Not solvable\n");
+					return 0;
+				}
+				// \Not sure about this
 				currVal = v[s[indexCell]];
 				vx = x[s[indexCell]];
 				vy = y[s[indexCell]];

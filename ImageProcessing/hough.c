@@ -10,9 +10,9 @@
 #define RANGE_DEL_THETA 1
 
 #define NB_SEGMENTS 100
-#define COORDINATES_ERROR 3.0	// percentage of the size of the image
+#define COORDINATES_ERROR 3	// percentage of the size of the image
 #define ANGLE_ERROR 15			// in degrees
-#define LENGTH_ERROR 1.2		// max ratio of length
+#define LENGTH_ERROR 1.1		// max ratio of length
 
 int isVertical(st theta)
 {
