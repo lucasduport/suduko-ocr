@@ -12,6 +12,7 @@
 #include "../ImageProcessing/transformImage.h"
 #include "../ImageProcessing/cellExtraction.h"
 #include "../ImageProcessing/cellsDetection.h"
+#include "../ImageProcessing/centerCell.h"
 
 #include "../NeuralNetwork/Network.h"
 
@@ -46,6 +47,7 @@ void searchDigit(int **sudoku, int n, int *i, int *j)
 double *center_input(const char *path)
 {
 	Image *cell = openImage(path, 1);
+	autoCenter(cell, 15, 0);
 	uc *channel = cell->channels[0];
 	double *pixels = (double *)malloc(784 * sizeof(double));
 	if (pixels == NULL)
@@ -78,7 +80,7 @@ int main(int argc, char **argv)
 	// preprocessing
 	// displayImage(image, "Original image");
 	gaussianBlur(image);
-	calibrateImage(image, 100, 255);
+	calibrateImage(image, 150, 255);
 	// displayImage(image, "Saturated");
 	sobelFilter(image);
 	// displayImage(image, "Sobel");
@@ -175,10 +177,10 @@ int main(int argc, char **argv)
 		}
 	}
 	Network_Purge(net);
-	sudoku[0][4] = 7;
-	sudoku[4][8] = 1;
-	sudoku[5][0] = 7;
-	sudoku[8][4] = 8;
+	// sudoku[0][4] = 7;
+	// sudoku[4][8] = 1;
+	// sudoku[5][0] = 7;
+	// sudoku[8][4] = 8;
 	int block_size = nb_cells == 9 ? 3 : 4;
 	for (int i = 0; i < nb_cells; i++)
 	{
@@ -215,6 +217,7 @@ int main(int argc, char **argv)
 		break;
 	}
 
+	/*
 	int a = 10, b = 11, c = 12, d = 13, e = 14, f = 15, n = 16;
 	int _hexa[16][16] = {
 		{7, 0, e, 0, a, 0, 3, 0, 0, 2, 0, 9, 0, n, 5, b},
@@ -252,7 +255,6 @@ int main(int argc, char **argv)
 		{2, e, 7, f, 9, 3, a, 8, n, 1, d, 5, b, c, 6, 4},
 		{b, 8, 3, 4, d, 5, 6, e, c, 7, a, 2, 9, 1, n, f},
 	};
-	/*
 	int **sudoku = (int **)malloc(16 * sizeof(int *));
 	for (int i = 0; i < 16; i++)
 	{
@@ -303,7 +305,6 @@ int main(int argc, char **argv)
 		}
 		cell->width = 384;
 		cell->height = 384;
-		displayImage(cell, "cell");
 	}
 	// Image **digits = loadCells((int **)hexa, dirname);
 	for (int j = 0; j < nb_cells; j++)
@@ -311,7 +312,7 @@ int main(int argc, char **argv)
 		for (int i = 0; i < nb_cells; i++)
 		{
 			// if (!hexa[j][i])
-			if (!sudoku[j][i])
+			if (!sudoku[j][i] && solved[j][i])
 			{
 				int n = solved[j][i];
 				// int n = hexa_solved[j][i];

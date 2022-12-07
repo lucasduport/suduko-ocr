@@ -102,6 +102,7 @@ void saveCell(Image *image, int x0, int x1, int y0, int y1, int border_size, con
 	int h_cell = y1 - y0 - 2 * border_size;
 	getCenterCell(cell, w_cell, h_cell);
 	resizeImage(cell, 28, 28);
+	autoCenter(cell, 15, 0);
 	SDL_Surface *surface = imageToSurface(cell);
 	if (IMG_SavePNG(surface, filename) != 0)
 	{

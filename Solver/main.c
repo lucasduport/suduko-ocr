@@ -132,6 +132,9 @@ int array[9][9] =
 */
 
 int main(int argc, char **argv) {
+	for (int i = 0; i < argc; i++)
+		printf("%s ", argv[i]);
+	puts("");
 	/*
 	if (argc == 1 || argc == 2) {
 		printf("Missing argument\nPass a grid and size (s or h)\n");
