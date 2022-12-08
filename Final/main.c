@@ -19,6 +19,8 @@
 #include "../Solver/solver.h"
 #include "../Solver/solver16.h"
 
+#include "../UserInterface/ui.h"
+
 void init()
 {
 	initTrig();
@@ -63,7 +65,20 @@ double *center_input(const char *path)
 	return pixels;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
+{
+	// init Gtk
+	gtk_init(&argc, &argv);
+	// init trigonometric tables
+	initTrig();
+	// init UserInterface
+	uiLaunch();
+	// remove tmp folder
+	rmDir("tmpImg/");
+	return 0;
+}
+
+int rien(int argc, char **argv)
 {
 	if (argc != 2)
 		errx(1, "Usage: %s <image>", argv[0]);
@@ -72,7 +87,7 @@ int main(int argc, char **argv)
 	init();
 
 	Image *final = openImage(filename, 4);
-	autoResize(final, WINDOW_WIDTH, WINDOW_HEIGHT);
+	autoResize(final, IMAGE_MAX_WIDTH, IMAGE_MAX_HEIGHT);
 	Image *image = copyImage(final);
 	toGrey(image);
 	Image *to_extract = copyImage(image);

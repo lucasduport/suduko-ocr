@@ -116,7 +116,7 @@ void exeDemo(char *filename)
 {
 	// open image
 	Image *image = openImage(filename, 1);
-	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
+	autoResize(image, IMAGE_MAX_WIDTH, IMAGE_MAX_HEIGHT);
 	// rotate image
 	int theta = rotateWithView(image);
 	Image *rotated = rotateImage(image, theta, 255);
@@ -152,7 +152,7 @@ void exeTest(char *filename)
 {
 	// pre treatment
 	Image *image = openImage(filename, 1);
-	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
+	autoResize(image, IMAGE_MAX_WIDTH, IMAGE_MAX_HEIGHT);
 	displayImage(image, "Original image");
 	gaussianBlur(image);
 	calibrateImage(image, 200, 255);
@@ -198,7 +198,7 @@ void searchDigit(int **sudoku, int n, int *i, int *j)
 void exeDigit(char *filename)
 {
 	Image *final = openImage(filename, 4);
-	autoResize(final, WINDOW_WIDTH, WINDOW_HEIGHT);
+	autoResize(final, IMAGE_MAX_WIDTH, IMAGE_MAX_HEIGHT);
 	Image *image = copyImage(final);
 	toGrey(image);
 	Image *to_extract = copyImage(image);
