@@ -6,13 +6,13 @@
 #include "smoothLine.h"
 #include "transformImage.h"
 
-#define RANGE_DEL_R 15
+#define RANGE_DEL_R 5
 #define RANGE_DEL_THETA 1
 
-#define NB_SEGMENTS 100
+#define NB_SEGMENTS 200
 #define COORDINATES_ERROR 3	// percentage of the size of the image
 #define ANGLE_ERROR 15			// in degrees
-#define LENGTH_ERROR 1.1		// max ratio of length
+#define LENGTH_ERROR 1.2		// max ratio of length
 
 int isVertical(st theta)
 {
@@ -226,7 +226,7 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image, int *left)
 	if (x_start < 0 || x_end >= width || y_start < 0 || y_end >= height)
 		return NULL;
 	st length = sqrt(pow(x_end - x_start, 2) + pow(y_end - y_start, 2));
-	if (length < dim / 4)
+	if (length < dim / 3)
 		return NULL;
 	if (length > width * LENGTH_ERROR || length > height * LENGTH_ERROR)
 		return NULL;
