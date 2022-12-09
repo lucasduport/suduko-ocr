@@ -14,5 +14,6 @@ COMMIT_MESSAGE
 # Images
 Images/*
 !./Images/images_[0-9]*.jpeg
+!./Images/hexa*
 board_*/
 saved_images/*

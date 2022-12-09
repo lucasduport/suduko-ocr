@@ -67,18 +67,25 @@ double *center_input(const char *path)
 
 int main(int argc, char *argv[])
 {
-	// init Gtk
-	gtk_init(&argc, &argv);
-	// init trigonometric tables
-	initTrig();
-	// init UserInterface
-	uiLaunch();
-	// remove tmp folder
-	rmDir("tmpImg/");
+	if (argc <= 1)
+	{
+		// init Gtk
+		gtk_init(&argc, &argv);
+		// init trigonometric tables
+		initTrig();
+		// init UserInterface
+		uiLaunch();
+		// remove tmp folder
+		rmDir("tmpImg/");
+	}
+	else
+	{
+		noUI(argc, argv);
+	}
 	return 0;
 }
 
-int rien(int argc, char **argv)
+int noUI(int argc, char **argv)
 {
 	if (argc != 2)
 		errx(1, "Usage: %s <image>", argv[0]);
@@ -152,7 +159,7 @@ int rien(int argc, char **argv)
 		sudoku[i] = (int *)malloc(9 * sizeof(int));
 	}
 	Network *net = (Network *)malloc(sizeof(Network));
-	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-TMNIST_96.91.dnn");
+	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
 	printf("check : %p\n", net);
 	Network_Display(net, 0);
 	float *results[nb_cells * nb_cells];
