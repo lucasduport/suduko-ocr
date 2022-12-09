@@ -132,7 +132,6 @@ int array[9][9] =
 */
 
 int main(int argc, char **argv) {
-<<<<<<< Updated upstream
 	for (int i = 0; i < argc; i++)
 		printf("%s ", argv[i]);
 	puts("");
@@ -143,19 +142,16 @@ int main(int argc, char **argv) {
 	}
 	if (argc > 3) {
 		printf("Too much argument\nOnly one grid and her size (s or h) is needed\n");
-=======
 	if (argc == 1 || argc  == 2) {
 		printf("Missing argument\nPass a grid and size\n");
 		return 0;
 	}
 	if (argc > 3) {
 		printf("Too much argument\nOnly one grid is needed\n");
->>>>>>> Stashed changes
 		return 0;
 	}
 	if (argc == 3) {
 		const char *filename = argv[1];
-<<<<<<< Updated upstream
 		const char *n = argv[2];
 		if (*n == 's')
 			fileProcessing(filename);
