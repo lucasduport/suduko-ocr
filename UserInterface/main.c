@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 	gtk_init(&argc, &argv);
 	// init trigonometric tables
 	initTrig();
-	// init UserInterface
+	// init of UserInterface
 	uiLaunch();
 	// remove tmp folder
 	rmDir("tmpImg/");
