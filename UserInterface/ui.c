@@ -68,7 +68,7 @@ void uiLaunch()
 	menu->box = box;
 	menu->back_to_menu = back_to_menu;
 	menu->file_select_grid = file_select_grid;
-	
+
 	menu->sudoku_image = NULL;
 	menu->imageOrigin = newPoint(0, 0);
 
@@ -103,9 +103,8 @@ void uiLaunch()
 		G_CALLBACK(on_crop_corners_move), menu);
 	g_signal_connect(GTK_WIDGET(crop_corner4), "motion-notify-event",
 		G_CALLBACK(on_crop_corners_move), menu);
-	//------- Drag and drop -------//
 	GtkTargetEntry *uri_targets = gtk_target_entry_new("text/uri-list", 0, 0);
-
+	// Drag and drop
 	g_signal_connect(
 		upload_button, "clicked", G_CALLBACK(on_upload_button_clicked), menu);
 	g_signal_connect(GTK_WIDGET(upload_button), "drag-data-received",
@@ -131,21 +130,22 @@ void uiLaunch()
 	g_signal_connect(sobel_button, "toggled", G_CALLBACK(refreshImage), menu);
 
 	g_signal_connect(rotate_left_button, "clicked",
-		G_CALLBACK(on_rotate_left_clicked), menu);
+		G_CALLBACK(on_rotate_clockwise_clicked), menu);
 	g_signal_connect(rotate_right_button, "clicked",
-		G_CALLBACK(on_rotate_right_clicked), menu);
+		G_CALLBACK(on_rotate_anticlockwise_clicked), menu);
 
-	g_signal_connect(autoDetect_button, "clicked",
-		G_CALLBACK(on_autoDetect_clicked), menu);
-	g_signal_connect(manuDetect_button, "clicked",
-		G_CALLBACK(on_manuDetect_clicked), menu);
+	g_signal_connect(
+		autoDetect_button, "clicked", G_CALLBACK(on_autoDetect_clicked), menu);
+	g_signal_connect(
+		manuDetect_button, "clicked", G_CALLBACK(on_manuDetect_clicked), menu);
 
 	g_signal_connect(
 		save_button, "clicked", G_CALLBACK(on_save_clicked), menu);
 	g_signal_connect(
 		solve_button, "clicked", G_CALLBACK(on_solve_clicked), menu);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-	//g_signal_connect(GTK_WIDGET(window), "configure-event", G_CALLBACK(on_window_resize), menu);
+	// g_signal_connect(GTK_WIDGET(window), "configure-event",
+	// G_CALLBACK(on_window_resize), menu);
 
 	//---------WINDOW  INITIALIZATION---------//
 	gtk_window_set_title(window, "OCR Project");
@@ -159,8 +159,8 @@ void uiLaunch()
 	gtk_target_entry_free(uri_targets);
 	if (menu->originImage != NULL)
 	{
+		freeImage(menu->redimImage);
 		freeImage(menu->originImage);
-		free(menu->originPath);
 	}
 	gtk_widget_destroy(GTK_WIDGET(window));
 	free(menu->imageOrigin);
@@ -217,4 +217,25 @@ endd:
 		fts_close(ftsp);
 	}
 	return toReturnValue;
+}
+
+int isRegFile(char *path)
+{
+	struct stat path_stat;
+	stat(path, &path_stat);
+	return S_ISREG(path_stat.st_mode);
+}
+
+void listDir(char *filename)
+{
+	DIR *dir = opendir(filename);
+	struct dirent *entry;
+	while ((entry = readdir(dir)) != NULL)
+	{
+		if (!strcmp(entry->d_name, "."))
+			continue;
+		if (!strcmp(entry->d_name, ".."))
+			continue;
+		printf("%s\n", entry->d_name);
+	}
 }

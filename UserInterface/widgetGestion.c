@@ -16,9 +16,9 @@ void widgetDisplayer(GtkWidget **widgets)
 	return;
 }
 
-void changeSensivityWidgets(GtkWidget **widget, int true)
+void changeSensivityWidgets(GtkWidget **widget, int sensitive)
 {
-	if (true)
+	if (sensitive)
 	{
 		for (int i = 0; widget[i] != NULL; i++)
 		{

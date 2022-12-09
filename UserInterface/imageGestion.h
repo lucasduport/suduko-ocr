@@ -1,12 +1,10 @@
 #pragma once
 
-#include <sys/stat.h>
-#include <sys/types.h>
 #include "interactions.h"
 #include "ui.h"
 #include "widgetGestion.h"
 
-#define IMAGE_RATIO 0.6
+#define IMAGE_RATIO 0.7
 
 void newSudokuImage(Menu *menu, char *filename);
 
@@ -23,3 +21,5 @@ void tmpSaveImage(Image *image, char *destname);
 void loadImage(Menu *menu, char *filename);
 
 gboolean isLoadableImage(char *path);
+
+void solveAndShowUI(Menu *menu);

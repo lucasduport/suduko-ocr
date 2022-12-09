@@ -1,4 +1,5 @@
 #include <string.h>
+#include <dirent.h>
 #include "interactions.h"
 
 #define CC_PIXEL_SIZE 12;
@@ -20,7 +21,15 @@ void on_upload_button_clicked(GtkWidget *widget, gpointer data)
 		char *filename = gtk_file_chooser_get_filename(chooser);
 		if (menu->originPath != NULL)
 			free(menu->originPath);
-		loadImage(menu, filename);
+		if (isRegFile(filename))
+		{
+			loadImage(menu, filename);
+		}
+		else
+		{
+			//fastSolving(filename);
+			listDir(filename);
+		}
 	}
 	else
 	{
@@ -39,7 +48,15 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
 	{
 		if (menu->originPath != NULL)
 			free(menu->originPath);
-		loadImage(menu, filename);
+		if (isRegFile(filename))
+		{
+			loadImage(menu, filename);
+		}
+		else
+		{
+			//fastSolving(filename);
+			listDir(filename);
+		}
 	}
 	else
 	{
@@ -102,7 +119,7 @@ void on_autoDetect_clicked(GtkWidget *widget, gpointer data)
 	Quad *quad = detectGrid(betterForLines);
 	if (quad == NULL)
 	{
-		displayWarning(menu->filters_warn_label, "No sudoku found");
+		displayWarning(menu->filters_warn_label, "Sudoku grid not found");
 		freeImage(betterForLines);
 		return;
 	}
@@ -204,55 +221,24 @@ void on_crop_corners_move(GtkWidget *widget, GdkEvent *event, gpointer data)
 	return;
 }
 
-int angle = 0;
-
-void on_rotate_left_clicked(GtkWidget *widget, gpointer data)
+void on_rotate_clockwise_clicked(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
-	angle += 90;
-	if (angle >= 360)
-		angle -= 360;
-	else if (angle < 0)
-		angle += 360;
-	printf("angle: %d\n", angle);
-	if (angle == 0)
-	{
-		Image *r = rotateImage(menu->originImage, 90, 0);
-		freeImage(menu->originImage);
-		menu->originImage = r;
-		refreshImage(widget, data);
-	}
-	else
-	{
-		Image *r = rotateImage(menu->originImage, angle, 0);
-		freeImage(menu->originImage);
-		menu->originImage = r;
-		refreshImage(widget, data);
-	}
+	Image *r = rotateImage(menu->originImage, 90, 0);
+	freeImage(menu->originImage);
+	menu->originImage = r;
+	refreshImage(widget, data);
+
 }
 
-void on_rotate_right_clicked(GtkWidget *widget, gpointer data)
+void on_rotate_anticlockwise_clicked(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
-	angle -= 90;
-	if (angle >= 360)
-		angle -= 360;
-	else if (angle < 0)
-		angle += 360;
-	if (angle == 0)
-	{
-		Image *r = rotateImage(menu->originImage, 270, 0);
-		freeImage(menu->originImage);
-		menu->originImage = r;
-		refreshImage(widget, data);
-	}
-	else
-	{
-		Image *r = rotateImage(menu->originImage, angle, 0);
-		freeImage(menu->originImage);
-		menu->originImage = r;
-		refreshImage(widget, data);
-	}
+	Image *r = rotateImage(menu->originImage, 270, 0);
+	freeImage(menu->originImage);
+	menu->originImage = r;
+	refreshImage(widget, data);
+
 }
 
 void on_manuDetect_clicked(GtkWidget *widget, gpointer data)
@@ -380,9 +366,14 @@ void upload_drag_data_received(GtkWidget *widget, GdkDragContext *context,
 		if (uris)
 		{
 			gchar *filename = g_filename_from_uri(uris[0], NULL, NULL);
-			if (filename)
+			if (isRegFile(filename))
 			{
 				loadImage(menu, filename);
+			}
+			else
+			{
+				//fastSolving(filename);
+				listDir(filename);
 			}
 		}
 	}
@@ -437,28 +428,9 @@ void open_folder_selector(GtkWidget *widget, gpointer data)
 
 void on_solve_clicked(GtkWidget *widget, gpointer data)
 {
-	(void)widget;
-	(void)data;
-	// avoid warning about unused parameters
-	/*
 	Menu *menu = (Menu *)data;
-	Image *toSolve = copyImage(menu->originImage);
-	toGrey(toSolve);
-	gaussianBlur(toSolve);
-	sobelFilter(toSolve);
-	thresholdToUpper(toSolve, 16);
-	Quad *quad = detectGrid(toSolve);
-	if (quad == NULL)
-	{
-		displayWarning(menu->filters_warn_label, "No sudoku found");
-		freeImage(toSolve);
-		return;
-	}
-	Image *extracted = extractGrid(toSolve, quad, toSolve->width,
-		toSolve->height);
-	*/
-	printf("SOLVING...\n");
-	
+	solveAndShowUI(menu);
+	refreshImage(widget, data);
 }
 /*
 void on_window_resize(GtkWidget* widget, GdkEventConfigure event, gpointer user_data)

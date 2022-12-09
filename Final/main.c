@@ -13,6 +13,7 @@
 #include "../ImageProcessing/cellExtraction.h"
 #include "../ImageProcessing/cellsDetection.h"
 #include "../ImageProcessing/centerCell.h"
+#include "../ImageProcessing/param.h"
 
 #include "../NeuralNetwork/Network.h"
 
@@ -20,6 +21,8 @@
 #include "../Solver/solver16.h"
 
 #include "../UserInterface/ui.h"
+
+int noUI(int argc, char **argv);
 
 void init()
 {
@@ -69,6 +72,7 @@ int main(int argc, char *argv[])
 {
 	if (argc <= 1)
 	{
+		setUIMode(1);
 		// init Gtk
 		gtk_init(&argc, &argv);
 		// init trigonometric tables
@@ -90,8 +94,8 @@ int noUI(int argc, char **argv)
 	if (argc != 2)
 		errx(1, "Usage: %s <image>", argv[0]);
 	char *filename = argv[1];
-	
 	init();
+	setUIMode(0);
 
 	Image *final = openImage(filename, 4);
 	autoResize(final, IMAGE_MAX_WIDTH, IMAGE_MAX_HEIGHT);
@@ -161,7 +165,7 @@ int noUI(int argc, char **argv)
 	Network *net = (Network *)malloc(sizeof(Network));
 	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
 	printf("check : %p\n", net);
-	Network_Display(net, 0);
+	Network_Display(net, 1);
 	float *results[nb_cells * nb_cells];
 	for (int i = 0; i < nb_cells; i++)
 	{

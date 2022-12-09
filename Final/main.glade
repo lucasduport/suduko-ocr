@@ -14,7 +14,7 @@
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <child>
-          <!-- n-columns=2 n-rows=12 -->
+          <!-- n-columns=2 n-rows=11 -->
           <object class="GtkGrid" id="filters_grid">
             <property name="name">filters_grid</property>
             <property name="width-request">253</property>
@@ -371,122 +371,13 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="prev_button">
-                <property name="name">prev_button</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="tooltip-text" translatable="yes">Back to previous state</property>
-                <child>
-                  <!-- n-columns=2 n-rows=1 -->
-                  <object class="GtkGrid" id="prev_grid">
-                    <property name="name">save_as_grid</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">center</property>
-                    <property name="valign">center</property>
-                    <child>
-                      <object class="GtkLabel" id="prev">
-                        <property name="name">prev_label</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <property name="label" translatable="yes">Prev</property>
-                        <attributes>
-                          <attribute name="font-desc" value="Tlwg Typo Bold 12"/>
-                        </attributes>
-                      </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkImage" id="prev_icon">
-                        <property name="name">save_icon</property>
-                        <property name="width-request">25</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <property name="pixbuf">../UserInterface/uiImages/back.png</property>
-                      </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">0</property>
-                      </packing>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">10</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="next_button">
-                <property name="name">next_button</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="tooltip-text" translatable="yes">Back to previous state</property>
-                <child>
-                  <!-- n-columns=2 n-rows=1 -->
-                  <object class="GtkGrid" id="next_grid">
-                    <property name="name">next_grid</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">center</property>
-                    <property name="valign">center</property>
-                    <child>
-                      <object class="GtkLabel" id="next_label">
-                        <property name="name">next_label</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <property name="label" translatable="yes">Next</property>
-                        <attributes>
-                          <attribute name="font-desc" value="Tlwg Typo Bold 12"/>
-                        </attributes>
-                      </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkImage" id="next_icon">
-                        <property name="name">next_icon</property>
-                        <property name="width-request">25</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <property name="pixbuf">../UserInterface/uiImages/next.png</property>
-                      </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">0</property>
-                      </packing>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">10</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkProgressBar">
+              <object class="GtkProgressBar" id="load_bar">
                 <property name="can-focus">False</property>
-                <property name="fraction">1</property>
                 <property name="ellipsize">middle</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">11</property>
+                <property name="top-attach">10</property>
                 <property name="width">2</property>
               </packing>
             </child>
