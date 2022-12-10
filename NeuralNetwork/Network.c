@@ -199,15 +199,22 @@ static void Network_Forward(Network *net, dl *input, cui iSize) {
 
 static dl Network_BackProp(Network *net, NNParam *params, cui nth) {
 
+    // Shortcut to last Layer
 	Layer *L = &net->layers[net->nbLayers - 1];
+    // Get pointers to cost function & last layer activation function
 	dl (*cost_deriv)(dl, dl) = get_cost_deriv(params->cost_func);
 	dl (*deriv)(dl *, cui, cui) = get_deriv(L->act_name);
+    // Shortcut to witness vector
 	dl *expected = params->outputTrain[nth];
 
+    // Shortcut to Adam Optimizer
 	Optimizer *optz = params->optimizer;
+    // Init boolean for L1 & L2 Régularization
 	bool dn1 = params->l1Norm == 0.0L, dn2 = params->l2Norm == 0.0L;
+    // Init buffer for L1 & L2 cost
 	dl l1 = .0L, l2 = .0L;
 
+    // Init Adam Hyper-parameters
 	dl b1t = 0, b2t = 0, *mwt = NULL, *vwt = NULL, *mbt = NULL, *vbt = NULL;
 	dl **Gmwt = NULL, **Gvwt = NULL, **Gmbt = NULL, **Gvbt = NULL;
 	if (optz != NULL) {
@@ -219,6 +226,7 @@ static dl Network_BackProp(Network *net, NNParam *params, cui nth) {
 		vbt = optz->Vbt[net->nbLayers - 2];
 	}
 
+    // Compute Error for this iteration
 	dl error = get_cost(params->cost_func)(L->output, expected, params->oSize);
 
 	dl CostOut[L->Neurons];

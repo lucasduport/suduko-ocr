@@ -34,14 +34,18 @@ void Layer_Dispose(Layer *layer) {
 }
 
 void Layer_Activate(Layer *layer) {
-	for (dl *pI = layer->input, *pB = layer->bias;
-		 pI < layer->input + layer->Neurons; pI++, pB++)
-		*pI = *pB;
-	for (dl *lO = layer->pLayer->output, *lW = layer->weights;
-		 lO < layer->pLayer->output + layer->pLayer->Neurons; lO++) {
+    // Init Layer input vector with Bias values
+    for (dl *lI = layer->input, *lB = layer->bias;
+		 lI < layer->input + layer->Neurons; lI++, lB++)
+		*lI = *lB;
+    // Apply weights on previous output & sum in current input vector,
+    // for each neuron in the layer
+	for (dl *pO = layer->pLayer->output, *lW = layer->weights;
+		 pO < layer->pLayer->output + layer->pLayer->Neurons; pO++) {
 		for (dl *lI = layer->input; lI < layer->input + layer->Neurons;
-			 lI++, lW++) *lI += (*lO) * (*lW);
+			 lI++, lW++) *lI += (*pO) * (*lW);
 	}
+    // Apply activation function on each neuron
 	layer->activation(layer->input, layer->output, layer->Neurons);
 }
 

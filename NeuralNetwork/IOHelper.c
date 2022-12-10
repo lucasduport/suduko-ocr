@@ -204,7 +204,7 @@ void PerfSearch(NNParam *origin, Network *netOrg, int attempt) {
 	while (attempt > 0 && !maxed) {
 		srand((ui)time(NULL));
 		Network *net = netOrg == NULL ? NetCreate(origin) : Network_DeepCopy(netOrg);
-		Network_Display(net, false);
+		//Network_Display(net, false);
 		if (origin->track) fclose(fopen(origin->StatsFile, "w"));
 		Optimizer_Init(net, origin->optimizer);
 		for (ui e = 0; e < origin->epoch && !maxed;) {
@@ -248,16 +248,18 @@ void PerfSearch(NNParam *origin, Network *netOrg, int attempt) {
 }
 
 void NNParam_Display(NNParam *param) {
-	// printf("\nNeural Network Params :\n");
-	printf("\t\t\tLearning Rate : %g\n", param->l_rate);
-	printf("\tTraining samples : %u", param->toLoopTrain);
-	printf("\t\t\tValidation samples : %u\n", param->toLoopValidate);
-	printf("\tEpoch : %u", param->epoch);
-	printf("\t\t\t\tEpoch interval : %u\n", param->epochInterval);
-	printf("\tCost Function : %s", param->cost_func);
-	printf("\t\t\tTracking : %s\n", param->track ? "true" : "false");
-	printf("\tL1 Regularization : %f", param->l1Norm);
-	printf("\t\tL2 Regularization : %f\n\n", param->l2Norm);
+	printf("\n\tLearning Rate : %-10g", param->l_rate);
+	printf("\tNetwork Name : %s\n", param->NNName);
+	printf("\tTraining samples : %-10u", param->toLoopTrain);
+	printf("\tEpoch : %-10u\n", param->epoch);
+	printf("\tValidation samples : %-10u", param->toLoopValidate);
+	printf("\tEpoch interval : %-10u\n", param->epochInterval);
+	printf("\tCost Function : %-12s", param->cost_func);
+	printf("\tL1 Regularization : %-10g\n", param->l1Norm);
+	printf("\tLast Activation : %-12s", param->endLayerAct);
+	printf("\tL2 Regularization : %-10g\n", param->l2Norm);
+	printf("\tTracking : %-20s", param->track ? "true" : "false");
+	printf("\tOptimizer : %-12s\n\n", param->optimizer != NULL ? "Adam" : "None");
 }
 
 void Purge_NNParam(NNParam *param) {
