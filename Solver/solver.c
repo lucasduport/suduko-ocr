@@ -147,8 +147,8 @@ int solver(int **array) {
 	while (indexCell < nbCell) {
 		countMove++;
 		if (countMove > 10000) {
-			printf("Not solvable\n");
-			break;
+			countMove = 0;
+			return countMove;
 		}
 
 		int vx = x[s[indexCell]];
