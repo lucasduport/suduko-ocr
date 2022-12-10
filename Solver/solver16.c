@@ -125,8 +125,8 @@ int solver16(int **array) {
 				v[nbCell] = -1;
 				nbCell++;
 			} else
-				isOnRow16[i][k - 1] = isOnCol16[j][k - 1]
-					= isOnBloc16[4 * (i / 4) + (j / 4)][k - 1] = true; //modified ??
+				isOnRow16[i][k] = isOnCol16[j][k]
+					= isOnBloc16[4 * (i / 4) + (j / 4)][k] = true; //modified ??
 		}
 	}
 
