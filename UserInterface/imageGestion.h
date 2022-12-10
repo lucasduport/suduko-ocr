@@ -4,7 +4,6 @@
 #include "ui.h"
 #include "widgetGestion.h"
 
-#define IMAGE_RATIO 0.7
 
 void newSudokuImage(Menu *menu, char *filename);
 

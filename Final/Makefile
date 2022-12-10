@@ -35,4 +35,5 @@ clean:
 	rm -rf board_*/
 	rm -rf COMMIT_MESSAGE
 	rm -rf main.glade~
+	rm -rf fastSolved/
 	clear

@@ -30,6 +30,8 @@
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 800
 
+#define IMAGE_RATIO 0.7
+
 typedef struct
 {
 	GtkBuilder *builder;
@@ -79,4 +81,4 @@ typedef enum
 void uiLaunch();
 int rmDir(const char *dir);
 int isRegFile(char *path);
-void listDir(char *filename);
+char ** getFilenamesInDir(char *filename);

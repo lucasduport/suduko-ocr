@@ -1,6 +1,7 @@
 #include <string.h>
 #include <dirent.h>
 #include "interactions.h"
+#include "linkForUI.h"
 
 #define CC_PIXEL_SIZE 12;
 
@@ -27,8 +28,7 @@ void on_upload_button_clicked(GtkWidget *widget, gpointer data)
 		}
 		else
 		{
-			//fastSolving(filename);
-			listDir(filename);
+			fastSolving(filename);
 		}
 	}
 	else
@@ -54,8 +54,7 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
 		}
 		else
 		{
-			//fastSolving(filename);
-			listDir(filename);
+			fastSolving(filename);
 		}
 	}
 	else
@@ -280,9 +279,6 @@ void on_manuDetect_clicked(GtkWidget *widget, gpointer data)
 		gint imWidth = menu->redimImage->width,
 			 imHeight = menu->redimImage->height;
 
-		printf("imOrgX = %d, imOrgY = %d, imWidth = %d, imHeight = %d\n", imOrgX,
-			imOrgY, imWidth, imHeight);
-
 		gtk_container_remove(
 			GTK_CONTAINER(menu->fixed1), GTK_WIDGET(crop_corner1));
 		gtk_container_add(
@@ -388,8 +384,7 @@ void upload_drag_data_received(GtkWidget *widget, GdkDragContext *context,
 			}
 			else
 			{
-				//fastSolving(filename);
-				listDir(filename);
+				fastSolving(filename);
 			}
 		}
 	}
@@ -447,7 +442,7 @@ void on_solve_clicked(GtkWidget *widget, gpointer data)
 	(void)widget;
 	// avoid warning about unused parameter
 	Menu *menu = (Menu *)data;
-	Image *solved = solveForUI(menu);
+	Image *solved = getSolvedImage(menu);
 	SudokuImageFromImage(menu, solved);
 	freeImage(solved);
 }

@@ -50,17 +50,6 @@ gboolean waitForHideWarning(gpointer data)
 
 void displayColoredText(GtkLabel *label, char *message, char *color)
 {
-	if (strcmp(color, "red") == 0)
-		gtk_widget_override_color(label, GTK_STATE_FLAG_NORMAL, &(GdkRGBA) { 1, 0, 0 });
-	else if (strcmp(color, "green") == 0)
-		gtk_widget_override_color(label, GTK_STATE_FLAG_NORMAL, &(GdkRGBA) { 0, 1, 0 });
-	else if (strcmp(color, "blue") == 0)
-		gtk_widget_override_color(label, GTK_STATE_FLAG_NORMAL, &(GdkRGBA) { 0, 0, 1 });
-	else if (strcmp(color, "black") == 0)
-		gtk_widget_override_color(label, GTK_STATE_FLAG_NORMAL, &(GdkRGBA) { 0, 0, 0 });
-	else if (strcmp(color, "white") == 0)
-		gtk_widget_override_color(label, GTK_STATE_FLAG_NORMAL, &(GdkRGBA) { 1, 1, 1 });
-	gtk_label_set_text(label, message);
 	char *markup = g_markup_printf_escaped("<span foreground='%s'><span font_desc='Tlwg Typo Bold 12'>%s</span></span>", color, message);
 	gtk_label_set_markup(GTK_LABEL(label), markup);
 	gtk_widget_show(GTK_WIDGET(label));

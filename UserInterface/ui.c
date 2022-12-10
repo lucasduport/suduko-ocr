@@ -178,6 +178,7 @@ void uiLaunch()
 	gtk_widget_destroy(GTK_WIDGET(window));
 	free(menu->imageOrigin);
 	free(menu);
+	rmDir("tmpImg");
 	return;
 }
 
@@ -239,16 +240,32 @@ int isRegFile(char *path)
 	return S_ISREG(path_stat.st_mode);
 }
 
-void listDir(char *filename)
+char** getFilenamesInDir(char *filename)
 {
 	DIR *dir = opendir(filename);
 	struct dirent *entry;
+	size_t count = 0;
+	char **toReturn = NULL;
 	while ((entry = readdir(dir)) != NULL)
 	{
-		if (!strcmp(entry->d_name, "."))
+		char *path = malloc(sizeof(char) * (strlen(filename) + strlen(entry->d_name) + 2));
+		strcpy(path, filename);
+		strcat(path, "/");
+		strcat(path, entry->d_name);
+		if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..") || !isLoadableImage(path))
+		{
+			free(path);
 			continue;
-		if (!strcmp(entry->d_name, ".."))
-			continue;
-		printf("%s\n", entry->d_name);
+		}
+		toReturn = realloc(toReturn, sizeof(char *) * (count + 2));
+		toReturn[count] = path;
+		count++;
 	}
+	if (toReturn == NULL)
+	{
+		return NULL;
+	}
+	toReturn[count] = NULL;
+	closedir(dir);
+	return toReturn;
 }

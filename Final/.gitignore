@@ -2,3 +2,6 @@ COMMIT_MESSAGE
 board*
 main
 logs/
+main.glade~
+tmpImg/
+fastSolved/
