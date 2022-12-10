@@ -1,6 +1,6 @@
 
 all:
-	clang -std=c99 -O3 -Wextra -Wall -Wno-unused -MMD -c *.c
+	clang -std=c99 -O3 -Wextra -Wall -MMD -c *.c
 	clang -lm -o NeuralNetwork *.o
 	rm -rf *[.do] main
 

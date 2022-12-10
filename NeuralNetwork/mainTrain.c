@@ -73,16 +73,7 @@ int main(int argc, char *argv[]) {
                     "TrainedNetwork/NeuralNetData_3layers_OCR-MEXA_92.55.dnn"};
 */
 
-/*
-	int argc = 4;
-	char *argv[4] = {"Predict",
-					 "TrainedNetwork/NeuralNetData_3layers_XOR_100.0.dnn",
-					 "1",
-					 "0"};
-
-*/
-
-	argc--;
+	argc -= 2;
 	argv++;
 
 
@@ -125,10 +116,13 @@ int main(int argc, char *argv[]) {
         origin->validationFile = argv[3];
         Network *net = NULL;
         if (argc > 4) {
+            printf("%u args\n", argc);
             net = malloc(sizeof(Network));
             Network_Load(net, argv[5]);
         }
+        puts("karaba");
 		LoadData(origin);
+        puts("mamadou");
 		PerfSearch(origin, net, (int)strtol(argv[4], NULL, 10));
 		if (argc > 4) Network_Purge(net);
 		Purge_NNParam(origin);
