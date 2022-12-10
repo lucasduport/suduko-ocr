@@ -1,39 +1,37 @@
-.SILENT: all
-.SILENT: clean
+FILES = $(wildcard ../ImageProcessing/*.c ../Solver/*.c ../NeuralNetwork/*.c ../UserInterface/*.c ./*.c)
+SRCS = $(filter-out $(wildcard ../ImageProcessing/main*.c ../Solver/main*.c ../NeuralNetwork/main*.c ../UserInterface/main*.c),$(FILES))
+OBJS = $(patsubst %.c,%.o,$(SRCS))
+DEPS = $(patsubst %.c,%.d,$(SRCS))
 
-all: UserInterface Solver NeuralNetwork ImageProcessing
-	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
-	-MMD -g `pkg-config --cflags sdl2` `pkg-config --cflags gtk+-3.0` -c *.c
-	clang `pkg-config --libs gtk+-3.0` -fsanitize=address -o main -lm -lSDL2 -lSDL2_image  *.o
+CC=clang
+CPPFLAGS=
+CFLAGS=-g -MMD -std=c99 -O3 -Wextra -Wall `pkg-config --cflags gtk+-3.0 sdl2 SDL2_image` -fsanitize=address -fsanitize=undefine
+LDLIBS=-lm -lSDL2 -lSDL2_image `pkg-config --libs gtk+-3.0`
 
-Solver: ../Solver/*.c
-	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
-	-MMD -g -c ../Solver/*.c
-	rm -rf main*.o
+.PHONY: ImageProcessing Solver NeuralNetwork
 
-NeuralNetwork: ../NeuralNetwork/*.c
-	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
-	-MMD -g -c ../NeuralNetwork/*.c
-	rm -rf main*.o
+all: main
 
-ImageProcessing: ../ImageProcessing/*.c
-	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
-	-MMD -g `pkg-config --cflags sdl2` -c ../ImageProcessing/*.c
-	rm -rf main*.o
+ImageProcessing: $(filter ImageProcessing/%,$(OBJS))
+	make $@
 
-UserInterface: ../UserInterface/*.c
-	clang -Wall -Wextra -std=c99 -O3 \
-	-MMD -c -g `pkg-config --cflags gtk+-3.0` `pkg-config --cflags sdl2` -fsanitize=address ../UserInterface/*.c
-	rm -rf main*.o
+Solver: $(filter Solver/%,$(OBJS))
+	make $@
 
-run:
-	make
-	./main ../ImageProcessing/Images/image_01.jpeg
+NeuralNetwork: $(filter NeuralNetwork/%,$(OBJS))
+	make $@
+
+UserInterface: $(filter UserInterface/%,$(OBJS))
+	make $@
+
+Final: $(filter Final/%,$(OBJS))
+	make $@
+
+%.o: %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -c $< -o $@
+
+main: $(OBJS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(LDLIBS) $^ -o $@
 
 clean:
-	rm -rf *.[do] main *.out
-	rm -rf board_*/
-	rm -rf COMMIT_MESSAGE
-	rm -rf main.glade~
-	rm -rf fastSolved/
-	clear
+	rm -f $(OBJS) $(DEPS) main

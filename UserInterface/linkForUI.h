@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ui.h"
 
 double *centerInput(const char *path);
