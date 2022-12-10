@@ -5,7 +5,7 @@ DEPS = $(patsubst %.c,%.d,$(SRCS))
 
 CC=clang
 CPPFLAGS=
-CFLAGS=-g -MMD -std=c99 -O3 -Wextra -Wall `pkg-config --cflags gtk+-3.0 sdl2 SDL2_image` -fsanitize=address -fsanitize=undefine
+CFLAGS=-g -MMD -std=c99 -O3 -Wextra -Wall `pkg-config --cflags gtk+-3.0 sdl2 SDL2_image` -fsanitize=address -fsanitize=undefined
 LDLIBS=-lm -lSDL2 -lSDL2_image `pkg-config --libs gtk+-3.0`
 
 .PHONY: ImageProcessing Solver NeuralNetwork
