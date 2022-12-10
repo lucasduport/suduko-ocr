@@ -157,13 +157,13 @@ int noUI(int argc, char **argv)
 	}
 
 	//TODO: use neural network
-	int **sudoku = (int **)malloc(9 * sizeof(int *));
-	for (int i = 0; i < 9; i++)
+	int **sudoku = (int **)malloc(nb_cells * sizeof(int *));
+	for (int i = 0; i < nb_cells; i++)
 	{
-		sudoku[i] = (int *)malloc(9 * sizeof(int));
+		sudoku[i] = (int *)malloc(nb_cells * sizeof(int));
 	}
 	Network *net = (Network *)malloc(sizeof(Network));
-	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
+	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
 	printf("check : %p\n", net);
 	Network_Display(net, 1);
 	float *results[nb_cells * nb_cells];
@@ -186,7 +186,7 @@ int noUI(int argc, char **argv)
 			int imax = 0;
 			float max = 0;
 			printf("[");
-			for (int k = 0; k < 10; k++)
+			for (int k = 0; k < (nb_cells == 9? 10 : 17); k++)
 			{
 				float proba = results[j * nb_cells + i][k];
 				if (proba >= max)
@@ -197,7 +197,7 @@ int noUI(int argc, char **argv)
 				printf("%.3f ", proba);
 			}
 			puts("]");
-			printf("digit = %d\n", imax);
+			printf("digit in cell %d_%d = %d\n",i,j,imax);
 			sudoku[j][i] = imax;
 			free(results[nb_cells * j + i]);
 		}
