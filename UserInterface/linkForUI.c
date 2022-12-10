@@ -1,5 +1,7 @@
 #include <sys/stat.h>
 #include "linkForUI.h"
+#include "imageGestion.h"
+#include "widgetGestion.h"
 
 double *centerInput(const char *path)
 {
@@ -90,7 +92,16 @@ void fastSolving(char *foldername)
 			sudoku[i] = (int *)malloc(nb_cells * sizeof(int));
 		}
 		Network *net = (Network *)malloc(sizeof(Network));
-		Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
+		switch (nb_cells)
+		{
+			case 9:
+				Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
+				break;
+			
+			default:
+				Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
+				break;
+		}
 		float *results[nb_cells * nb_cells];
 		for (int i = 0; i < nb_cells; i++)
 		{
@@ -129,10 +140,11 @@ void fastSolving(char *foldername)
 		switch (nb_cells)
 		{
 		case 9:
-			solver(solved);
-			break;
-		//case 16:
-			//solver16(solved);
+			if(solver(solved))
+				break;
+		case 16:
+			//if (solver16(solved))
+				//break;
 		default:
 			freeImage(final);
 			freeImage(image);
@@ -220,8 +232,11 @@ void fastSolving(char *foldername)
 	free(filenames);
 }
 
-Image* getSolvedImage(Menu *menu)
+gboolean getSolvedImage(gpointer data)
 {
+	Menu *menu = (Menu *)data;
+	menu->solvedImage = NULL;
+
 	char *filename = menu->originPath;
 
 	Image *final = copyImage(menu->originImage);
@@ -243,16 +258,16 @@ Image* getSolvedImage(Menu *menu)
 
 	Quad *quad = detectGrid(image);
 	if (quad == NULL)
+	{
 		displayColoredText(menu->filters_warn_label, "No grid detected", "red");
-
+		return FALSE;
+	}
 	// display results
 	//showQuad(image, quad, 0, 255, 0);
-
 	Image *extracted = extractGrid(to_extract, quad, 1440, 1440);
 	invertImage(extracted);
 	//displayImage(extracted, "Extracted grid");
 	freeImage(to_extract);
-
 	int *coords_x;
 	int *coords_y;
 	int nb_cells;
@@ -348,8 +363,21 @@ Image* getSolvedImage(Menu *menu)
 		solver16(solved);
 		break;
 	default:
+		freeImage(final);
+		freeImage(image);
+		free(filename);
+		freeQuad(quad);
+		free(coords_x);
+		free(coords_y);
+		for (int i = 0; i < nb_cells; i++)
+		{
+			free(sudoku[i]);
+			free(solved[i]);
+		}
+		free(sudoku);
+		free(solved);
 		displayColoredText(menu->filters_warn_label, "Wrong detection of sudoku size", "red");
-		break;
+		return FALSE;
 	}
 	char dirname[30];
 	cleanPath(filename, dirname);
@@ -400,7 +428,6 @@ Image* getSolvedImage(Menu *menu)
 		freeImage(menu->redimImage);
 	autoResize(final, WINDOW_WIDTH * IMAGE_RATIO, WINDOW_HEIGHT * IMAGE_RATIO);
 	menu->redimImage = final;
-	displayColoredText(menu->filters_warn_label, "Solved", "green");
 	freeQuad(quad);
 	freeImage(image);
 	for (int i = 0; i < nb_cells; i++)
@@ -412,5 +439,5 @@ Image* getSolvedImage(Menu *menu)
 	free(sudoku);
 	free(solved);
 	free(digits);
-	return final;
+	return FALSE;
 }

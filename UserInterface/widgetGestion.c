@@ -57,3 +57,17 @@ void displayColoredText(GtkLabel *label, char *message, char *color)
 	free(markup);
 	return;
 }
+
+/*
+void displaySolvingState(GtkWidget *pBar, double percent, GtkLabel *label, char *message)
+{
+	char color[10];
+	double maxWidth = 250;
+	strstr(message, "...") ? strcpy(color, "white") : strcpy(color, "green");
+	char *markup = g_markup_printf_escaped("<span foreground='%s'><span font_desc='Tlwg Typo Bold 13'>%s</span></span>", color, message);
+	gtk_label_set_markup(GTK_LABEL(label), markup);
+	free(markup);
+	gtk_widget_set_size_request(GTK_WIDGET(pBar), (int) (maxWidth * percent), 15);
+	return;
+}
+*/

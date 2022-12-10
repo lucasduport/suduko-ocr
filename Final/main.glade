@@ -14,7 +14,7 @@
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <child>
-          <!-- n-columns=2 n-rows=11 -->
+          <!-- n-columns=2 n-rows=10 -->
           <object class="GtkGrid" id="filters_grid">
             <property name="name">filters_grid</property>
             <property name="width-request">253</property>
@@ -52,7 +52,7 @@
             <child>
               <object class="GtkButton" id="save">
                 <property name="name">save</property>
-                <property name="height-request">35</property>
+                <property name="height-request">50</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
@@ -110,7 +110,7 @@
             <child>
               <object class="GtkButton" id="solve">
                 <property name="name">solve</property>
-                <property name="height-request">70</property>
+                <property name="height-request">90</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
@@ -378,18 +378,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkProgressBar" id="load_bar">
-                <property name="height-request">16</property>
-                <property name="can-focus">False</property>
-                <property name="ellipsize">middle</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">10</property>
-                <property name="width">2</property>
-              </packing>
-            </child>
-            <child>
               <placeholder/>
             </child>
             <child>
@@ -405,7 +393,7 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=1 n-rows=11 -->
+          <!-- n-columns=1 n-rows=8 -->
           <object class="GtkGrid" id="file_select_grid">
             <property name="name">file_select_grid</property>
             <property name="visible">True</property>
@@ -424,7 +412,7 @@
                 <property name="valign">start</property>
                 <property name="max-length">150</property>
                 <property name="progress-pulse-step">0.01</property>
-                <property name="placeholder-text" translatable="yes">Path of the image</property>
+                <property name="placeholder-text" translatable="yes">Path of the image or  folder</property>
                 <property name="input-hints">GTK_INPUT_HINT_NO_EMOJI | GTK_INPUT_HINT_NONE</property>
               </object>
               <packing>
@@ -436,7 +424,7 @@
               <object class="GtkButton" id="upload_button">
                 <property name="name">upload_button</property>
                 <property name="width-request">400</property>
-                <property name="height-request">100</property>
+                <property name="height-request">152</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
@@ -445,14 +433,43 @@
                 <property name="valign">start</property>
                 <property name="always-show-image">True</property>
                 <child>
-                  <object class="GtkLabel" id="upload_button_label">
-                    <property name="name">upload_button_label</property>
+                  <!-- n-columns=1 n-rows=2 -->
+                  <object class="GtkGrid" id="uploadGrid">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Select from files / Drag and drop</property>
-                    <attributes>
-                      <attribute name="font-desc" value="Tlwg Typo Bold 12"/>
-                    </attributes>
+                    <property name="orientation">vertical</property>
+                    <property name="row-homogeneous">True</property>
+                    <property name="column-homogeneous">True</property>
+                    <child>
+                      <object class="GtkLabel" id="upload_button_label">
+                        <property name="name">upload_button_label</property>
+                        <property name="height-request">61</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="label" translatable="yes">&lt;span foreground='white'&gt;&lt;span font_desc='Tlwg Typo Bold 14'&gt;Choose a file or drag it here&lt;/span&gt;&lt;/span&gt;</property>
+                        <property name="use-markup">True</property>
+                        <property name="justify">center</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkImage" id="upload_icon">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="pixbuf">../UserInterface/uiImages/upload_icon.png</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -487,7 +504,7 @@
                 <property name="can-focus">False</property>
                 <property name="halign">start</property>
                 <property name="valign">start</property>
-                <property name="label" translatable="yes">Please open your sudoku grid:</property>
+                <property name="label" translatable="yes">Please select an image or a folder:</property>
                 <attributes>
                   <attribute name="font-desc" value="Tlwg Typist Bold 14"/>
                 </attributes>
@@ -522,7 +539,7 @@
                 <property name="can-focus">False</property>
                 <property name="halign">center</property>
                 <property name="valign">start</property>
-                <property name="label" translatable="yes">"&lt;span foreground='red'&gt;&lt;span font_desc='Tlwg Typo Bold 12'&gt;File not found&lt;/span&gt;&lt;/span&gt;"</property>
+                <property name="label" translatable="yes">&lt;span foreground='red'&gt;&lt;span font_desc='Tlwg Typo Bold 12'&gt;File not found&lt;/span&gt;&lt;/span&gt;</property>
                 <property name="use-markup">True</property>
               </object>
               <packing>
@@ -532,8 +549,8 @@
             </child>
             <child>
               <object class="GtkImage" id="logo">
-                <property name="width-request">200</property>
-                <property name="height-request">200</property>
+                <property name="width-request">191</property>
+                <property name="height-request">140</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="opacity">0.47999999977648256</property>
@@ -555,15 +572,6 @@
                 <property name="left-attach">0</property>
                 <property name="top-attach">0</property>
               </packing>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
             </child>
           </object>
           <packing>

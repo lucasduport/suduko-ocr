@@ -19,14 +19,21 @@ void uiLaunch()
 	GtkWidget *filters_grid
 		= GTK_WIDGET(gtk_builder_get_object(builder, "filters_grid"));
 
+	GtkButton *resetFilters_button
+		= GTK_BUTTON(gtk_builder_get_object(builder, "resetFilters"));
+
 	GtkButton *grayscale_button
 		= GTK_BUTTON(gtk_builder_get_object(builder, "grayscale"));
 	GtkButton *gaussian_button
 		= GTK_BUTTON(gtk_builder_get_object(builder, "gaussian"));
 	GtkButton *sobel_button
 		= GTK_BUTTON(gtk_builder_get_object(builder, "sobel"));
-	GtkButton *resetFilters_button
-		= GTK_BUTTON(gtk_builder_get_object(builder, "resetFilters"));
+
+	GtkButton *rotate_left_button
+		= GTK_BUTTON(gtk_builder_get_object(builder, "rotate_left"));
+	GtkButton *rotate_right_button
+		= GTK_BUTTON(gtk_builder_get_object(builder, "rotate_right"));
+
 	GtkButton *autoDetect_button
 		= GTK_BUTTON(gtk_builder_get_object(builder, "auto_detect"));
 	GtkButton *manuDetect_button
@@ -39,10 +46,6 @@ void uiLaunch()
 	GtkButton *solve_button
 		= GTK_BUTTON(gtk_builder_get_object(builder, "solve"));
 
-	GtkButton *rotate_left_button
-		= GTK_BUTTON(gtk_builder_get_object(builder, "rotate_left"));
-	GtkButton *rotate_right_button
-		= GTK_BUTTON(gtk_builder_get_object(builder, "rotate_right"));
 
 	GtkLabel *upload_warn_label
 		= GTK_LABEL(gtk_builder_get_object(builder, "upload_warn_label"));
@@ -59,6 +62,7 @@ void uiLaunch()
 		= GTK_EVENT_BOX(gtk_builder_get_object(builder, "crop_corner4"));
 	GtkEventBox *crop_corners[5]
 		= {NULL, crop_corner1, crop_corner2, crop_corner3, crop_corner4};
+	
 
 	//---------MENU STRUCT INITIALIZATION---------//
 	Menu *menu = malloc(sizeof(Menu));

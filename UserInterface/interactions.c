@@ -156,7 +156,7 @@ void resetFilters(Menu *menu)
 		GTK_TOGGLE_BUTTON(menu->gaussian_button), FALSE);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(menu->sobel_button), FALSE);
 	GtkWidget *toSens[] = {GTK_WIDGET(menu->autoDetect_button),
-		GTK_WIDGET(menu->grayscale_button), NULL};
+		GTK_WIDGET(menu->grayscale_button), GTK_WIDGET(menu->solve_button), NULL};
 	changeSensivityWidgets(toSens, 1);
 	if (menu->solvedImage != NULL)
 	{
@@ -442,9 +442,13 @@ void on_solve_clicked(GtkWidget *widget, gpointer data)
 	(void)widget;
 	// avoid warning about unused parameter
 	Menu *menu = (Menu *)data;
-	Image *solved = getSolvedImage(menu);
-	SudokuImageFromImage(menu, solved);
-	freeImage(solved);
+	gtk_widget_set_sensitive(GTK_WIDGET(menu->solve_button), FALSE);
+	getSolvedImage(menu);
+	if (menu->solvedImage)
+	{
+		displayColoredText(menu->filters_warn_label, "Sudoku solved", "green");
+		refreshImage(widget, data);
+	}
 }
 /*
 void on_window_resize(GtkWidget* widget, GdkEventConfigure event, gpointer user_data)

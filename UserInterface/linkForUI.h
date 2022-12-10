@@ -2,6 +2,6 @@
 
 double *centerInput(const char *path);
 
-Image* getSolvedImage(Menu *menu);
+gboolean getSolvedImage(gpointer data);
 
 void fastSolving(char *foldername);

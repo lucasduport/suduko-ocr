@@ -70,14 +70,6 @@ typedef struct
 
 } Menu;
 
-typedef enum
-{
-	FILTERS,
-	DETECTION,
-	NEURAL_NETWORK,
-	SOLVE
-} MenuStates;
-
 void uiLaunch();
 int rmDir(const char *dir);
 int isRegFile(char *path);
