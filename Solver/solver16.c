@@ -119,14 +119,14 @@ int solver16(int **array) {
 	int x[256], y[256], v[256], s[256], f[256]; //modified
 	for (int i = 0; i < 16; i++) { //modified
 		for (int j = 0; j < 16; j++) { //modified
-			if ((k = array[i][j]) == -1) { //modified
+			if ((k = array[i][j]) == 16) { //modified ???
 				x[nbCell] = i;
 				y[nbCell] = j;
 				v[nbCell] = -1;
 				nbCell++;
 			} else
 				isOnRow16[i][k] = isOnCol16[j][k]
-					= isOnBloc16[4 * (i / 4) + (j / 4)][k] = true; //modified ??
+					= isOnBloc16[4 * (i / 4) + (j / 4)][k] = true; //modified ?
 		}
 	}
 
