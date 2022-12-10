@@ -33,7 +33,7 @@ void on_upload_button_clicked(GtkWidget *widget, gpointer data)
 	}
 	else
 	{
-		displayWarning(menu->upload_warn_label, "Upload canceled");
+		displayColoredText(menu->upload_warn_label, "Upload canceled", "red");
 	}
 	gtk_widget_destroy(dialog);
 }
@@ -60,7 +60,7 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
 	}
 	else
 	{
-		displayWarning(menu->upload_warn_label, "File not found");
+		displayColoredText(menu->upload_warn_label, "File not found", "red");
 	}
 	return;
 }
@@ -99,11 +99,19 @@ void on_save_clicked(GtkWidget *widget, gpointer data)
 	if (res == GTK_RESPONSE_ACCEPT)
 	{
 		char *filename = gtk_file_chooser_get_filename(chooser);
-		Image *toSave = actualImage(menu);
-		saveImage(toSave, filename);
-		freeImage(toSave);
-		refreshImage(widget, data);
-		g_free(filename);
+		if (menu->solvedImage == NULL)
+		{
+			Image *toSave = actualImage(menu);
+			saveImage(toSave, filename);
+			freeImage(toSave);
+			refreshImage(widget, data);
+			g_free(filename);
+		}
+		else
+		{
+			saveImage(menu->solvedImage, filename);
+			g_free(filename);
+		}
 	}
 	gtk_widget_destroy(dialog);
 }
@@ -111,7 +119,7 @@ void on_save_clicked(GtkWidget *widget, gpointer data)
 void on_autoDetect_clicked(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
-	Image *betterForLines = copyImage(menu->originImage);
+	Image *betterForLines = copyImage(menu->redimImage);
 	toGrey(betterForLines);
 	gaussianBlur(betterForLines);
 	sobelFilter(betterForLines);
@@ -119,16 +127,16 @@ void on_autoDetect_clicked(GtkWidget *widget, gpointer data)
 	Quad *quad = detectGrid(betterForLines);
 	if (quad == NULL)
 	{
-		displayWarning(menu->filters_warn_label, "Sudoku grid not found");
+		displayColoredText(menu->filters_warn_label, "Sudoku grid not found", "red");
 		freeImage(betterForLines);
 		return;
 	}
 	else
 	{
-		Image *extracted = extractGrid(menu->originImage, quad,
-			menu->originImage->width, menu->originImage->height);
-		freeImage(menu->originImage);
-		menu->originImage = extracted;
+		Image *extracted = extractGrid(menu->redimImage, quad,
+			menu->redimImage->width, menu->redimImage->height);
+		freeImage(menu->redimImage);
+		menu->redimImage = extracted;
 		SudokuImageFromImage(menu, extracted);
 		GtkWidget *toNoSens[]
 			= {widget, GTK_WIDGET(menu->grayscale_button), NULL};
@@ -151,6 +159,11 @@ void resetFilters(Menu *menu)
 	GtkWidget *toSens[] = {GTK_WIDGET(menu->autoDetect_button),
 		GTK_WIDGET(menu->grayscale_button), NULL};
 	changeSensivityWidgets(toSens, 1);
+	if (menu->solvedImage != NULL)
+	{
+		freeImage(menu->solvedImage);
+		menu->solvedImage = NULL;
+	}
 }
 
 void on_grayscale_toggled(GtkWidget *widget, gpointer data)
@@ -159,7 +172,7 @@ void on_grayscale_toggled(GtkWidget *widget, gpointer data)
 	gtk_widget_set_sensitive(widget, 0);
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
 	{
-		toGrey(menu->originImage);
+		toGrey(menu->redimImage);
 		refreshImage(widget, data);
 	}
 }
@@ -168,9 +181,9 @@ void on_resetFilters_clicked(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
 	resetFilters(menu);
-	freeImage(menu->originImage);
-	menu->originImage = openImage(menu->originPath, 4);
-	autoResize(menu->originImage, WINDOW_WIDTH * IMAGE_RATIO,
+	freeImage(menu->redimImage);
+	menu->redimImage = copyImage(menu->originImage);
+	autoResize(menu->redimImage, WINDOW_WIDTH * IMAGE_RATIO,
 		WINDOW_HEIGHT * IMAGE_RATIO);
 	refreshImage(widget, data);
 }
@@ -186,8 +199,8 @@ void on_crop_corners_move(GtkWidget *widget, GdkEvent *event, gpointer data)
 	gint newX = actualX + mouseX, newY = actualY + mouseY;
 	gint imOrgX = menu->imageOrigin->x - CC_PIXEL_SIZE;
 	gint imOrgY = menu->imageOrigin->y - CC_PIXEL_SIZE;
-	gint imWidth = menu->originImage->width,
-		 imHeight = menu->originImage->height;
+	gint imWidth = menu->redimImage->width,
+		 imHeight = menu->redimImage->height;
 	gint gapBtwnCorners = CC_PIXEL_SIZE;
 	char *p = strchr(gtk_widget_get_name(widget), '1');
 	if (p != NULL)
@@ -224,9 +237,9 @@ void on_crop_corners_move(GtkWidget *widget, GdkEvent *event, gpointer data)
 void on_rotate_clockwise_clicked(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
-	Image *r = rotateImage(menu->originImage, 90, 0);
-	freeImage(menu->originImage);
-	menu->originImage = r;
+	Image *r = rotateImage(menu->redimImage, 90, 0);
+	freeImage(menu->redimImage);
+	menu->redimImage = r;
 	refreshImage(widget, data);
 
 }
@@ -234,9 +247,9 @@ void on_rotate_clockwise_clicked(GtkWidget *widget, gpointer data)
 void on_rotate_anticlockwise_clicked(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
-	Image *r = rotateImage(menu->originImage, 270, 0);
-	freeImage(menu->originImage);
-	menu->originImage = r;
+	Image *r = rotateImage(menu->redimImage, 270, 0);
+	freeImage(menu->redimImage);
+	menu->redimImage = r;
 	refreshImage(widget, data);
 
 }
@@ -264,8 +277,11 @@ void on_manuDetect_clicked(GtkWidget *widget, gpointer data)
 		gtk_label_set_text(GTK_LABEL(menu->manuDetect_label), "Apply");
 		gint imOrgX = menu->imageOrigin->x - CC_PIXEL_SIZE;
 		gint imOrgY = menu->imageOrigin->y - CC_PIXEL_SIZE;
-		gint imWidth = menu->originImage->width,
-			 imHeight = menu->originImage->height;
+		gint imWidth = menu->redimImage->width,
+			 imHeight = menu->redimImage->height;
+
+		printf("imOrgX = %d, imOrgY = %d, imWidth = %d, imHeight = %d\n", imOrgX,
+			imOrgY, imWidth, imHeight);
 
 		gtk_container_remove(
 			GTK_CONTAINER(menu->fixed1), GTK_WIDGET(crop_corner1));
@@ -327,10 +343,10 @@ void on_manuDetect_clicked(GtkWidget *widget, gpointer data)
 
 		Quad *quad = newQuad(
 			p1, p2, p4, p3); // quad struct uses another order of points
-		Image *cropped = extractGrid(menu->originImage, quad,
-			menu->originImage->width, menu->originImage->height);
-		freeImage(menu->originImage);
-		menu->originImage = cropped;
+		Image *cropped = extractGrid(menu->redimImage, quad,
+			menu->redimImage->width, menu->redimImage->height);
+		freeImage(menu->redimImage);
+		menu->redimImage = cropped;
 		freeQuad(quad);
 		leave_manual_crop(menu);
 		refreshImage(widget, data);
@@ -428,9 +444,12 @@ void open_folder_selector(GtkWidget *widget, gpointer data)
 
 void on_solve_clicked(GtkWidget *widget, gpointer data)
 {
+	(void)widget;
+	// avoid warning about unused parameter
 	Menu *menu = (Menu *)data;
-	solveAndShowUI(menu);
-	refreshImage(widget, data);
+	Image *solved = solveForUI(menu);
+	SudokuImageFromImage(menu, solved);
+	freeImage(solved);
 }
 /*
 void on_window_resize(GtkWidget* widget, GdkEventConfigure event, gpointer user_data)

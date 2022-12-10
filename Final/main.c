@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 	{
 		noUI(argc, argv);
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 int noUI(int argc, char **argv)
@@ -362,4 +362,5 @@ int noUI(int argc, char **argv)
 	free(sudoku);
 	free(solved);
 	free(digits);
+	return EXIT_SUCCESS;
 }

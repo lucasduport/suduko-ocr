@@ -88,7 +88,9 @@ void uiLaunch()
 	menu->filters_grid = filters_grid;
 
 	menu->originImage = NULL;
+	menu->redimImage = NULL;
 	menu->originPath = NULL;
+	menu->solvedImage = NULL;
 
 	menu->upload_warn_label = upload_warn_label;
 	menu->filters_warn_label = filters_warn_label;
@@ -159,8 +161,19 @@ void uiLaunch()
 	gtk_target_entry_free(uri_targets);
 	if (menu->originImage != NULL)
 	{
-		freeImage(menu->redimImage);
 		freeImage(menu->originImage);
+	}
+	if (menu->redimImage != NULL)
+	{
+		freeImage(menu->redimImage);
+	}
+	if (menu->originPath != NULL)
+	{
+		g_free(menu->originPath);
+	}
+	if (menu->solvedImage != NULL)
+	{
+		freeImage(menu->solvedImage);
 	}
 	gtk_widget_destroy(GTK_WIDGET(window));
 	free(menu->imageOrigin);

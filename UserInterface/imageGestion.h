@@ -22,4 +22,4 @@ void loadImage(Menu *menu, char *filename);
 
 gboolean isLoadableImage(char *path);
 
-void solveAndShowUI(Menu *menu);
+Image* solveForUI(Menu *menu);

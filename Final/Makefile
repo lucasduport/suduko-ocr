@@ -2,7 +2,7 @@
 .SILENT: clean
 
 all: UserInterface Solver NeuralNetwork ImageProcessing
-	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
+	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -Wno-unused -std=c99 -O3 \
 	-MMD -g `pkg-config --cflags sdl2` `pkg-config --cflags gtk+-3.0` -c *.c
 	clang `pkg-config --libs gtk+-3.0` -fsanitize=address -o main -lm -lSDL2 -lSDL2_image  *.o
 
@@ -12,7 +12,7 @@ Solver: ../Solver/*.c
 	rm -rf main*.o
 
 NeuralNetwork: ../NeuralNetwork/*.c
-	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 \
+	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -Wno-unused -std=c99 -O3 \
 	-MMD -g -c ../NeuralNetwork/*.c
 	rm -rf main*.o
 
@@ -34,4 +34,5 @@ clean:
 	rm -rf *.[do] main *.out
 	rm -rf board_*/
 	rm -rf COMMIT_MESSAGE
+	rm -rf main.glade~
 	clear

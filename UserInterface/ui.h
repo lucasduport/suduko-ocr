@@ -58,8 +58,10 @@ typedef struct
 
 	GtkWidget *filters_grid;
 
+	char *originPath;
 	Image *originImage;
 	Image *redimImage;
+	Image *solvedImage;
 
 	GtkLabel *upload_warn_label;
 	GtkLabel *filters_warn_label;
