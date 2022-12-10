@@ -238,6 +238,7 @@ int noUI(int argc, char **argv)
 		break;
 	case 16:
 		solver16(solved);
+		break;
 	default:
 		errx(EXIT_FAILURE, "wrong value of nb_cells");
 		break;
