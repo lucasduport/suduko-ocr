@@ -187,7 +187,7 @@ void Network_Train(Network *net, NNParam *params) {
 	if (params->track) fclose(f);
 }
 
-static void Network_Forward(Network *net, dl *input, cui iSize) {
+void Network_Forward(Network *net, dl *input, cui iSize) {
 	if (iSize != net->layers[0].Neurons) {
 		printf("Error: Input data size has different size "
 			   "than neurons");
@@ -197,7 +197,7 @@ static void Network_Forward(Network *net, dl *input, cui iSize) {
 	for (ui i = 1; i < net->currentLayer; i++) Layer_Activate(&net->layers[i]);
 }
 
-static dl Network_BackProp(Network *net, NNParam *params, cui nth) {
+dl Network_BackProp(Network *net, NNParam *params, cui nth) {
 
     // Shortcut to last Layer
 	Layer *L = &net->layers[net->nbLayers - 1];
@@ -344,30 +344,6 @@ static dl Network_BackProp(Network *net, NNParam *params, cui nth) {
 	}
 	free(Legacy);
 	return error + params->l1Norm * l1 + params->l2Norm * l2;
-}
-
-static void IntegrityCheck(Network *net) {
-	for (ui i = 1; i < net->nbLayers; i++) {
-		for (ui j = 0; j < net->layers[i].conns; j++) {
-			// printf("\nw : %f",
-			// net->layers[i].weights[j]);
-			if (isnan(net->layers[i].weights[j])
-				|| isinf(net->layers[i].weights[j])) {
-				printf("\nWeight Corruption : %f\n",
-					   net->layers[i].weights[j]);
-				exit(2);
-			}
-		}
-		for (ui j = 0; j < net->layers[i].Neurons; j++) {
-			// printf("\nb : %f", net->layers[i].bias[j]);
-			if (isnan(net->layers[i].bias[j])
-				|| isinf(net->layers[i].bias[j])) {
-				printf("\nBias Corruption : %f\n", net->layers[i].bias[j]);
-				exit(2);
-			}
-		}
-	}
-	puts("No Integrity error.");
 }
 
 void Optimizer_Init(Network *net, Optimizer *optz) {

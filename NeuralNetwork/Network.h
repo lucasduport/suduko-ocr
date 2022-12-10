@@ -50,9 +50,8 @@ void Network_Wire(Network *net);
 float *Network_Predict(Network *net, dl *input, cui Size);
 dl *Network_Validate(Network *net, dl *input, cui Size, bool os1);
 void Network_Train(Network *net, NNParam *params);
-static void Network_Forward(Network *net, dl *input, cui iSize);
-static dl Network_BackProp(Network *net, NNParam *params, cui nth);
-static void IntegrityCheck(Network *net);
+void Network_Forward(Network *net, dl *input, cui iSize);
+dl Network_BackProp(Network *net, NNParam *params, cui nth);
 Layer *lvec_alloc(cui n);
 
 void Optimizer_Init(Network *net, Optimizer *optz);
