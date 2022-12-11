@@ -1,6 +1,6 @@
-#include "imageGestion.h"
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "imageGestion.h"
 
 unsigned int cpt = 0;
 void newSudokuImage(Menu *menu, char *filename)
@@ -9,7 +9,8 @@ void newSudokuImage(Menu *menu, char *filename)
 	menu->originImage = image;
 	menu->originPath = filename;
 	menu->redimImage = copyImage(image);
-	autoResize(menu->redimImage, WINDOW_WIDTH * IMAGE_RATIO, WINDOW_HEIGHT * IMAGE_RATIO);
+	autoResize(menu->redimImage, WINDOW_WIDTH * IMAGE_RATIO,
+		WINDOW_HEIGHT * IMAGE_RATIO);
 	SudokuImageFromImage(menu, menu->redimImage);
 }
 
@@ -97,7 +98,8 @@ void loadImage(Menu *menu, char *filename)
 {
 	if (isLoadableImage(filename) == FALSE)
 	{
-		displayColoredText(menu->upload_warn_label, "This format is not loadable", "red");
+		displayColoredText(
+			menu->upload_warn_label, "This format is not loadable", "red");
 		return;
 	}
 	gtk_window_set_title(menu->window, filename);

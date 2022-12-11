@@ -6,7 +6,6 @@
 #include "image.h"
 #include "matrices.h"
 
-
 void toGrey(Image *image);
 void toRGBA(Image *image);
 void toColor(Image *image, uc r, uc g, uc b);

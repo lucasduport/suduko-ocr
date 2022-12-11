@@ -1,7 +1,7 @@
-#include "solver.h"
-#include "solver16.h"
 #include "openFile.h"
 #include "openFile16.h"
+#include "solver.h"
+#include "solver16.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -132,8 +132,7 @@ int array[9][9] =
 */
 
 int main(int argc, char **argv) {
-	for (int i = 0; i < argc; i++)
-		printf("%s ", argv[i]);
+	for (int i = 0; i < argc; i++) printf("%s ", argv[i]);
 	puts("");
 	/*
 	if (argc == 1 || argc == 2) {
@@ -141,10 +140,9 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 	if (argc > 3) {
-		printf("Too much argument\nOnly one grid and her size (s or h) is needed\n");
-	if (argc == 1 || argc  == 2) {
-		printf("Missing argument\nPass a grid and size\n");
-		return 0;
+		printf("Too much argument\nOnly one grid and her size (s or h) is
+	needed\n"); if (argc == 1 || argc  == 2) { printf("Missing argument\nPass a
+	grid and size\n"); return 0;
 	}
 	if (argc > 3) {
 		printf("Too much argument\nOnly one grid is needed\n");
@@ -184,33 +182,24 @@ int main(int argc, char **argv) {
 		{b, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 9, 1, 0, 0},
 	};
 	int **hexa = (int **)malloc(sizeof(int *) * 16);
-	for (int i = 0; i < 16; i++)
-	{
+	for (int i = 0; i < 16; i++) {
 		hexa[i] = (int *)malloc(sizeof(int) * 16);
-		for (int j = 0; j < 16; j++)
-		{
-			if (!_hexa[i][j])
-				hexa[i][j] = 0;
-			else
-				hexa[i][j] = _hexa[i][j];
+		for (int j = 0; j < 16; j++) {
+			if (!_hexa[i][j]) hexa[i][j] = 0;
+			else hexa[i][j] = _hexa[i][j];
 		}
 	}
 	solver16(hexa);
-	for (int i=0; i<16; i++)
-	{
-		for (int j=0; j<16; j++)
-		{
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 16; j++) {
 			printf("%02d ", hexa[i][j]);
-			if ((j+1)%4==0)
-				printf(" ");
+			if ((j + 1) % 4 == 0) printf(" ");
 		}
 		printf("\n");
-		if ((i+1)%4==0)
-			printf("\n");
+		if ((i + 1) % 4 == 0) printf("\n");
 	}
 
-
-	//fileProcessing(argv[1]);
+	// fileProcessing(argv[1]);
 	return 0;
 	/*int array2[9][9] =
 	{

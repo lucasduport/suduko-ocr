@@ -1,13 +1,13 @@
-#include "cellExtraction.h"
-#include "filters.h"
-#include "display.h"
-#include "transformImage.h"
-#include "param.h"
-#include "centerCell.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <sys/stat.h>
 #include <err.h>
+#include <sys/stat.h>
+#include "cellExtraction.h"
+#include "centerCell.h"
+#include "display.h"
+#include "filters.h"
+#include "param.h"
+#include "transformImage.h"
 
 void addBorders(Image *image, int border_size, uc bg)
 {
@@ -33,7 +33,8 @@ void addBorders(Image *image, int border_size, uc bg)
 				if (x < border_size || x >= new_w - border_size)
 					new_channel[y * new_w + x] = bg;
 				else
-					new_channel[y * new_w + x] = channel[(y - border_size) * w + x - border_size];
+					new_channel[y * new_w + x]
+						= channel[(y - border_size) * w + x - border_size];
 			}
 		}
 		free(channel);
@@ -91,7 +92,8 @@ void getCenterCell(Image *image, int w_cell, int h_cell)
 	image->height = h_cell;
 }
 
-void saveCell(Image *image, int x0, int x1, int y0, int y1, int border_size, const char *filename)
+void saveCell(Image *image, int x0, int x1, int y0, int y1, int border_size,
+	const char *filename)
 {
 	int x0_b = x0 - border_size;
 	int x1_b = x1 + border_size;
@@ -114,7 +116,7 @@ void saveCell(Image *image, int x0, int x1, int y0, int y1, int border_size, con
 }
 
 void saveCells(Image *image, int border_size, int *coords_x, int *coords_y,
-		const char *basename)
+	const char *basename)
 {
 	int nb_cells = getNbCells();
 	addBorders(image, border_size, 127);
@@ -133,7 +135,7 @@ void saveCells(Image *image, int border_size, int *coords_x, int *coords_y,
 	{
 		for (int j = 0; j < nb_cells; j++)
 		{
-			snprintf(filename, len, "%s/%02d_%02d.png", dirname, i+1, j+1);
+			snprintf(filename, len, "%s/%02d_%02d.png", dirname, i + 1, j + 1);
 			x0 = coords_x[i];
 			x1 = coords_x[i + 1];
 			y0 = coords_y[j];
@@ -146,12 +148,13 @@ void saveCells(Image *image, int border_size, int *coords_x, int *coords_y,
 void loadDefaultCells(Image **cells, char *dirname)
 {
 	int nb_cells = getNbCells();
-	for (int i = 0; i < nb_cells; i++) {
+	for (int i = 0; i < nb_cells; i++)
+	{
 		if (cells[i] == NULL)
 		{
 			st len = strlen(dirname) + 8;
 			char filename[len];
-			snprintf(filename, len, "%s/%d.png", dirname, i+1);
+			snprintf(filename, len, "%s/%d.png", dirname, i + 1);
 			Image *image = openImage(filename, 4);
 			createAlpha(image, 0, 191);
 			toColor(image, 0, 255, 0);
@@ -159,7 +162,6 @@ void loadDefaultCells(Image **cells, char *dirname)
 		}
 	}
 }
-
 
 Image **loadCells(int **grid, char *dirname)
 {
@@ -181,7 +183,8 @@ Image **loadCells(int **grid, char *dirname)
 				continue;
 			st len = strlen(dirname) + 17;
 			char filename[len];
-			snprintf(filename, len, "board_%s/%02d_%02d.png", dirname, i+1, j+1);
+			snprintf(filename, len, "board_%s/%02d_%02d.png", dirname, i + 1,
+				j + 1);
 			Image *image = openImage(filename, 4);
 			resizeImage(image, 256, 256);
 			invertImage(image);

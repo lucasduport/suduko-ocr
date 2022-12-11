@@ -1,17 +1,17 @@
 #if 0
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <err.h>
-#include <stdio.h>
-#include <string.h>
-#include "display.h"
-#include "filters.h"
-#include "hough.h"
-#include "saveImage.h"
-#include "tools.h"
-#include "transformImage.h"
-#include "cellExtraction.h"
+#	include <SDL2/SDL.h>
+#	include <SDL2/SDL_image.h>
+#	include <err.h>
+#	include <stdio.h>
+#	include <string.h>
+#	include "cellExtraction.h"
+#	include "display.h"
+#	include "filters.h"
+#	include "hough.h"
+#	include "saveImage.h"
+#	include "tools.h"
+#	include "transformImage.h"
 
 // function directly copied from ../Solver/main.c
 // cannot import it beacause of the presence of a main function

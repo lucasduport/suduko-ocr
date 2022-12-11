@@ -4,7 +4,6 @@
 #include "ui.h"
 #include "widgetGestion.h"
 
-
 void newSudokuImage(Menu *menu, char *filename);
 
 void SudokuImageFromImage(Menu *menu, Image *image);
@@ -21,4 +20,4 @@ void loadImage(Menu *menu, char *filename);
 
 gboolean isLoadableImage(char *path);
 
-Image* solveForUI(Menu *menu);
+Image *solveForUI(Menu *menu);

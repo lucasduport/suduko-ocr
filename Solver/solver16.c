@@ -166,7 +166,8 @@ int solver16(int **array) {
 				indexCell--;
 				// Not sure about this
 				if (indexCell < 0) {
-					for (int i = 0; i < nbCell; i++) array[x[i]][y[i]] = v[i] + 1;
+					for (int i = 0; i < nbCell; i++)
+						array[x[i]][y[i]] = v[i] + 1;
 					printf("Not solvable\n");
 					return 0;
 				}

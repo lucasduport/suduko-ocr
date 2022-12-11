@@ -1,5 +1,5 @@
-#include <string.h>
 #include <dirent.h>
+#include <string.h>
 #include "interactions.h"
 #include "linkForUI.h"
 
@@ -92,7 +92,7 @@ void on_save_clicked(GtkWidget *widget, gpointer data)
 
 	gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
 	gtk_file_chooser_set_current_name(chooser, "image.png");
-	gtk_file_chooser_set_create_folders (chooser, TRUE);
+	gtk_file_chooser_set_create_folders(chooser, TRUE);
 
 	res = gtk_dialog_run(GTK_DIALOG(dialog));
 	if (res == GTK_RESPONSE_ACCEPT)
@@ -126,7 +126,8 @@ void on_autoDetect_clicked(GtkWidget *widget, gpointer data)
 	Quad *quad = detectGrid(betterForLines);
 	if (quad == NULL)
 	{
-		displayColoredText(menu->filters_warn_label, "Sudoku grid not found", "red");
+		displayColoredText(
+			menu->filters_warn_label, "Sudoku grid not found", "red");
 		freeImage(betterForLines);
 		return;
 	}
@@ -157,7 +158,8 @@ void resetFilters(Menu *menu)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(menu->sobel_button), FALSE);
 
 	GtkWidget *toSens[] = {GTK_WIDGET(menu->autoDetect_button),
-		GTK_WIDGET(menu->grayscale_button), GTK_WIDGET(menu->solve_button), NULL};
+		GTK_WIDGET(menu->grayscale_button), GTK_WIDGET(menu->solve_button),
+		NULL};
 	changeSensivityWidgets(toSens, 1);
 	if (menu->solvedImage != NULL)
 	{
@@ -241,7 +243,6 @@ void on_rotate_clockwise_clicked(GtkWidget *widget, gpointer data)
 	freeImage(menu->redimImage);
 	menu->redimImage = r;
 	refreshImage(widget, data);
-
 }
 
 void on_rotate_anticlockwise_clicked(GtkWidget *widget, gpointer data)
@@ -251,7 +252,6 @@ void on_rotate_anticlockwise_clicked(GtkWidget *widget, gpointer data)
 	freeImage(menu->redimImage);
 	menu->redimImage = r;
 	refreshImage(widget, data);
-
 }
 
 void on_manuDetect_clicked(GtkWidget *widget, gpointer data)
@@ -270,7 +270,9 @@ void on_manuDetect_clicked(GtkWidget *widget, gpointer data)
 		GTK_WIDGET(menu->autoDetect_button),
 		GTK_WIDGET(menu->resetFilters_button), GTK_WIDGET(menu->solve_button),
 		NULL};
-	if (strcmp(gtk_label_get_text(GTK_LABEL(menu->manuDetect_label)), "Manual crop") == 0)
+	if (strcmp(gtk_label_get_text(GTK_LABEL(menu->manuDetect_label)),
+			"Manual crop")
+		== 0)
 	{
 		changeSensivityWidgets(toModifSens, 0);
 
@@ -452,7 +454,8 @@ void on_solve_clicked(GtkWidget *widget, gpointer data)
 	}
 }
 /*
-void on_window_resize(GtkWidget* widget, GdkEventConfigure event, gpointer user_data)
+void on_window_resize(GtkWidget* widget, GdkEventConfigure event, gpointer
+user_data)
 {
 	(void)event;
 	// avoid warning about unused parameter
@@ -461,8 +464,8 @@ void on_window_resize(GtkWidget* widget, GdkEventConfigure event, gpointer user_
 	int widget_height = gtk_widget_get_allocated_height(widget);
 	printf("Widget width: %d, height: %d\n", widget_width, widget_height);
 	printf("grid %p\n", menu->file_select_grid);
-	gtk_fixed_move(menu->fixed1, GTK_WIDGET(menu->file_select_grid), (WINDOW_WIDTH - widget_width) / 2,
-		(WINDOW_HEIGHT - widget_height) / 2);
+	gtk_fixed_move(menu->fixed1, GTK_WIDGET(menu->file_select_grid),
+(WINDOW_WIDTH - widget_width) / 2, (WINDOW_HEIGHT - widget_height) / 2);
 	return;
 }
 */

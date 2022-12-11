@@ -5,11 +5,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "tools.h"
 #include "saveImage.h"
 #include "display.h"
+#include "tools.h"
 
-//used for UI
+// used for UI
 void saveImage(Image *image, const char *filename)
 {
 	SDL_Surface *surface = imageToSurface(image);

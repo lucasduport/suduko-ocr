@@ -1,32 +1,31 @@
+#include <err.h>
 #include "cellsDetection.h"
 #include "image.h"
-#include "tools.h"
 #include "param.h"
-#include <err.h>
+#include "tools.h"
 
 int *buildHistoH(Image *image)
 {
-    st width = image->width;
-    st height = image->height;
+	st width = image->width;
+	st height = image->height;
 	uc *channel = image->channels[0];
-	int *histo_h = (int *)malloc(sizeof(int)*height);
+	int *histo_h = (int *)malloc(sizeof(int) * height);
 	if (histo_h == NULL)
 		errx(EXIT_FAILURE, "malloc failed");
 	for (st y = 0; y < height; y++)
 	{
 		int sum = 0;
 		for (st x = 0; x < width; x++)
-		    sum += channel[y * width + x];
+			sum += channel[y * width + x];
 		histo_h[y] = sum;
 	}
 
 	return histo_h;
-
 }
 
 int *buildHistoV(Image *image)
 {
-    st width = image->width;
+	st width = image->width;
 	st height = image->height;
 	uc *channel = image->channels[0];
 	int *histo_v = (int *)malloc(width * sizeof(int));
@@ -36,7 +35,7 @@ int *buildHistoV(Image *image)
 	{
 		int sum = 0;
 		for (st y = 0; y < height; y++)
-		    sum += channel[y * width + x];
+			sum += channel[y * width + x];
 		histo_v[x] = sum;
 	}
 
@@ -54,7 +53,7 @@ void detectNbLines(int *histo, st len, st nb_lines, int *coords, int *values)
 		int x_max = x0;
 		for (int x = x0 - range; x < x0 + range; x++)
 		{
-		    if (histo[x] > max)
+			if (histo[x] > max)
 			{
 				max = histo[x];
 				x_max = x;
@@ -65,7 +64,8 @@ void detectNbLines(int *histo, st len, st nb_lines, int *coords, int *values)
 	}
 }
 
-void completeCoords(int *coords_in, int *coords_out, int len, int mean, int max)
+void completeCoords(
+	int *coords_in, int *coords_out, int len, int mean, int max)
 {
 	for (int i = 1; i < len; i++)
 		coords_out[i] = coords_in[i - 1];
@@ -107,7 +107,7 @@ int getGridDimension(Image *image, int **coords_x, int **coords_y)
 	mean_9 += coords_v_9[7] - coords_v_9[0];
 	mean_9 /= 14;
 	float var_9 = 0;
-    for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		float val = coords_h_9[i];
 		var_9 += (val - mean_9) * (val - mean_9);
@@ -121,7 +121,7 @@ int getGridDimension(Image *image, int **coords_x, int **coords_y)
 	mean_16 += coords_v_16[14] - coords_v_16[0];
 	mean_16 /= 28;
 	float var_16 = 0;
-    for (int i = 0; i < 15; i++)
+	for (int i = 0; i < 15; i++)
 	{
 		float val = coords_h_16[i];
 		var_16 += (val - mean_16) * (val - mean_16);

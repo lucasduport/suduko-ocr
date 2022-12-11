@@ -1,29 +1,25 @@
 #pragma once
 
-#include <gtk/gtk.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fts.h>
-#include <sys/stat.h>
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <err.h>
+#include <fts.h>
+#include <gtk/gtk.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-
-#include "../ImageProcessing/display.h"
-#include "../ImageProcessing/filters.h"
-#include "../ImageProcessing/hough.h"
-#include "../ImageProcessing/saveImage.h"
-#include "../ImageProcessing/tools.h"
-#include "../ImageProcessing/transformImage.h"
+#include <sys/stat.h>
 #include "../ImageProcessing/cellExtraction.h"
 #include "../ImageProcessing/cellsDetection.h"
 #include "../ImageProcessing/centerCell.h"
+#include "../ImageProcessing/display.h"
+#include "../ImageProcessing/filters.h"
+#include "../ImageProcessing/hough.h"
 #include "../ImageProcessing/param.h"
-
+#include "../ImageProcessing/saveImage.h"
+#include "../ImageProcessing/tools.h"
+#include "../ImageProcessing/transformImage.h"
 #include "../NeuralNetwork/Network.h"
-
 #include "../Solver/solver.h"
 #include "../Solver/solver16.h"
 
@@ -73,4 +69,4 @@ typedef struct
 void uiLaunch();
 int rmDir(const char *dir);
 int isRegFile(char *path);
-char ** getFilenamesInDir(char *filename);
+char **getFilenamesInDir(char *filename);

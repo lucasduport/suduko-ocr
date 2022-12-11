@@ -24,7 +24,7 @@ double *centerInput(const char *path)
 
 void fastSolving(GtkLabel *upload_warn, char *foldername)
 {
-	char ** filenames = getFilenamesInDir(foldername);
+	char **filenames = getFilenamesInDir(foldername);
 	if (filenames == NULL)
 	{
 		return;
@@ -34,7 +34,8 @@ void fastSolving(GtkLabel *upload_warn, char *foldername)
 		mkdir("fastSolved/", 448);
 	st fileCount = 0;
 	st fileSuccessedCount = 0;
-	for(char *filename = filenames[fileCount]; filename != NULL; fileCount++, filename = filenames[fileCount])
+	for (char *filename = filenames[fileCount]; filename != NULL;
+		 fileCount++, filename = filenames[fileCount])
 	{
 		printf("Fast solving %s\n", filename);
 		Image *final = openImage(filename, 4);
@@ -76,7 +77,8 @@ void fastSolving(GtkLabel *upload_warn, char *foldername)
 		}
 		char filename_stripped[30];
 		cleanPath(filename, filename_stripped);
-		saveCells(extracted, border_size, coords_x, coords_y, filename_stripped);
+		saveCells(
+			extracted, border_size, coords_x, coords_y, filename_stripped);
 		freeImage(extracted);
 		for (int i = 0; i < nb_cells + 1; i++)
 		{
@@ -96,10 +98,14 @@ void fastSolving(GtkLabel *upload_warn, char *foldername)
 		switch (nb_cells)
 		{
 			case 9:
-				Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
+				Network_Load(
+					net, "../NeuralNetwork/TrainedNetwork/"
+						 "NeuralNetData_3layers_OCR-Biased_100.0.dnn");
 				break;
 			case 16:
-				Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
+				Network_Load(
+					net, "../NeuralNetwork/TrainedNetwork/"
+						 "NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
 				break;
 			default:
 				errx(1, "Unsupported grid size");
@@ -111,7 +117,8 @@ void fastSolving(GtkLabel *upload_warn, char *foldername)
 			for (int j = 0; j < nb_cells; j++)
 			{
 				char path[40];
-				sprintf(path, "board_%s/%02d_%02d.png", filename_stripped, i + 1, j + 1);
+				sprintf(path, "board_%s/%02d_%02d.png", filename_stripped,
+					i + 1, j + 1);
 				double *input = centerInput(path);
 				results[nb_cells * j + i] = Network_Predict(net, input, 784);
 				free(input);
@@ -191,7 +198,8 @@ void fastSolving(GtkLabel *upload_warn, char *foldername)
 				{
 					for (int x = 0; x < 256; x++)
 					{
-						new_channel[(y + 64) * 384 + (x + 64)] = channel[y * 256 + x];
+						new_channel[(y + 64) * 384 + (x + 64)]
+							= channel[y * 256 + x];
 					}
 				}
 				free(channel);
@@ -207,20 +215,22 @@ void fastSolving(GtkLabel *upload_warn, char *foldername)
 				if (!sudoku[j][i] && solved[j][i])
 				{
 					int n = solved[j][i];
-					placeDigit(final, digits[n - 1], quad, coords_x[i], coords_y[j]);
+					placeDigit(
+						final, digits[n - 1], quad, coords_x[i], coords_y[j]);
 				}
 			}
 		}
 		free(coords_x);
 		free(coords_y);
-		
+
 		char saveName[50];
 		sprintf(saveName, "fastSolved/%s_solved.png", filename_stripped);
-		autoResize(final, WINDOW_WIDTH * IMAGE_RATIO, WINDOW_HEIGHT * IMAGE_RATIO);
+		autoResize(
+			final, WINDOW_WIDTH * IMAGE_RATIO, WINDOW_HEIGHT * IMAGE_RATIO);
 		saveImage(final, saveName);
 		printf("Saved to %s\n", saveName);
 
-		//remove saved cells (not needed when fastSvolving)
+		// remove saved cells (not needed when fastSvolving)
 		sprintf(saveName, "board_%s", filename_stripped);
 		rmDir(saveName);
 		freeQuad(quad);
@@ -240,16 +250,12 @@ void fastSolving(GtkLabel *upload_warn, char *foldername)
 	}
 	free(filenames);
 	char toPrint[50];
-	sprintf(toPrint, "Solved %zu grids on %zu files", fileSuccessedCount, fileCount);
+	sprintf(toPrint, "Solved %zu grids on %zu files", fileSuccessedCount,
+		fileCount);
 	displayColoredText(upload_warn, toPrint, "green");
 }
 
-
 //------------------------------------------------------------
-
-
-
-
 
 //------------------------------------------------------------
 gboolean getSolvedImage(gpointer data)
@@ -274,7 +280,8 @@ gboolean getSolvedImage(gpointer data)
 	Quad *quad = detectGrid(image);
 	if (quad == NULL)
 	{
-		displayColoredText(menu->filters_warn_label, "No grid detected", "red");
+		displayColoredText(
+			menu->filters_warn_label, "No grid detected", "red");
 		return FALSE;
 	}
 	Image *extracted = extractGrid(to_extract, quad, 1440, 1440);
@@ -313,10 +320,13 @@ gboolean getSolvedImage(gpointer data)
 	switch (nb_cells)
 	{
 		case 9:
-			Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
+			Network_Load(net, "../NeuralNetwork/TrainedNetwork/"
+							  "NeuralNetData_3layers_OCR-Biased_100.0.dnn");
 			break;
 		case 16:
-			Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
+			Network_Load(
+				net, "../NeuralNetwork/TrainedNetwork/"
+					 "NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
 			break;
 		default:
 			errx(1, "Unsupported grid size");
@@ -328,13 +338,14 @@ gboolean getSolvedImage(gpointer data)
 		for (int j = 0; j < nb_cells; j++)
 		{
 			char path[40];
-			sprintf(path, "board_%s/%02d_%02d.png", filename_stripped, i + 1, j + 1);
+			sprintf(path, "board_%s/%02d_%02d.png", filename_stripped, i + 1,
+				j + 1);
 			double *input = centerInput(path);
 			results[nb_cells * j + i] = Network_Predict(net, input, 784);
 			free(input);
 			int imax = 0;
 			float max = 0;
-			//printf("[");
+			// printf("[");
 			for (int k = 0; k < 10; k++)
 			{
 				float proba = results[j * nb_cells + i][k];
@@ -384,12 +395,13 @@ gboolean getSolvedImage(gpointer data)
 		}
 		free(sudoku);
 		free(solved);
-		displayColoredText(menu->filters_warn_label, "No solution found", "red");
+		displayColoredText(
+			menu->filters_warn_label, "No solution found", "red");
 		return FALSE;
 	}
 	char dirname[30];
 	cleanPath(filename, dirname);
-	//printf("dirname = %s\n", dirname);
+	// printf("dirname = %s\n", dirname);
 	Image **digits = loadCells(sudoku, dirname);
 	for (int i = 0; i < nb_cells; i++)
 	{
@@ -407,7 +419,8 @@ gboolean getSolvedImage(gpointer data)
 			{
 				for (int x = 0; x < 256; x++)
 				{
-					new_channel[(y + 64) * 384 + (x + 64)] = channel[y * 256 + x];
+					new_channel[(y + 64) * 384 + (x + 64)]
+						= channel[y * 256 + x];
 				}
 			}
 			free(channel);
@@ -423,7 +436,8 @@ gboolean getSolvedImage(gpointer data)
 			if (!sudoku[j][i] && solved[j][i])
 			{
 				int n = solved[j][i];
-				placeDigit(final, digits[n - 1], quad, coords_x[i], coords_y[j]);
+				placeDigit(
+					final, digits[n - 1], quad, coords_x[i], coords_y[j]);
 			}
 		}
 	}

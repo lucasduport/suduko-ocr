@@ -40,4 +40,5 @@ void entry_drag_data_received(GtkWidget *widget, GdkDragContext *context,
 	gint x, gint y, GtkSelectionData *data, guint info, guint time,
 	gpointer userdata);
 
-//void on_window_resize( GtkWidget* widget, GdkEventConfigure event, gpointer user_data);
+// void on_window_resize( GtkWidget* widget, GdkEventConfigure event, gpointer
+// user_data);

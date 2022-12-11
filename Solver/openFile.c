@@ -1,5 +1,5 @@
-#include "solver.h"
 #include "openFile.h"
+#include "solver.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +11,7 @@ void fileProcessing(const char *filename) {
 	FILE *file = fopen(filename, "r");
 	if (!file) fprintf(stderr, "malloc file failed");
 	size_t count;
-	char buffer = 'a'; //modified
+	char buffer = 'a'; // modified
 	int value;
 	size_t i = 0;
 	size_t j = 0;
@@ -33,9 +33,8 @@ void fileProcessing(const char *filename) {
 	fclose(file);
 
 	solver(array);
-    if (count > 10000)
-        return;
-    /*for (int i=0; i<9; i++)
+	if (count > 10000) return;
+	/*for (int i=0; i<9; i++)
 	{
 		for (int j=0; j<9; j++)
 		{
@@ -45,20 +44,19 @@ void fileProcessing(const char *filename) {
 		printf("\n");
 		if ((i+1)%3==0) printf("\n");
 	}*/
-   
-    strcat((char*)filename, ".result");
-    FILE *finalFile = NULL;
-    finalFile = fopen(filename, "w");
-    if (!finalFile) fprintf(stderr, "malloc final file failed");
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) {
-            if (j == 3 || j == 6) fputc(' ', finalFile);
-            fputc(array[i][j] + '0', finalFile);
-        }
-        if (i == 2 || i == 5) fputc('\n', finalFile);
-        fputc('\n', finalFile);
-    }
-    fclose(finalFile);
-     for (int i = 0; i < 9; i++)
-        free(array[i]);
+
+	strcat((char *)filename, ".result");
+	FILE *finalFile = NULL;
+	finalFile = fopen(filename, "w");
+	if (!finalFile) fprintf(stderr, "malloc final file failed");
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			if (j == 3 || j == 6) fputc(' ', finalFile);
+			fputc(array[i][j] + '0', finalFile);
+		}
+		if (i == 2 || i == 5) fputc('\n', finalFile);
+		fputc('\n', finalFile);
+	}
+	fclose(finalFile);
+	for (int i = 0; i < 9; i++) free(array[i]);
 }

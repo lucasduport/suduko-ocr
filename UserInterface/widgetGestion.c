@@ -50,7 +50,10 @@ gboolean waitForHideWarning(gpointer data)
 
 void displayColoredText(GtkLabel *label, char *message, char *color)
 {
-	char *markup = g_markup_printf_escaped("<span foreground='%s'><span font_desc='Tlwg Typo Bold 12'>%s</span></span>", color, message);
+	char *markup = g_markup_printf_escaped(
+		"<span foreground='%s'><span font_desc='Tlwg Typo Bold "
+		"12'>%s</span></span>",
+		color, message);
 	gtk_label_set_markup(GTK_LABEL(label), markup);
 	gtk_widget_show(GTK_WIDGET(label));
 	g_timeout_add_seconds(2, waitForHideWarning, label);
@@ -59,15 +62,17 @@ void displayColoredText(GtkLabel *label, char *message, char *color)
 }
 
 /*
-void displaySolvingState(GtkWidget *pBar, double percent, GtkLabel *label, char *message)
+void displaySolvingState(GtkWidget *pBar, double percent, GtkLabel *label, char
+*message)
 {
 	char color[10];
 	double maxWidth = 250;
 	strstr(message, "...") ? strcpy(color, "black") : strcpy(color, "green");
-	char *markup = g_markup_printf_escaped("<span foreground='%s'><span font_desc='Tlwg Typo Bold 13'>%s</span></span>", color, message);
+	char *markup = g_markup_printf_escaped("<span foreground='%s'><span
+font_desc='Tlwg Typo Bold 13'>%s</span></span>", color, message);
 	gtk_label_set_markup(GTK_LABEL(label), markup);
 	free(markup);
-	gtk_widget_set_size_request(GTK_WIDGET(pBar), (int) (maxWidth * percent), 15);
-	return;
+	gtk_widget_set_size_request(GTK_WIDGET(pBar), (int) (maxWidth * percent),
+15); return;
 }
 */

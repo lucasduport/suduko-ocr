@@ -46,7 +46,6 @@ void uiLaunch()
 	GtkButton *solve_button
 		= GTK_BUTTON(gtk_builder_get_object(builder, "solve"));
 
-
 	GtkLabel *upload_warn_label
 		= GTK_LABEL(gtk_builder_get_object(builder, "upload_warn_label"));
 	GtkLabel *filters_warn_label
@@ -62,7 +61,6 @@ void uiLaunch()
 		= GTK_EVENT_BOX(gtk_builder_get_object(builder, "crop_corner4"));
 	GtkEventBox *crop_corners[5]
 		= {NULL, crop_corner1, crop_corner2, crop_corner3, crop_corner4};
-	
 
 	//---------MENU STRUCT INITIALIZATION---------//
 	Menu *menu = malloc(sizeof(Menu));
@@ -134,7 +132,6 @@ void uiLaunch()
 	g_signal_connect(
 		gaussian_button, "toggled", G_CALLBACK(refreshImage), menu);
 	g_signal_connect(sobel_button, "toggled", G_CALLBACK(refreshImage), menu);
-
 
 	g_signal_connect(rotate_left_button, "clicked",
 		G_CALLBACK(on_rotate_clockwise_clicked), menu);
@@ -244,7 +241,7 @@ int isRegFile(char *path)
 	return S_ISREG(path_stat.st_mode);
 }
 
-char** getFilenamesInDir(char *filename)
+char **getFilenamesInDir(char *filename)
 {
 	DIR *dir = opendir(filename);
 	struct dirent *entry;
@@ -252,11 +249,13 @@ char** getFilenamesInDir(char *filename)
 	char **toReturn = NULL;
 	while ((entry = readdir(dir)) != NULL)
 	{
-		char *path = malloc(sizeof(char) * (strlen(filename) + strlen(entry->d_name) + 2));
+		char *path = malloc(
+			sizeof(char) * (strlen(filename) + strlen(entry->d_name) + 2));
 		strcpy(path, filename);
 		strcat(path, "/");
 		strcat(path, entry->d_name);
-		if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..") || !isLoadableImage(path))
+		if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..")
+			|| !isLoadableImage(path))
 		{
 			free(path);
 			continue;

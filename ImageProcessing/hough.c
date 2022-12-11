@@ -3,17 +3,17 @@
 #include "hough.h"
 #include "display.h"
 #include "filters.h"
+#include "param.h"
 #include "smoothLine.h"
 #include "transformImage.h"
-#include "param.h"
 
 #define RANGE_DEL_R 5
 #define RANGE_DEL_THETA 1
 
 #define NB_SEGMENTS 200
-#define COORDINATES_ERROR 3	// percentage of the size of the image
-#define ANGLE_ERROR 15			// in degrees
-#define LENGTH_ERROR 1.2		// max ratio of length
+#define COORDINATES_ERROR 3 // percentage of the size of the image
+#define ANGLE_ERROR 15		// in degrees
+#define LENGTH_ERROR 1.2	// max ratio of length
 
 int isVertical(st theta)
 {
@@ -359,17 +359,13 @@ int checkCoordinates(Segment *s1, Segment *s2, int p2, int min_dist, int *swap)
 	int diff1, diff2;
 	if (!p2)
 	{
-		diff1 = stDiffSquare(s1->x1, s2->x1) +
-				stDiffSquare(s1->y1, s2->y1);
-		diff2 = stDiffSquare(s1->x1, s2->x2) +
-				stDiffSquare(s1->y1, s2->y2);
+		diff1 = stDiffSquare(s1->x1, s2->x1) + stDiffSquare(s1->y1, s2->y1);
+		diff2 = stDiffSquare(s1->x1, s2->x2) + stDiffSquare(s1->y1, s2->y2);
 	}
 	else
 	{
-		diff1 = stDiffSquare(s1->x2, s2->x1) +
-				stDiffSquare(s1->y2, s2->y1);
-		diff2 = stDiffSquare(s1->x2, s2->x2) +
-				stDiffSquare(s1->y2, s2->y2);
+		diff1 = stDiffSquare(s1->x2, s2->x1) + stDiffSquare(s1->y2, s2->y1);
+		diff2 = stDiffSquare(s1->x2, s2->x2) + stDiffSquare(s1->y2, s2->y2);
 	}
 	if (diff1 <= min_dist)
 	{
@@ -495,20 +491,17 @@ Quad *constructGrid(Segment **segments, st nb_segments, int min_dist)
 				printSegment(segment3, 3);
 				printSegment(segment4, 4);
 				*/
-				Point *p1
-					= getIntersection(segment1, segment2); // top left
-				Point *p2
-					= getIntersection(segment2, segment4); // top right
-				Point *p3
-					= getIntersection(segment1, segment3); // bottom left
+				Point *p1 = getIntersection(segment1, segment2); // top left
+				Point *p2 = getIntersection(segment2, segment4); // top right
+				Point *p3 = getIntersection(segment1, segment3); // bottom left
 				Point *p4
 					= getIntersection(segment3, segment4); // bottom right
 				Point *top_left = getTopLeft(p1, p2, p3, p4);
 				Point *top_right = getTopRight(p1, p2, p3, p4);
 				Point *bottom_left = getBottomLeft(p1, p2, p3, p4);
 				Point *bottom_right = getBottomRight(p1, p2, p3, p4);
-				Quad *quad = newQuad(
-					top_left, top_right, bottom_left, bottom_right);
+				Quad *quad
+					= newQuad(top_left, top_right, bottom_left, bottom_right);
 				return quad;
 			}
 		}
