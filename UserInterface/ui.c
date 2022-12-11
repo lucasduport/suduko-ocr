@@ -28,7 +28,6 @@ void uiLaunch()
 		= GTK_BUTTON(gtk_builder_get_object(builder, "gaussian"));
 	GtkButton *sobel_button
 		= GTK_BUTTON(gtk_builder_get_object(builder, "sobel"));
-	GtkButton *invert_button = GTK_BUTTON(gtk_builder_get_object(builder, "invert"));
 
 	GtkButton *rotate_left_button
 		= GTK_BUTTON(gtk_builder_get_object(builder, "rotate_left"));
@@ -81,7 +80,6 @@ void uiLaunch()
 	menu->grayscale_button = grayscale_button;
 	menu->gaussian_button = gaussian_button;
 	menu->sobel_button = sobel_button;
-	menu->invert_button = invert_button;
 
 	menu->autoDetect_button = autoDetect_button;
 	menu->manuDetect_label = manuDetect_label;
@@ -134,10 +132,9 @@ void uiLaunch()
 	g_signal_connect(
 		grayscale_button, "toggled", G_CALLBACK(on_grayscale_toggled), menu);
 	g_signal_connect(
-		invert_button, "toggled", G_CALLBACK(on_invert_toggled), menu);
-	g_signal_connect(
 		gaussian_button, "toggled", G_CALLBACK(refreshImage), menu);
 	g_signal_connect(sobel_button, "toggled", G_CALLBACK(refreshImage), menu);
+
 
 	g_signal_connect(rotate_left_button, "clicked",
 		G_CALLBACK(on_rotate_clockwise_clicked), menu);
@@ -155,7 +152,7 @@ void uiLaunch()
 		solve_button, "clicked", G_CALLBACK(on_solve_clicked), menu);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 	// g_signal_connect(GTK_WIDGET(window), "configure-event",
-	// G_CALLBACK(on_window_resize), menu);
+	// G_CALLBACK(on_window_resize),menu);
 
 	//---------WINDOW  INITIALIZATION---------//
 	gtk_window_set_title(window, "OCR Project");

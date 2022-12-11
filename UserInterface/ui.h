@@ -30,7 +30,7 @@
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 800
 
-#define IMAGE_RATIO 0.7
+#define IMAGE_RATIO 0.6
 
 typedef struct
 {
@@ -48,7 +48,6 @@ typedef struct
 	GtkButton *grayscale_button;
 	GtkButton *gaussian_button;
 	GtkButton *sobel_button;
-	GtkButton *invert_button;
 
 	GtkButton *autoDetect_button;
 	GtkLabel *manuDetect_label;

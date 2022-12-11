@@ -155,9 +155,9 @@ void resetFilters(Menu *menu)
 	gtk_toggle_button_set_active(
 		GTK_TOGGLE_BUTTON(menu->gaussian_button), FALSE);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(menu->sobel_button), FALSE);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(menu->invert_button), FALSE);
+
 	GtkWidget *toSens[] = {GTK_WIDGET(menu->autoDetect_button),
-		GTK_WIDGET(menu->grayscale_button), GTK_WIDGET(menu->solve_button), GTK_WIDGET(menu->invert_button), NULL};
+		GTK_WIDGET(menu->grayscale_button), GTK_WIDGET(menu->solve_button), NULL};
 	changeSensivityWidgets(toSens, 1);
 	if (menu->solvedImage != NULL)
 	{
@@ -173,17 +173,6 @@ void on_grayscale_toggled(GtkWidget *widget, gpointer data)
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
 	{
 		toGrey(menu->redimImage);
-		refreshImage(widget, data);
-	}
-}
-
-void on_invert_toggled(GtkWidget *widget, gpointer data)
-{
-	Menu *menu = (Menu *)data;
-	gtk_widget_set_sensitive(widget, 0);
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
-	{
-		invertImage(menu->redimImage);
 		refreshImage(widget, data);
 	}
 }
