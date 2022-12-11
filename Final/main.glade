@@ -378,33 +378,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkCheckButton" id="invert">
-                <property name="name">invert</property>
-                <property name="height-request">35</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">False</property>
-                <property name="tooltip-text" translatable="yes">Grayscales the image</property>
-                <property name="halign">start</property>
-                <property name="valign">center</property>
-                <property name="draw-indicator">True</property>
-                <child>
-                  <object class="GtkLabel" id="invert_label">
-                    <property name="name">invert_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="label" translatable="yes">Invert</property>
-                    <attributes>
-                      <attribute name="font-desc" value="Tlwg Typo Bold 12"/>
-                    </attributes>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">1</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
               <placeholder/>
