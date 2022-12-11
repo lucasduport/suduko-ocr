@@ -28,7 +28,7 @@ void on_upload_button_clicked(GtkWidget *widget, gpointer data)
 		}
 		else
 		{
-			fastSolving(filename);
+			fastSolving(menu->upload_warn_label, filename);
 		}
 	}
 	else
@@ -54,7 +54,7 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
 		}
 		else
 		{
-			fastSolving(filename);
+			fastSolving(menu->upload_warn_label, filename);
 		}
 	}
 	else
@@ -384,7 +384,7 @@ void upload_drag_data_received(GtkWidget *widget, GdkDragContext *context,
 			}
 			else
 			{
-				fastSolving(filename);
+				fastSolving(menu->upload_warn_label, filename);
 			}
 		}
 	}

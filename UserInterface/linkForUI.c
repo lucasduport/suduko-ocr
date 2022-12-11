@@ -22,7 +22,7 @@ double *centerInput(const char *path)
 	return pixels;
 }
 
-void fastSolving(char *foldername)
+void fastSolving(GtkLabel *upload_warn, char *foldername)
 {
 	char ** filenames = getFilenamesInDir(foldername);
 	if (filenames == NULL)
@@ -33,6 +33,7 @@ void fastSolving(char *foldername)
 	if (stat("fastSolved/", &st_) == -1)
 		mkdir("fastSolved/", 448);
 	st fileCount = 0;
+	st fileSuccessedCount = 0;
 	for(char *filename = filenames[fileCount]; filename != NULL; fileCount++, filename = filenames[fileCount])
 	{
 		printf("Fast solving %s\n", filename);
@@ -92,16 +93,17 @@ void fastSolving(char *foldername)
 			sudoku[i] = (int *)malloc(nb_cells * sizeof(int));
 		}
 		Network *net = (Network *)malloc(sizeof(Network));
-		switch (nb_cells)
-		{
-			case 9:
-				Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
-				break;
-			
-			default:
-				Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
-				break;
-		}
+	switch (nb_cells)
+	{
+		case 9:
+			solver(solved);
+			break;
+		case 16:
+			solver16(solved);
+			break;
+		default:
+			break;
+	}
 		float *results[nb_cells * nb_cells];
 		for (int i = 0; i < nb_cells; i++)
 		{
@@ -137,15 +139,20 @@ void fastSolving(char *foldername)
 				solved[i][j] = sudoku[i][j];
 			}
 		}
+		st solvable = 0;
 		switch (nb_cells)
 		{
-		case 9:
-			if(solver(solved))
+			case 9:
+				solvable = solver(solved);
 				break;
-		case 16:
-			//if (solver16(solved))
-				//break;
-		default:
+			case 16:
+				solvable = solver16(solved);
+				break;
+			default:
+				break;
+		}
+		if (!solvable)
+		{
 			freeImage(final);
 			freeImage(image);
 			free(filename);
@@ -228,10 +235,22 @@ void fastSolving(char *foldername)
 		free(solved);
 		free(digits);
 		free(filename);
+		fileSuccessedCount++;
 	}
 	free(filenames);
+	char toPrint[50];
+	sprintf(toPrint, "Solved %zu grids on %zu files", fileSuccessedCount, fileCount);
+	displayColoredText(upload_warn, toPrint, "green");
 }
 
+
+//------------------------------------------------------------
+
+
+
+
+
+//------------------------------------------------------------
 gboolean getSolvedImage(gpointer data)
 {
 	Menu *menu = (Menu *)data;
@@ -298,7 +317,18 @@ gboolean getSolvedImage(gpointer data)
 		sudoku[i] = (int *)malloc(nb_cells * sizeof(int));
 	}
 	Network *net = (Network *)malloc(sizeof(Network));
-	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
+	switch (nb_cells)
+	{
+		case 9:
+			solver(solved);
+			break;
+		case 16:
+			solver16(solved);
+			break;
+		default:
+			errx(EXIT_FAILURE, "wrong value of nb_cells");
+			break;
+	}
 	//Network_Display(net, 0);
 	float *results[nb_cells * nb_cells];
 	for (int i = 0; i < nb_cells; i++)

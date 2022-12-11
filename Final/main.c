@@ -163,7 +163,19 @@ int noUI(int argc, char **argv)
 		sudoku[i] = (int *)malloc(nb_cells * sizeof(int));
 	}
 	Network *net = (Network *)malloc(sizeof(Network));
-	Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
+	switch (nb_cells)
+	{
+		case 9:
+			Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
+			break;
+		
+		case 16:
+			Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
+			break;
+		default
+			errx(1, "Unsupported grid size");
+			break;
+	}
 	printf("check : %p\n", net);
 	Network_Display(net, 1);
 	float *results[nb_cells * nb_cells];
@@ -233,17 +245,16 @@ int noUI(int argc, char **argv)
 	}
 	switch (nb_cells)
 	{
-	case 9:
-		solver(solved);
-		break;
-	case 16:
-		solver16(solved);
-		break;
-	default:
-		errx(EXIT_FAILURE, "wrong value of nb_cells");
-		break;
+		case 9:
+			solver(solved);
+			break;
+		case 16:
+			solver16(solved);
+			break;
+		default:
+			errx(EXIT_FAILURE, "wrong value of nb_cells");
+			break;
 	}
-
 	/*
 	int a = 10, b = 11, c = 12, d = 13, e = 14, f = 15, n = 16;
 	int _hexa[16][16] = {

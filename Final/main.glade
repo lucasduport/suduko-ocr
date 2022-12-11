@@ -488,7 +488,7 @@
                 <property name="valign">start</property>
                 <property name="label" translatable="yes">Welcome on OCR Project</property>
                 <attributes>
-                  <attribute name="font-desc" value="Tlwg Typist Bold 29"/>
+                  <attribute name="font-desc" value="Tlwg Typo Bold 29"/>
                   <attribute name="weight" value="ultraheavy"/>
                 </attributes>
               </object>
@@ -504,10 +504,9 @@
                 <property name="can-focus">False</property>
                 <property name="halign">start</property>
                 <property name="valign">start</property>
-                <property name="label" translatable="yes">Please select an image or a folder:</property>
-                <attributes>
-                  <attribute name="font-desc" value="Tlwg Typist Bold 14"/>
-                </attributes>
+                <property name="label" translatable="yes">&lt;span font_desc='Tlwg Typo Bold 17'&gt;Please open an image:
+&lt;span font_desc='Tlwg Typo Bold 8'&gt;Tips : you can open a folder to use fast solving mode&lt;/span&gt;&lt;/span&gt;</property>
+                <property name="use-markup">True</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>

@@ -182,7 +182,6 @@ void uiLaunch()
 	gtk_widget_destroy(GTK_WIDGET(window));
 	free(menu->imageOrigin);
 	free(menu);
-	rmDir("tmpImg");
 	return;
 }
 

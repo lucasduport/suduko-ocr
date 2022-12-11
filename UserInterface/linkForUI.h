@@ -6,4 +6,4 @@ double *centerInput(const char *path);
 
 gboolean getSolvedImage(gpointer data);
 
-void fastSolving(char *foldername);
+void fastSolving(GtkLabel *upload_warn, char *foldername);
