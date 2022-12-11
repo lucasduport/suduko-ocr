@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
 		for (int j = 0; j < 16; j++)
 		{
 			if (!_hexa[i][j])
-				hexa[i][j] = -1;
+				hexa[i][j] = 0;
 			else
 				hexa[i][j] = _hexa[i][j];
 		}

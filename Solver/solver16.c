@@ -9,18 +9,19 @@ bool isOnCol16[16][16];
 bool isOnBloc16[16][16];
 
 int findBestCell16(int x[256], int y[256], int v[256], int nbCell, int *value) {
+	// int nbval[256][256];
 	int possibleVals[256][256][16];
 
 	*value = -1;
-	int bestCell = 0, mini = 1000;
+	int bestCell = 0, mini = 100;
 	for (int i = 0; i < nbCell; i++) {
-		for (int k = 0; k < 16; k++) possibleVals[x[i]][y[i]][k] = 0; //modified
+		for (int k = 0; k < 16; k++) possibleVals[x[i]][y[i]][k] = 0;
 
 		if (v[i] == -1) {
 			int val = 0, cvalue = 0;
-			for (int k = 0; k < 16; k++) { //modified
+			for (int k = 0; k < 16; k++) {
 				if (!isOnRow16[x[i]][k] && !isOnCol16[y[i]][k]
-					&& !isOnBloc16[4 * (x[i] / 4) + (y[i] / 4)][k]) { //modified
+					&& !isOnBloc16[4 * (x[i] / 4) + (y[i] / 4)][k]) {
 					cvalue = k;
 					val++;
 					possibleVals[x[i]][y[i]][k] = 1;
@@ -38,10 +39,10 @@ int findBestCell16(int x[256], int y[256], int v[256], int nbCell, int *value) {
 	}
 
 	// Row
-	for (int i = 0; i < 16; i++) { //modified
-		for (int k = 0; k < 16; k++) { //modified
+	for (int i = 0; i < 16; i++) {
+		for (int k = 0; k < 16; k++) {
 			int countValue = 0, rowValue = 0;
-			for (int j = 0; j < 16; j++) { //modified
+			for (int j = 0; j < 16; j++) {
 				if (possibleVals[i][j][k] == 1) {
 					countValue++;
 					rowValue = j;
@@ -59,10 +60,10 @@ int findBestCell16(int x[256], int y[256], int v[256], int nbCell, int *value) {
 		}
 	}
 	// Column
-	for (int i = 0; i < 16; i++) { //modified
-		for (int k = 0; k < 16; k++) { //modified
+	for (int i = 0; i < 16; i++) {
+		for (int k = 0; k < 16; k++) {
 			int countValue = 0, colValue = 0;
-			for (int j = 0; j < 16; j++) { //modified
+			for (int j = 0; j < 16; j++) {
 				if (possibleVals[j][i][k] == 1) {
 					countValue++;
 					colValue = j;
@@ -81,14 +82,14 @@ int findBestCell16(int x[256], int y[256], int v[256], int nbCell, int *value) {
 	}
 
 	// Bloc
-	for (int i = 0; i < 16; i++) { //modified
-		int vx = 4 * (i / 4); //modified
-		int vy = (i % 4) * 4; //modified
+	for (int i = 0; i < 16; i++) {
+		int vx = 4 * (i / 4);
+		int vy = (i % 4) * 4;
 
-		for (int k = 0; k < 16; k++) { //modified
+		for (int k = 0; k < 16; k++) {
 			int countValue = 0, blocValue = 0;
-			for (int j = 0; j < 16; j++) { //modified
-				if (possibleVals[vx + (j / 4)][vy + (j % 4)][k] == 1) { //modified
+			for (int j = 0; j < 16; j++) {
+				if (possibleVals[vx + (j / 4)][vy + (j % 4)][k] == 1) {
 					countValue++;
 					blocValue = j;
 					if (countValue > 1) break;
@@ -96,8 +97,8 @@ int findBestCell16(int x[256], int y[256], int v[256], int nbCell, int *value) {
 			}
 			if (countValue == 1) {
 				for (int vc = 0; vc < nbCell; vc++) {
-					if ((x[vc] == vx + (blocValue / 4)) //modified
-						&& y[vc] == vy + (blocValue % 4)) { //modified
+					if ((x[vc] == vx + (blocValue / 4))
+						&& y[vc] == vy + (blocValue % 4)) {
 						*value = k;
 						return vc;
 					}
@@ -110,23 +111,24 @@ int findBestCell16(int x[256], int y[256], int v[256], int nbCell, int *value) {
 
 int solver16(int **array) {
 	// Initialization of the arrays
-	for (int i = 0; i < 16; i++) //modified
-		for (int j = 0; j < 16; j++) //modified
+	for (int i = 0; i < 16; i++)
+		for (int j = 0; j < 16; j++)
 			isOnRow16[i][j] = isOnCol16[i][j] = isOnBloc16[i][j] = false;
+
 	// List cells to find
 	int k;
 	int nbCell = 0;
-	int x[256], y[256], v[256], s[256], f[256]; //modified
-	for (int i = 0; i < 16; i++) { //modified
-		for (int j = 0; j < 16; j++) { //modified
-			if ((k = array[i][j]) == 16) { //modified ???
+	int x[256], y[256], v[256], s[256], f[256];
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 16; j++) {
+			if ((k = array[i][j]) == 0) {
 				x[nbCell] = i;
 				y[nbCell] = j;
 				v[nbCell] = -1;
 				nbCell++;
 			} else
-				isOnRow16[i][k] = isOnCol16[j][k]
-					= isOnBloc16[4 * (i / 4) + (j / 4)][k] = true; //modified ?
+				isOnRow16[i][k - 1] = isOnCol16[j][k - 1]
+					= isOnBloc16[4 * (i / 4) + (j / 4)][k - 1] = true;
 		}
 	}
 
@@ -144,37 +146,44 @@ int solver16(int **array) {
 
 	while (indexCell < nbCell) {
 		countMove++;
-        if (countMove > 100000000) {
-            countMove = 0;
-            return countMove;
-        }
+		if (countMove > 10000) {
+			countMove = 0;
+			return countMove;
+		}
 
 		int vx = x[s[indexCell]];
 		int vy = y[s[indexCell]];
 
 		currVal++;
-		if (currVal > 15) { //modified
+		if (currVal > 15) {
 			if (indexCell == 0) {
 				for (int i = 0; i < nbCell; i++) array[x[i]][y[i]] = v[i] + 1;
 				return 0;
 			}
 			int bContinue = 1;
-			while (bContinue && indexCell != 0) {
+			while (bContinue) {
 				v[s[indexCell]] = -1;
 				indexCell--;
+				// Not sure about this
+				if (indexCell < 0) {
+					for (int i = 0; i < nbCell; i++) array[x[i]][y[i]] = v[i] + 1;
+					printf("Not solvable\n");
+					return 0;
+				}
+				// \Not sure about this
 				currVal = v[s[indexCell]];
 				vx = x[s[indexCell]];
 				vy = y[s[indexCell]];
 				isOnRow16[vx][currVal] = isOnCol16[vy][currVal]
-					= isOnBloc16[4 * (vx / 4) + (vy / 4)][currVal] = false; //modified
+					= isOnBloc16[4 * (vx / 4) + (vy / 4)][currVal] = false;
 				if (f[s[indexCell] == -1]) bContinue = 0;
 			}
 		} else {
 			if (!isOnRow16[vx][currVal] && !isOnCol16[vy][currVal]
-				&& !isOnBloc16[4 * (vx / 4) + (vy / 4)][currVal]) { //modified
+				&& !isOnBloc16[4 * (vx / 4) + (vy / 4)][currVal]) {
 				v[s[indexCell]] = currVal;
 				isOnRow16[vx][currVal] = isOnCol16[vy][currVal]
-					= isOnBloc16[4 * (vx / 4) + (vy / 4)][currVal] = true; //modified
+					= isOnBloc16[4 * (vx / 4) + (vy / 4)][currVal] = true;
 				indexCell++;
 				s[indexCell] = findBestCell16(x, y, v, nbCell, &value);
 				f[s[indexCell]] = currVal = -1;
