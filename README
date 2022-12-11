@@ -85,39 +85,18 @@ sudo apt-get install libgtk-3-dev
 <pre><code>make clear
 </code></pre>
 
-<p>Shortcut for Training demo; arg attempt=[int]</p>
-
-<pre><code>make runTrain
-</code></pre>
-
-<p>Shortcut for Prediction demo; arg v1=[0|1] &amp; v2=[0|1]</p>
-
-<pre><code>make runPredict
-</code></pre>
-
-<h3>Run</h3>
-
 <ul>
 <li><p>Training:</p>
 
-<pre><code>./NeuralNetwork TrainXOR [Config file (*.cfg)] [Number of attempt]
-</code></pre></li>
-<li><p>Prediction:</p>
-
-<pre><code>./NeuralNetwork PredictXOR [NeuralNetwork data (*.dnn)] [0|1] [0|1]
+<pre><code>./NeuralNetwork Train [Config file (*.cfg)] [Training data (.bin)] [Validation data (.bin)] [Number of attempt] [Transfer Network (.dnn)]
 </code></pre></li>
 </ul>
 
 <h3>Examples:</h3>
 
-<p>Example of train with 1000 attemps:</p>
+<p>Example of train with 1 attempt:</p>
 
-<pre><code>ex: ./NeuralNetwork TrainXOR TrainedNetwork/NN.cfg 1000
-</code></pre>
-
-<p>Example for predicition:</p>
-
-<pre><code>./NeuralNetwork PredictXOR TrainedNetwork/NeuralNetData_3layers_XOR_100.0.dnn 1 0
+<pre><code>ex: ./NeuralNetwork Train TrainedNetwork/NN.cfg DataSets/hcd_784_135_validation.bin DataSets/hcd_784_135_validation.bin 1
 </code></pre>
 
 <h2>ImageProcessing/</h2>
