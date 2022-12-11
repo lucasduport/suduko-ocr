@@ -22,6 +22,8 @@ void on_solve_clicked(GtkWidget *widget, gpointer data);
 
 void on_grayscale_toggled(GtkWidget *widget, gpointer data);
 
+void on_invert_toggled(GtkWidget *widget, gpointer data);
+
 void on_crop_corners_move(GtkWidget *widget, GdkEvent *event, gpointer data);
 
 void on_rotate_clockwise_clicked(GtkWidget *widget, gpointer data);

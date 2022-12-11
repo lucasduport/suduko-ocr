@@ -63,7 +63,7 @@ void displaySolvingState(GtkWidget *pBar, double percent, GtkLabel *label, char 
 {
 	char color[10];
 	double maxWidth = 250;
-	strstr(message, "...") ? strcpy(color, "white") : strcpy(color, "green");
+	strstr(message, "...") ? strcpy(color, "black") : strcpy(color, "green");
 	char *markup = g_markup_printf_escaped("<span foreground='%s'><span font_desc='Tlwg Typo Bold 13'>%s</span></span>", color, message);
 	gtk_label_set_markup(GTK_LABEL(label), markup);
 	free(markup);

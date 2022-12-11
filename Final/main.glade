@@ -378,7 +378,33 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkCheckButton" id="invert">
+                <property name="name">invert</property>
+                <property name="height-request">35</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="tooltip-text" translatable="yes">Grayscales the image</property>
+                <property name="halign">start</property>
+                <property name="valign">center</property>
+                <property name="draw-indicator">True</property>
+                <child>
+                  <object class="GtkLabel" id="invert_label">
+                    <property name="name">invert_label</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">Invert</property>
+                    <attributes>
+                      <attribute name="font-desc" value="Tlwg Typo Bold 12"/>
+                    </attributes>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">1</property>
+              </packing>
             </child>
             <child>
               <placeholder/>
@@ -424,7 +450,7 @@
               <object class="GtkButton" id="upload_button">
                 <property name="name">upload_button</property>
                 <property name="width-request">400</property>
-                <property name="height-request">152</property>
+                <property name="height-request">150</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
@@ -448,7 +474,7 @@
                         <property name="can-focus">False</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
-                        <property name="label" translatable="yes">&lt;span foreground='white'&gt;&lt;span font_desc='Tlwg Typo Bold 14'&gt;Choose a file or drag it here&lt;/span&gt;&lt;/span&gt;</property>
+                        <property name="label" translatable="yes">&lt;span font_desc='Tlwg Typo Bold 14'&gt;Choose a file or drag it here&lt;/span&gt;</property>
                         <property name="use-markup">True</property>
                         <property name="justify">center</property>
                       </object>
@@ -486,11 +512,8 @@
                 <property name="sensitive">False</property>
                 <property name="can-focus">False</property>
                 <property name="valign">start</property>
-                <property name="label" translatable="yes">Welcome on OCR Project</property>
-                <attributes>
-                  <attribute name="font-desc" value="Tlwg Typo Bold 29"/>
-                  <attribute name="weight" value="ultraheavy"/>
-                </attributes>
+                <property name="label" translatable="yes">&lt;span font_desc='Tlwg Typo Bold 29'&gt;Welcome on OCR Project&lt;/span&gt;</property>
+                <property name="use-markup">True</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
@@ -552,7 +575,7 @@
                 <property name="height-request">140</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="opacity">0.47999999977648256</property>
+                <property name="opacity">0.80000000022351747</property>
                 <property name="pixbuf">../UserInterface/uiImages/logo.png</property>
               </object>
               <packing>

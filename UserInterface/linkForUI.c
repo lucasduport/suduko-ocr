@@ -265,16 +265,11 @@ gboolean getSolvedImage(gpointer data)
 	Image *image = copyImage(final);
 	toGrey(image);
 	Image *to_extract = copyImage(image);
-
-	// displayImage(image, "Original image");
 	gaussianBlur(image);
 	calibrateImage(image, 150, 255);
-	// displayImage(image, "Saturated");
 	sobelFilter(image);
-	// displayImage(image, "Sobel");
 	gaussianBlur(image);
 	thresholdToUpper(image, 24);
-	// displayImage(image, "Calibrate");
 
 	Quad *quad = detectGrid(image);
 	if (quad == NULL)
@@ -282,11 +277,8 @@ gboolean getSolvedImage(gpointer data)
 		displayColoredText(menu->filters_warn_label, "No grid detected", "red");
 		return FALSE;
 	}
-	// display results
-	//showQuad(image, quad, 0, 255, 0);
 	Image *extracted = extractGrid(to_extract, quad, 1440, 1440);
 	invertImage(extracted);
-	//displayImage(extracted, "Extracted grid");
 	freeImage(to_extract);
 	int *coords_x;
 	int *coords_y;
@@ -330,7 +322,6 @@ gboolean getSolvedImage(gpointer data)
 			errx(1, "Unsupported grid size");
 			break;
 	}
-	//Network_Display(net, 0);
 	float *results[nb_cells * nb_cells];
 	for (int i = 0; i < nb_cells; i++)
 	{
@@ -352,30 +343,12 @@ gboolean getSolvedImage(gpointer data)
 					max = proba;
 					imax = k;
 				}
-				//printf("%.3f ", proba);
 			}
-			//puts("]");
-			//printf("digit = %d\n", imax);
 			sudoku[j][i] = imax;
 			free(results[nb_cells * j + i]);
 		}
 	}
 	Network_Purge(net);
-	/* DISPLAY SUDOKU
-	int block_size = nb_cells == 9 ? 3 : 4;
-	for (int i = 0; i < nb_cells; i++)
-	{
-		for (int j = 0; j < nb_cells; j++)
-		{
-			printf("%02d ", sudoku[i][j]);
-			if ((j + 1) % block_size == 0)
-				printf(" ");
-		}
-		printf("\n");
-		if ((i + 1) % block_size == 0)
-			printf("\n");
-	}
-	*/
 	int **solved = (int **)malloc(nb_cells * sizeof(int *));
 	for (int i = 0; i < nb_cells; i++)
 	{

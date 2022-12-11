@@ -28,6 +28,7 @@ void uiLaunch()
 		= GTK_BUTTON(gtk_builder_get_object(builder, "gaussian"));
 	GtkButton *sobel_button
 		= GTK_BUTTON(gtk_builder_get_object(builder, "sobel"));
+	GtkButton *invert_button = GTK_BUTTON(gtk_builder_get_object(builder, "invert"));
 
 	GtkButton *rotate_left_button
 		= GTK_BUTTON(gtk_builder_get_object(builder, "rotate_left"));
@@ -80,6 +81,7 @@ void uiLaunch()
 	menu->grayscale_button = grayscale_button;
 	menu->gaussian_button = gaussian_button;
 	menu->sobel_button = sobel_button;
+	menu->invert_button = invert_button;
 
 	menu->autoDetect_button = autoDetect_button;
 	menu->manuDetect_label = manuDetect_label;
@@ -131,6 +133,8 @@ void uiLaunch()
 		G_CALLBACK(on_resetFilters_clicked), menu);
 	g_signal_connect(
 		grayscale_button, "toggled", G_CALLBACK(on_grayscale_toggled), menu);
+	g_signal_connect(
+		invert_button, "toggled", G_CALLBACK(on_invert_toggled), menu);
 	g_signal_connect(
 		gaussian_button, "toggled", G_CALLBACK(refreshImage), menu);
 	g_signal_connect(sobel_button, "toggled", G_CALLBACK(refreshImage), menu);
