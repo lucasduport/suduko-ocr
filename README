@@ -13,7 +13,8 @@ for notes on deploying the project on a live system.</p>
 
 <p>Requirements for the software and other tools to build, and test: <br/>
 - <a href="https://clang.llvm.org/">Clang</a> <br/>
-- <a href="https://www.libsdl.org/">Simple DirectMedia Layer library (SDL)</a></p>
+- <a href="https://www.libsdl.org/">Simple DirectMedia Layer library (SDL)</a> <br/>
+- <a href="https://www.gtk.org/">The GIMP Toolkit (GTK)</a></p>
 
 <h3>Installing</h3>
 
@@ -33,6 +34,12 @@ environment running</p>
 <p>Now, you have to install SDL2 image library</p>
 
 <pre><code>sudo apt install libsdl2-image-dev
+</code></pre>
+
+<p>Now, you have to install GTK library</p>
+sudo apt-get install libgtk-3-dev
+
+<pre><code>sudo apt-get install libgtk-3-dev
 </code></pre>
 
 <p>Finally, you have all the tools needed for the project.</p>
