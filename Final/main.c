@@ -168,11 +168,10 @@ int noUI(int argc, char **argv)
 		case 9:
 			Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
 			break;
-		
 		case 16:
 			Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
 			break;
-		default
+		default:
 			errx(1, "Unsupported grid size");
 			break;
 	}
@@ -243,17 +242,35 @@ int noUI(int argc, char **argv)
 			solved[i][j] = sudoku[i][j];
 		}
 	}
+	int solvable = 0;
 	switch (nb_cells)
 	{
 		case 9:
-			solver(solved);
+			solvable = solver(solved);
 			break;
 		case 16:
-			solver16(solved);
+			solvable = solver16(solved);
 			break;
 		default:
 			errx(EXIT_FAILURE, "wrong value of nb_cells");
 			break;
+	}
+	if (!solvable)
+	{
+		printf("Sudoku is not solvable\n");
+		free(coords_x);
+		free(coords_y);
+		freeQuad(quad);
+		freeImage(image);
+		freeImage(final);
+		for (int i = 0; i < nb_cells; i++)
+		{
+			free(sudoku[i]);
+			free(solved[i]);
+		}
+		free(sudoku);
+		free(solved);
+		errx(EXIT_FAILURE, "No solutions found.");
 	}
 	/*
 	int a = 10, b = 11, c = 12, d = 13, e = 14, f = 15, n = 16;

@@ -93,17 +93,18 @@ void fastSolving(GtkLabel *upload_warn, char *foldername)
 			sudoku[i] = (int *)malloc(nb_cells * sizeof(int));
 		}
 		Network *net = (Network *)malloc(sizeof(Network));
-	switch (nb_cells)
-	{
-		case 9:
-			solver(solved);
-			break;
-		case 16:
-			solver16(solved);
-			break;
-		default:
-			break;
-	}
+		switch (nb_cells)
+		{
+			case 9:
+				Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
+				break;
+			case 16:
+				Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
+				break;
+			default:
+				errx(1, "Unsupported grid size");
+				break;
+		}
 		float *results[nb_cells * nb_cells];
 		for (int i = 0; i < nb_cells; i++)
 		{
@@ -320,13 +321,13 @@ gboolean getSolvedImage(gpointer data)
 	switch (nb_cells)
 	{
 		case 9:
-			solver(solved);
+			Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-Biased_100.0.dnn");
 			break;
 		case 16:
-			solver16(solved);
+			Network_Load(net, "../NeuralNetwork/TrainedNetwork/NeuralNetData_3layers_OCR-TEXA-Biased_100.0.dnn");
 			break;
 		default:
-			errx(EXIT_FAILURE, "wrong value of nb_cells");
+			errx(1, "Unsupported grid size");
 			break;
 	}
 	//Network_Display(net, 0);
@@ -384,18 +385,22 @@ gboolean getSolvedImage(gpointer data)
 			solved[i][j] = sudoku[i][j];
 		}
 	}
+	int solvable = 0;
 	switch (nb_cells)
 	{
-	case 9:
-		solver(solved);
-		break;
-	case 16:
-		solver16(solved);
-		break;
-	default:
+		case 9:
+			solvable = solver(solved);
+			break;
+		case 16:
+			solvable = solver16(solved);
+			break;
+		default:
+			break;
+	}
+	if (!solvable)
+	{
 		freeImage(final);
 		freeImage(image);
-		free(filename);
 		freeQuad(quad);
 		free(coords_x);
 		free(coords_y);
@@ -406,7 +411,7 @@ gboolean getSolvedImage(gpointer data)
 		}
 		free(sudoku);
 		free(solved);
-		displayColoredText(menu->filters_warn_label, "Wrong detection of sudoku size", "red");
+		displayColoredText(menu->filters_warn_label, "No solution found", "red");
 		return FALSE;
 	}
 	char dirname[30];
