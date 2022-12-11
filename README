@@ -42,6 +42,18 @@ environment running</p>
 <pre><code>clang-format --style=file:.clang-format -i *.c
 </code></pre>
 
+<h2>Final/</h2>
+
+<h3>Build</h3>
+
+<pre><code>make
+</code></pre>
+
+<h3>Run</h3>
+
+<pre><code>./main
+</code></pre>
+
 <h2>NeuralNetwork/</h2>
 
 <h3>Build</h3>
@@ -139,7 +151,7 @@ environment running</p>
 
 <h3>Example:</h3>
 
-<pre><code>./solver &lt;Textfile&gt; # Solve sudoku wich is in textfile
+<pre><code>./solver &lt;Textfile&gt; # Solve sudoku which is in textfile
 </code></pre>
 
 <h2>Authors</h2>
