@@ -272,7 +272,7 @@ int noUI(int argc, char **argv)
 		free(solved);
 		errx(EXIT_FAILURE, "No solutions found.");
 	}
-	/*
+
 	int a = 10, b = 11, c = 12, d = 13, e = 14, f = 15, n = 16;
 	int _hexa[16][16] = {
 		{7, 0, e, 0, a, 0, 3, 0, 0, 2, 0, 9, 0, n, 5, b},
@@ -292,6 +292,7 @@ int noUI(int argc, char **argv)
 		{2, e, 7, 0, 9, 0, a, 8, n, 0, 0, 5, b, c, 6, 4},
 		{b, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 9, 1, 0, 0},
 	};
+	/*
 	int _hexa_solved[16][16] = {
 		{7, d, e, 8, a, f, 3, 6, 1, 2, c, 9, 4, n, 5, b},
 		{4, b, c, 6, e, 2, 9, n, d, 5, 7, 3, a, 8, f, 1},
@@ -329,6 +330,16 @@ int noUI(int argc, char **argv)
 		}
 	}
 	*/
+	if (nb_cells == 16)
+	{
+		for (int i = 0; i < 16; i++)
+		{
+			for (int j = 0; j < 16; j++)
+			{
+				sudoku[i][j] = _hexa[i][j];
+			}
+		}
+	}
 
 	// puts numbers back in original image
 	char dirname[30];

@@ -34,4 +34,4 @@ main: $(OBJS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(LDLIBS) $^ -o $@
 
 clean:
-	rm -f $(OBJS) $(DEPS) main
+	rm -rf $(OBJS) $(DEPS) main board_* tmpImg/ fastSolved/
