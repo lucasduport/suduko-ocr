@@ -280,7 +280,7 @@ int noUI(int argc, char **argv)
 					solved[i][j] = _hexa[i][j];
 				}
 			}
-			solvable = solver16(sudoku);
+			solvable = solver16(solved);
 			break;
 		default:
 			errx(EXIT_FAILURE, "wrong value of nb_cells");
